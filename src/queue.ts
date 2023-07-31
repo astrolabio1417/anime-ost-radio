@@ -32,6 +32,7 @@ class Queue {
     stream: NodeJS.ReadableStream | fs.ReadStream | null;
     userAgent: string;
     throttle: Throttle | null;
+    bitrate: number;
 
     constructor() {
         this.currentTrack = "";
@@ -40,7 +41,7 @@ class Queue {
         this.stream = null;
         this.throttle = null;
         this.isPlaying = false;
-
+        this.bitrate = 128; // 320
         this.userAgent = USER_AGENT;
     }
 
@@ -140,16 +141,15 @@ class Queue {
         const stream = await this.createTrackReadStream(track.musicUrl);
         if (!stream) return;
         this.stream = stream;
-        const bitrate = 320;
-        const encodedStream = this.encodeReadStream(stream, bitrate);
+        const encodedStream = this.encodeReadStream(stream, this.bitrate);
 
         console.log(
-            `Playing ${track.name} by ${track.artist} | bitrate: ${bitrate}`
+            `Playing ${track.name} by ${track.artist} | bitrate: ${this.bitrate}`
         );
         this.isPlaying = true;
 
         // broadcast encoded track file
-        this.throttle = new Throttle((bitrate * 1000) / 8);
+        this.throttle = new Throttle((this.bitrate * 1000) / 8);
         encodedStream
             .pipe(this.throttle)
             .on("data", (chunk) => this.broadcast(chunk))
