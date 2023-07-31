@@ -35,7 +35,7 @@ const updateSongList = process.env.AUTO_UPDATE_SONGS === "true";
     await mongoose.connect(mongoString);
     const database = mongoose.connection;
     console.info("Database Connected");
-    updateSongList && (await getAllanimeSongJobFunc());
+    getAllanimeSongJobFunc();
 
     // RUN RADIO
     queue.play();

@@ -16,12 +16,8 @@ export async function getAllanimeSongJobFunc(page = 1) {
     if (data?.errors) {
         const errors = data?.errors?.map((e) => e?.message);
         console.log(`[schedule]: Song insetation error: `, errors.join(", "));
-        if (!errors.includes("PersistedQueryNotFound")) {
-            isJobRunning = false;
-            return;
-        }
         console.log(`[schedule]: Song insertation retry`);
-        await sleep(5000);
+        await sleep(60000);
         await getAllanimeSongJobFunc(page);
         isJobRunning = false;
         return;
