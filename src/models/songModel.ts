@@ -1,27 +1,27 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
-export interface ISong extends Document {
-    sourceId: string;
-    musicUrl?: string;
-    name: string;
-    duration?: number;
-    artist?: string;
+export type ISong = {
+    sourceId: string
+    musicUrl?: string
+    name: string
+    duration?: number
+    artist?: string
     show: {
-        name?: string;
-        id?: string;
-    };
+        name?: string
+        id?: string
+    }
     image: {
-        cover?: string;
-        thumbnail?: string;
-    };
-    getDownloadLink(): string;
-    played: boolean;
+        cover?: string
+        thumbnail?: string
+    }
+    getDownloadLink(): string
+    played: boolean
     vote: {
-        list: string[];
-        total: number;
-        timestamp: Date;
-    };
-}
+        list: string[]
+        total: number
+        timestamp: Date
+    }
+} & Document
 
 export const SongSchema = new mongoose.Schema({
     sourceId: {
@@ -46,8 +46,8 @@ export const SongSchema = new mongoose.Schema({
         type: String,
         get: function (musicUrl?: string) {
             return !musicUrl
-                ? ""
-                : `https://aimgf.youtube-anime.com/${musicUrl}`;
+                ? ''
+                : `https://aimgf.youtube-anime.com/${musicUrl}`
         },
     },
     show: {
@@ -78,8 +78,8 @@ export const SongSchema = new mongoose.Schema({
             type: Date,
         },
     },
-});
+})
 
-const SongModel = mongoose.model<ISong>("Song", SongSchema);
+const SongModel = mongoose.model<ISong>('Song', SongSchema)
 
-export default SongModel;
+export default SongModel

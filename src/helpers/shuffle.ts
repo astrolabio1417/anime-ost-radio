@@ -1,18 +1,18 @@
 function shuffle(array: any[]): any[] {
-    let currentIndex = array.length;
-    let randomIndex: number;
+    let currentIndex = array.length
+    let randomIndex: number
 
     while (currentIndex != 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
+        randomIndex = Math.floor(Math.random() * currentIndex)
+        currentIndex--
 
         // And swap it with the current element.
-        const randomVal = array[randomIndex];
-        array[randomIndex] = array[currentIndex];
-        array[currentIndex] = randomVal;
+        const randomVal = array[randomIndex]
+        array[randomIndex] = array[currentIndex]
+        array[currentIndex] = randomVal
     }
 
-    return array;
+    return array
 }
 
-export { shuffle };
+export { shuffle }
