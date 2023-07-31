@@ -139,7 +139,8 @@ class Queue {
 
         if (!track?.musicUrl) return await this.rotateTracks();
         const stream = await this.createTrackReadStream(track.musicUrl);
-        if (!stream) return;
+        if (!stream) return this.rotateTracks();
+
         this.stream = stream;
         const encodedStream = this.encodeReadStream(stream, this.bitrate);
 
