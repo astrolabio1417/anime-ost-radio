@@ -205,7 +205,7 @@ class Queue {
         }
 
         if (!url) return null
-        return await download(path, encodeURIComponent(path))
+        return await download(path, 'music')
     }
 }
 
