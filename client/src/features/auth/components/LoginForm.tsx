@@ -44,8 +44,8 @@ function useLoginForm(onLoggedOn?: () => void) {
         isLoggedIn: true,
       })
 
-      const userPlaylists = await apiPlaylist.lists({ user: user.id })
-      useUserPlaylists.setState({ playlists: userPlaylists.data ?? [] })
+      const userPlaylists = await apiPlaylist.lists({ user: user.id, limit: 1000 })
+      useUserPlaylists.setState({ playlists: userPlaylists.data.list ?? [] })
       toast(`Welcome ${user.username}!`, { type: 'success' })
       onLoggedOn?.()
     }

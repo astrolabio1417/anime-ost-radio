@@ -1,4 +1,4 @@
-import { Button, ImageList, ImageListItem, ImageListItemBar, Stack, Typography, useMediaQuery } from '@mui/material'
+import { ImageList, ImageListItem, ImageListItemBar, Pagination, Stack, Typography, useMediaQuery } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router-dom'
 
@@ -47,33 +47,19 @@ export default function Playlists() {
           ))}
         </>
       </ImageList>
-      <Stack gap={2} direction="row" paddingX={2}>
-        {page > 1 && (
-          <Button
-            variant="contained"
-            onClick={() =>
-              setSearchParams(params => {
-                params.set('page', `${Math.max(1, page - 1)}`)
-                return params
-              })
-            }
-          >
-            Prev
-          </Button>
-        )}
-        {data?.data.hasNextPage && (
-          <Button
-            variant="contained"
-            onClick={() =>
-              setSearchParams(params => {
-                params.set('page', `${page + 1}`)
-                return params
-              })
-            }
-          >
-            Next
-          </Button>
-        )}
+
+      <Stack alignItems="center">
+        <Pagination
+          hideNextButton={!data?.data.hasNextPage}
+          hidePrevButton={page <= 1}
+          count={data?.data.hasNextPage ? page + 1 : page}
+          onChange={(_, page) => {
+            setSearchParams(params => {
+              params.set('page', `${page}`)
+              return params
+            })
+          }}
+        />
       </Stack>
     </>
   )

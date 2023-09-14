@@ -19,7 +19,7 @@ export default function useUserData() {
         username: data.data.username,
         isLoggedIn: true,
       })
-      const userPlaylists = await apiPlaylist.lists({ user: data.data.id, limit: 200 })
+      const userPlaylists = await apiPlaylist.lists({ user: data.data.id, limit: 1000 })
       userPlaylists.status === 200 && useUserPlaylists.setState({ playlists: userPlaylists.data.list ?? [] })
     }
   }, [])

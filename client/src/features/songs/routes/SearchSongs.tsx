@@ -1,6 +1,7 @@
-import { Box, Button, List, Stack, Typography } from '@mui/material'
+import { Box, List, Pagination, Stack, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import Loading from '@/components/Loading'
 import TextFieldDebounce from '@/components/TextFieldDebounce'
@@ -16,7 +17,8 @@ import VoteAction from '../components/VoteAction'
 export default function SearchSongs() {
   const { id: userId } = useUser()
   const [queryValue, setQueryValue] = useState('')
-  const [page, setPage] = useState(1)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const page = parseInt(searchParams.get('page') ?? '1') ?? 1
   const { activeSongId, playSong, play } = usePlayer()
 
   const { data, isLoading } = useQuery({
@@ -27,7 +29,10 @@ export default function SearchSongs() {
 
   function handleSearchFieldChange(value: string) {
     setQueryValue(value)
-    setPage(1)
+    setSearchParams(params => {
+      params.set('page', '1')
+      return params
+    })
   }
 
   return (
@@ -58,23 +63,19 @@ export default function SearchSongs() {
         ))}
       </List>
 
-      {!isLoading && data?.data.hasNextPage ? (
-        <Button
-          title="Load More"
-          variant="contained"
-          sx={{
-            margin: 2,
-            marginTop: 0,
+      <Stack alignItems="center">
+        <Pagination
+          hideNextButton={!data?.data.hasNextPage}
+          hidePrevButton={page <= 1}
+          count={data?.data.hasNextPage ? page + 1 : page}
+          onChange={(_, page) => {
+            setSearchParams(params => {
+              params.set('page', `${page}`)
+              return params
+            })
           }}
-          onClick={() => {
-            setPage(prev => prev + 1)
-          }}
-        >
-          Load More
-        </Button>
-      ) : (
-        <></>
-      )}
+        />
+      </Stack>
     </Box>
   )
 }
