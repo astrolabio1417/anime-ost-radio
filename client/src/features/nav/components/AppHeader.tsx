@@ -1,5 +1,4 @@
 import { AppBar, Button, Stack, Toolbar } from '@mui/material'
-import { useCookies } from 'react-cookie'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
@@ -7,21 +6,18 @@ import { DRAWER_WIDTH } from '@/constants'
 import { useUserPlaylists } from '@/zustand/playlist'
 import { useUser } from '@/zustand/user'
 
-import { logout } from '../../auth/api/auth'
+import { apiAuth } from '../../auth/api/auth'
 import AppMobileDrawer from './AppMobileDrawer'
 import AppNavTitle from './AppNavTitle'
 import UserAvatar from './UserAvatar'
 
 export default function AppHeader() {
-  const { logout: userLogout, username, isLoggedIn } = useUser()
+  const { logout, username, isLoggedIn } = useUser()
   const { clearPlaylists } = useUserPlaylists()
-  const [cookies, , removeCookies] = useCookies(['session'])
-  const session = cookies.session
 
   async function handleLogout() {
-    await logout(session)
-    userLogout()
-    removeCookies('session')
+    await apiAuth.logout()
+    logout()
     clearPlaylists()
     toast('See you next time!', { type: 'success' })
   }

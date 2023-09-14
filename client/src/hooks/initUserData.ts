@@ -1,39 +1,28 @@
-import { useCookies } from 'react-cookie'
-import { toast } from 'react-toastify'
+import { useEffect } from 'react'
 
-import { getUser } from '../features/auth/api/auth'
-import { getPlaylists } from '../features/playlists/api/playlist'
+import { apiAuth } from '@/features/auth/api/auth'
+
+import { apiPlaylist } from '../features/playlists/api/playlist'
 import { useUserPlaylists } from '../zustand/playlist'
 import { useUser } from '../zustand/user'
 
-let isUserDataInit = false
-
 export default function useUserData() {
-  const [cookies, , clearCookies] = useCookies(['session'])
+  useEffect(() => {
+    setUserData()
 
-  if (!isUserDataInit && cookies.session) {
-    isUserDataInit = true
-    toast.promise(setUserData, {
-      pending: 'Fetching user data...',
-      error: 'Failed to fetch user data',
-      success: 'Fetched user data',
-    })
-  }
-
-  isUserDataInit = true
-
-  async function setUserData() {
-    const data = await getUser(cookies.session)
-    if (!data) return clearCookies('session')
-    useUser.setState({
-      id: data.id,
-      roles: data.roles,
-      username: data.username,
-      isLoggedIn: true,
-    })
-    const userPlaylists = await getPlaylists({ user: data.id })
-    useUserPlaylists.setState({ playlists: userPlaylists ?? [] })
-  }
+    async function setUserData() {
+      const data = await apiAuth.getCurrentUser()
+      if (data.status !== 200) return
+      useUser.setState({
+        id: data.data.id,
+        roles: data.data.roles,
+        username: data.data.username,
+        isLoggedIn: true,
+      })
+      const userPlaylists = await apiPlaylist.lists({ user: data.data.id })
+      userPlaylists.status === 200 && useUserPlaylists.setState({ playlists: userPlaylists.data ?? [] })
+    }
+  }, [])
 
   return {}
 }

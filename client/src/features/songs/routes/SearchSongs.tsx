@@ -7,7 +7,7 @@ import TextFieldDebounce from '@/components/TextFieldDebounce'
 import { usePlayer } from '@/zustand/player'
 import { useUser } from '@/zustand/user'
 
-import { getSongs } from '../api/songs'
+import { apiSong } from '../api/songs'
 import AddToPlaylistAction from '../components/AddToPlaylistAction'
 import MusicSpectrumAnimation from '../components/MusicSpectrumAnimation'
 import SongItem from '../components/SongItem'
@@ -21,8 +21,9 @@ export default function SearchSongs() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['search', queryValue, page],
-    queryFn: () => getSongs(queryValue, page),
+    queryFn: () => apiSong.songs(queryValue, page),
   })
+  const searchList = data?.data.list ?? []
 
   function handleSearchFieldChange(value: string) {
     setQueryValue(value)
@@ -40,7 +41,7 @@ export default function SearchSongs() {
       {isLoading && <Loading />}
 
       <List>
-        {data?.list.map(song => (
+        {searchList?.map(song => (
           <SongItem
             key={song._id}
             onClick={() => playSong(song)}
@@ -57,7 +58,7 @@ export default function SearchSongs() {
         ))}
       </List>
 
-      {!isLoading && data?.hasNextPage ? (
+      {!isLoading && data?.data.hasNextPage ? (
         <Button
           title="Load More"
           variant="contained"

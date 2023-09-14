@@ -25,7 +25,7 @@ export const signUp = async (req: Request, res: Response) => {
             savedUser.roles = [userRole._id]
         }
         await savedUser.save()
-        res.send({ message: 'User was registered successfully!' })
+        res.json({ message: 'User was registered successfully!' })
     } catch (e) {
         res.status(500).json({ message: e })
     }

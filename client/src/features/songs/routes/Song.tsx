@@ -10,7 +10,7 @@ import Loading from '@/components/Loading'
 import Banner from '@/features/player/components/Banner'
 import { usePlayer } from '@/zustand/player'
 
-import { getSong } from '../api/songs'
+import { apiSong } from '../api/songs'
 import AddToPlaylistAction from '../components/AddToPlaylistAction'
 import MusicSpectrumAnimation from '../components/MusicSpectrumAnimation'
 
@@ -18,11 +18,13 @@ export default function Song() {
   const { id } = useParams()
   const { data, isLoading } = useQuery({
     queryKey: ['song', id],
-    queryFn: () => getSong(id ?? ''),
+    queryFn: () => apiSong.song(id ?? ''),
     enabled: !!id,
   })
   const { playSong, play, activeSongId } = usePlayer()
-  const { musicUrl, name, artist, image, show, duration, vote, timestamp } = data ?? {}
+
+  const song = data?.data
+  const { musicUrl, name, artist, image, show, duration, vote, timestamp } = song ?? {}
   const { cover, thumbnail } = image ?? {}
 
   return (
@@ -35,44 +37,53 @@ export default function Song() {
       />
       {isLoading && <Loading />}
 
-      <Box padding={2}>
-        <Stack direction="row" flexWrap="wrap" gap={2} pb={5}>
-          {id === activeSongId && play ? (
-            <>
-              <Box paddingTop={1}>
-                <MusicSpectrumAnimation />
-              </Box>
+      {song && (
+        <Box padding={2}>
+          <Stack direction="row" flexWrap="wrap" gap={2} pb={5}>
+            {id === activeSongId && play ? (
+              <>
+                <Box paddingTop={1}>
+                  <MusicSpectrumAnimation />
+                </Box>
+                <Button
+                  startIcon={<PauseIcon />}
+                  variant="text"
+                  color="inherit"
+                  onClick={() => usePlayer.setState({ play: false })}
+                >
+                  Pause
+                </Button>
+              </>
+            ) : (
               <Button
-                startIcon={<PauseIcon />}
+                startIcon={<PlayArrowIcon />}
                 variant="text"
                 color="inherit"
-                onClick={() => usePlayer.setState({ play: false })}
+                onClick={() => data && playSong(song)}
               >
-                Pause
+                Play
               </Button>
-            </>
-          ) : (
-            <Button startIcon={<PlayArrowIcon />} variant="text" color="inherit" onClick={() => data && playSong(data)}>
-              Play
+            )}
+            <Button
+              color="inherit"
+              onClick={() => musicUrl?.startsWith('https://') && window.open(musicUrl, '_blank')}
+              startIcon={<DownloadIcon />}
+              variant="text"
+            >
+              Download MP3
             </Button>
-          )}
-          <Button
-            color="inherit"
-            onClick={() => musicUrl?.startsWith('https://') && window.open(musicUrl, '_blank')}
-            startIcon={<DownloadIcon />}
-            variant="text"
-          >
-            Download MP3
-          </Button>
-          {data?._id && <AddToPlaylistAction song={data} />}
-        </Stack>
+            {song._id && <AddToPlaylistAction song={song} />}
+          </Stack>
 
-        {artist && <Typography variant="body1">Artist: {artist}</Typography>}
-        {duration && <Typography variant="body1">Duration: {duration}</Typography>}
-        {show?.name && <Typography variant="body1">Anime: {show.name}</Typography>}
-        {timestamp && <Typography variant="body1">Upload Date: {new Date(timestamp)?.toLocaleDateString()}</Typography>}
-        {vote?.total !== undefined && <Typography variant="body1">Votes: {vote.total}</Typography>}
-      </Box>
+          {artist && <Typography variant="body1">Artist: {artist}</Typography>}
+          {duration && <Typography variant="body1">Duration: {duration}</Typography>}
+          {show?.name && <Typography variant="body1">Anime: {show.name}</Typography>}
+          {timestamp && (
+            <Typography variant="body1">Upload Date: {new Date(timestamp)?.toLocaleDateString()}</Typography>
+          )}
+          {vote?.total !== undefined && <Typography variant="body1">Votes: {vote.total}</Typography>}
+        </Box>
+      )}
     </Fragment>
   )
 }

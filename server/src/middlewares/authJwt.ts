@@ -5,7 +5,8 @@ import RoleModel from '../models/roleModel'
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     const tokenFromAuth = req.headers?.authorization
-    const token = req.session?.token ?? tokenFromAuth
+    const tokenFromCookies = req.cookies.session
+    const token = req.session?.token ?? tokenFromAuth ?? tokenFromCookies
 
     if (!token) return res.status(403).json({ message: 'No token provided!' })
     if (!process.env.JWT_SECRET) return res.json(500).json({ message: 'JWT_SECRET is not defined' })

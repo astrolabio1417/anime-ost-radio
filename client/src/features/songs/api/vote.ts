@@ -1,12 +1,6 @@
-import { API, JSON_HEADER } from '@/constants'
+import http from '@/http-common'
 
-export async function voteSong(songId: string, isUp: boolean, authorization: string) {
-  const res = await fetch(`${API}/song/${songId}/vote`, {
-    method: isUp ? 'put' : 'delete',
-    headers: {
-      ...JSON_HEADER,
-      Authorization: authorization,
-    },
-  })
-  return res.ok
+export const apiVote = {
+  voteUp: async (songId: string) => await http.put<{ message: string }>(`/songs/${songId}/vote`),
+  voteDown: async (songId: string) => await http.delete<{ message: string }>(`/songs/${songId}/vote`),
 }

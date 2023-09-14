@@ -1,13 +1,12 @@
 import { Box, Button, Checkbox, FormControlLabel, FormGroup, Typography } from '@mui/material'
 import { useState } from 'react'
-import { useCookies } from 'react-cookie'
 import { toast } from 'react-toastify'
 
 import Modal from '@/components/Modal'
 import { ISong } from '@/features/songs/types'
 import { useUserPlaylists } from '@/zustand/playlist'
 
-import { addSongToPlaylist, deleteSongToPlaylist } from '../api/playlist'
+import { apiPlaylist } from '../api/playlist'
 import { IPlaylist } from '../types'
 import CreatePlaylistForm from './CreatePlaylistForm'
 
@@ -16,7 +15,6 @@ interface AddToPlaylistFormProps {
 }
 
 function useAddToPlaylistForm() {
-  const [cookies] = useCookies(['session'])
   const [openForm, setFormOpen] = useState(false)
   const {
     playlists,
@@ -26,23 +24,34 @@ function useAddToPlaylistForm() {
 
   async function handleCheckboxChange(playlist: IPlaylist, song: ISong, checked: boolean) {
     if (checked) {
-      const res = await addSongToPlaylist(playlist._id, song._id, cookies.session)
-      if (res?.ok) {
-        toast('Song added to playlist')
-        addSongToStatePlaylist(playlist._id, song)
-        return
-      }
-      toast(res?.data?.message ? res.data.message : 'Something went wrong', { type: 'error' })
+      const toastId = toast.loading(`Adding ${song.name} to playlist...`)
+      const res = await apiPlaylist.addSong(playlist._id, song._id)
+      const isAdded = res.status === 200
+
+      if (isAdded) addSongToStatePlaylist(playlist._id, song)
+
+      toast.update(toastId, {
+        render: res.data.message ?? 'Something went wrong',
+        type: isAdded ? 'success' : 'error',
+        isLoading: false,
+        autoClose: 3000,
+      })
+
       return
     }
 
-    const res = await deleteSongToPlaylist(playlist._id, song._id, cookies.session)
-    if (res?.ok) {
-      toast('Song removed from playlist')
-      removeSongToStatePlaylist(playlist._id, song)
-      return
-    }
-    toast(res?.data.message ? res.data.message : 'Something went wrong', { type: 'error' })
+    const toastId = toast.loading(`Adding ${song.name} to playlist...`)
+    const res = await apiPlaylist.removeSong(playlist._id, song._id)
+    const isDeleted = res.status === 200
+
+    toast.update(toastId, {
+      render: res.data.message ?? 'Something went wrong',
+      type: isDeleted ? 'success' : 'error',
+      isLoading: false,
+      autoClose: 3000,
+    })
+    isDeleted && removeSongToStatePlaylist(playlist._id, song)
+    return
   }
 
   return { playlists, handleCheckboxChange, setFormOpen, openForm }

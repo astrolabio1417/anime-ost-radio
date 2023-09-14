@@ -74,8 +74,8 @@ export const playlistAddSong = async (req: Request, res: Response) => {
             { _id: req.params.id, songs: { $ne: req.params.songId } },
             { $push: { songs: song._id } },
         )
-        if (playlist.modifiedCount === 0) return res.json({ message: 'Song already in playlist' })
-        res.json({ message: 'Song added to playlist' })
+        if (playlist.modifiedCount === 0) return res.status(400).json({ message: 'Song already in playlist' })
+        res.json({ message: 'Song added to playlist', song })
     } catch (e) {
         console.error(e)
         res.status(400).json({ message: e })
@@ -88,8 +88,8 @@ export const playlistRemoveSong = async (req: Request, res: Response) => {
             { _id: req.params.id, songs: { $eq: req.params.songId } },
             { $pull: { songs: req.params.songId } },
         )
-        if (playlist.modifiedCount === 0) return res.json({ message: 'Song not in playlist' })
-        res.json({ message: 'Song removed from playlist' })
+        if (playlist.modifiedCount === 0) return res.status(400).json({ message: 'Song not in playlist' })
+        res.json({ message: 'Song has been removed from the playlist' })
     } catch (e) {
         console.error(e)
         res.status(400).json({ message: e })

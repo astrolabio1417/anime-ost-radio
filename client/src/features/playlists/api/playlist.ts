@@ -1,78 +1,20 @@
 import { API } from '@/constants'
 import { CreatePlaylistI, IPlaylist } from '@/features/playlists/types'
+import { ISong } from '@/features/songs/types'
+import http from '@/http-common'
 
-interface PlaylistQueryI {
-  user?: string
-}
-
-export const getPlaylists = async (query: PlaylistQueryI) => {
-  const url = new URL(`${API}/playlists`)
-
-  if (query) {
-    Object.keys(query).map(key => {
-      url.searchParams.append(key, `${query[key as keyof PlaylistQueryI]}`)
-    })
-  }
-
-  try {
-    const res = await fetch(url.toString())
-    return (await res.json()) as IPlaylist[]
-  } catch (e) {
-    console.error(e)
-    return
-  }
-}
-
-export const createPlaylist = async (playlist: CreatePlaylistI, token: string) => {
-  try {
-    const res = await fetch(`${API}/playlists`, {
-      method: 'post',
-      headers: {
-        'content-type': 'application/json',
-        Authorization: token,
-      },
-      body: JSON.stringify(playlist),
-    })
-    return { data: (await res.json()) as { message: string; playlist?: IPlaylist }, ok: res.ok }
-  } catch (e) {
-    console.error(e)
-    return
-  }
-}
-
-export const addSongToPlaylist = async (playlistId: string, songId: string, token: string) => {
-  try {
-    const res = await fetch(`${API}/playlists/${playlistId}/songs/${songId}`, {
-      method: 'put',
-      headers: {
-        'content-type': 'application/json',
-        Authorization: token,
-      },
-    })
-    return { data: (await res.json()) as { message: string }, ok: res.ok }
-  } catch (e) {
-    console.error(e)
-    return
-  }
-}
-
-export const deleteSongToPlaylist = async (playlistId: string, songId: string, token: string) => {
-  try {
-    const res = await fetch(`${API}/playlists/${playlistId}/songs/${songId}`, {
-      method: 'delete',
-      headers: {
-        'content-type': 'application/json',
-        Authorization: token,
-      },
-    })
-    return { data: (await res.json()) as { message: string }, ok: res.ok }
-  } catch (e) {
-    console.error(e)
-    return
-  }
-}
-
-export const getPlaylist = async (playlistId: string): Promise<IPlaylist> => {
-  const res = await fetch(`${API}/playlists/${playlistId}`)
-  return await res.json()
+export const apiPlaylist = {
+  get: async (playlistId: string) => await http.get<IPlaylist>(`${API}/playlists/${playlistId}`),
+  lists: async ({ user, page }: { user?: string; page?: number }) => {
+    const params = new URLSearchParams()
+    user && params.set('user', user)
+    page && params.set('page', `${page}`)
+    return await http.get<IPlaylist[]>(`${API}/playlists`, { params })
+  },
+  create: async (playlist: CreatePlaylistI) =>
+    await http.post<{ message: string; playlist?: IPlaylist }>(`${API}/playlists`, playlist),
+  addSong: async (playlistId: string, songId: string) =>
+    await http.put<{ message: string; song?: ISong }>(`${API}/playlists/${playlistId}/songs/${songId}`),
+  removeSong: async (playlistId: string, songId: string) =>
+    await http.delete<{ message: string }>(`${API}/playlists/${playlistId}/songs/${songId}`),
 }

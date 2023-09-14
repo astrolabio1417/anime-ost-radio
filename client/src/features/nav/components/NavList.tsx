@@ -5,8 +5,6 @@ import SearchIcon from '@mui/icons-material/Search'
 import { Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import { Link } from 'react-router-dom'
 
-import PlaylistList from '../../playlists/components/PlaylistList'
-
 interface NavListProps {
   color?: string
   onLinkClick?: () => void
@@ -72,9 +70,6 @@ export default function NavList(props: NavListProps) {
         </ListItemButton>
       </ListItem>
       <Divider sx={{ bgcolor: props?.color ?? 'inherit' }} />
-      <ListItem disablePadding>
-        <PlaylistList onLinkClick={props.onLinkClick} />
-      </ListItem>
     </List>
   )
 }

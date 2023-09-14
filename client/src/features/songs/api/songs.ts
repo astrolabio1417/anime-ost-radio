@@ -1,21 +1,13 @@
-import { API, JSON_HEADER } from '@/constants'
+import http from '@/http-common'
 
 import { ISong, ISongListResponse } from '../types'
 
-export async function getSongs(query?: string, page: number = 1): Promise<ISongListResponse> {
-  const url = new URL(`${API}/song`)
-  query && url.searchParams.set('search', query)
-  url.searchParams.set('page', page.toString())
-  const res = await fetch(url.toString(), {
-    headers: JSON_HEADER,
-  })
-  return await res.json()
-}
-
-export async function getSong(songId: string): Promise<ISong> {
-  const url = new URL(`${API}/song/${songId}`)
-  const res = await fetch(url.toString(), {
-    headers: JSON_HEADER,
-  })
-  return await res.json()
+export const apiSong = {
+  songs: async (query?: string, page?: number) => {
+    const params = new URLSearchParams()
+    page && params.set('page', `${page}`)
+    query && params.set('search', query)
+    return await http.get<ISongListResponse>('/songs', { params })
+  },
+  song: async (songId: string) => await http.get<ISong>(`/songs/${songId}`),
 }

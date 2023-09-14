@@ -29,6 +29,7 @@ export default function PlayerContainer() {
       ]
     : []
   const song = isLive ? playlistSongs[0] : playlistSongs.find(a => a.id === activeSongId)
+  const initialIndex = isLive ? 0 : songs.findIndex(a => a.id === activeSongId) ?? 0
 
   useEffect(() => {
     if (!isLive) return
@@ -115,7 +116,7 @@ export default function PlayerContainer() {
           onSongChange={onSongChange}
           onPlayChange={handleOnPlay}
           songs={playlistSongs}
-          initialIndex={isLive ? 0 : songs.findIndex(a => a.id === activeSongId) ?? 0}
+          initialIndex={initialIndex}
         />
       </Box>
     </Box>

@@ -5,14 +5,15 @@ import { Link } from 'react-router-dom'
 
 import BannerBackground from '@/assets/banner-background.png'
 
-import { getPlaylists } from '../api/playlist'
+import { apiPlaylist } from '../api/playlist'
 
 export default function Playlists() {
   const [page] = useState(1)
   const { data } = useQuery({
     queryKey: ['playlists', page],
-    queryFn: () => getPlaylists({}),
+    queryFn: () => apiPlaylist.lists({ page: page }),
   })
+  const playlists = data?.data
   const matches = useMediaQuery('(max-width: 600px)')
 
   return (
@@ -22,7 +23,7 @@ export default function Playlists() {
       </Typography>
       <ImageList cols={matches ? 1 : 2}>
         <>
-          {data?.map(playlist => (
+          {playlists?.map(playlist => (
             <ImageListItem
               component={Link}
               sx={{ textDecoration: 'none', color: 'inherit' }}

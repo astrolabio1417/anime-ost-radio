@@ -1,15 +1,9 @@
 import { API } from '@/constants'
+import http from '@/http-common'
 
 import { IArtistResponse, IArtistsResponse } from '../types'
 
-export async function getArtists() {
-  const res = await fetch(`${API}/artists`)
-  const data = (await res.json()) as IArtistsResponse
-  return data
-}
-
-export async function getArtist(artist: string) {
-  const res = await fetch(`${API}/artists/${artist}`)
-  const data = (await res.json()) as IArtistResponse
-  return data
+export const apiArtist = {
+  list: async () => await http.get<IArtistsResponse>(`${API}/artists`),
+  get: async (artist: string) => await http.get<IArtistResponse>(`${API}/artists/${artist}`),
 }

@@ -15,6 +15,7 @@ import userPlaylistRoutes from './src/routes/playlistRoutes'
 import songRoutes from './src/routes/songRoutes'
 import streamRoutes from './src/routes/streamRoutes'
 import artistRoutes from './src/routes/artistRoutes'
+import cookieParser from 'cookie-parser'
 
 process.on('SIGINT', function () {
     schedule.gracefulShutdown().then(() => process.exit(0))
@@ -30,8 +31,9 @@ const app: Express = express()
 // middlewares
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
-app.use(cors())
+app.use(cors({ credentials: true, origin: origin }))
 app.use(cookieSession({ name: 'session', keys: sessionKeys, httpOnly: true }))
+app.use(cookieParser())
 
 const corsOption = { cors: { origin } }
 const server = http.createServer(app)

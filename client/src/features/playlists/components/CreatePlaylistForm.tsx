@@ -1,12 +1,11 @@
 import { Button, CircularProgress, Stack, TextField } from '@mui/material'
 import { blue } from '@mui/material/colors'
 import React, { useState } from 'react'
-import { useCookies } from 'react-cookie'
 import { toast } from 'react-toastify'
 
 import { useUserPlaylists } from '@/zustand/playlist'
 
-import { createPlaylist } from '../api/playlist'
+import { apiPlaylist } from '../api/playlist'
 import { CreatePlaylistI } from '../types'
 
 interface CreatePlaylistFormProps {
@@ -19,7 +18,6 @@ function useCreatePlaylistForm() {
     title: '',
     image: {},
   })
-  const [cookies] = useCookies(['session'])
   const { addPlaylist } = useUserPlaylists()
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -27,10 +25,16 @@ function useCreatePlaylistForm() {
     if (!data.title) return toast('Please fill all the fields!', { type: 'error', toastId: 'title-error' })
 
     setLoading(true)
-    const res = await createPlaylist(data, cookies.session)
-    if (res?.data?.message) toast(res.data.message, { type: res.ok ? 'success' : 'error' })
-    if (res?.ok) setData({ title: '', image: {} })
-    if (res?.data.playlist) addPlaylist(res.data.playlist)
+    const toastId = toast.loading('Creating playlist...')
+    const newPlaylist = await apiPlaylist.create(data)
+    const isCreated = newPlaylist.status === 200
+    toast.update(toastId, {
+      render: newPlaylist?.data.message,
+      type: isCreated ? 'success' : 'error',
+      isLoading: false,
+      autoClose: 3000,
+    })
+    newPlaylist.data.playlist && addPlaylist(newPlaylist.data.playlist)
     setLoading(false)
   }
 

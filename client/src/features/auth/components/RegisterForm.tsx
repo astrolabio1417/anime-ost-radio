@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'
 
 import { validateEmail } from '@/helpers'
 
-import { register } from '../api/auth'
+import { apiAuth } from '../api/auth'
 
 type RegistrationFormContainerProps = {
   onRegistered?: () => void
@@ -37,11 +37,14 @@ function useRegisterForm(onRegistered?: () => void) {
       if (!username || !email || !password || !password2) return toast('Please fill all the fields!', { type: 'error' })
       if (!validateEmail(email)) return toast('Invalid email!', { type: 'error' })
       if (password !== password2) return toast('Passwords do not match!', { type: 'error' })
-      const registration = await register(username, email, password)
-      if (!registration?.data?.message) return toast('Something went wrong!', { type: 'error' })
-      toast(registration.data.message, { type: registration?.ok ? 'success' : 'error' })
-      registration?.ok && setData({ ...defaultData })
-      registration?.ok && onRegistered?.()
+      const res = await apiAuth.register(username, email, password).catch(e => e.response)
+      const isSuccess = res.status === 200
+      if (![200, 400].includes(res.status)) return toast('Something went wrong!', { type: 'error' })
+      toast(res.data.message, { type: isSuccess ? 'success' : 'error' })
+      if (isSuccess) {
+        setData({ ...defaultData })
+        onRegistered?.()
+      }
     })().finally(() => setLoading(false))
   }
 

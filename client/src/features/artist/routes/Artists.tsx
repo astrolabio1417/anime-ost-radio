@@ -5,15 +5,16 @@ import { useState } from 'react'
 import Loading from '@/components/Loading'
 import TextFieldDebounce from '@/components/TextFieldDebounce'
 
-import { getArtists } from '../api/artist'
+import { apiArtist } from '../api/artist'
 import ArtistList from '../components/ArtistList'
 
 export default function Artists() {
   const { data, isLoading } = useQuery({
     queryKey: ['artists'],
-    queryFn: getArtists,
+    queryFn: apiArtist.list,
   })
   const [query, setQuery] = useState('')
+  const artists = data?.data
 
   return (
     <Box width="100%">
@@ -33,7 +34,7 @@ export default function Artists() {
           },
         }}
       >
-        <ArtistList artists={data?.filter(a => a.toLowerCase().includes(query.toLowerCase())) ?? []} />
+        <ArtistList artists={artists?.filter(a => a.toLowerCase().includes(query.toLowerCase())) ?? []} />
       </Box>
     </Box>
   )

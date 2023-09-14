@@ -1,21 +1,19 @@
 import { Button, CircularProgress, Stack, TextField } from '@mui/material'
 import { blue } from '@mui/material/colors'
 import { useState } from 'react'
-import { useCookies } from 'react-cookie'
 import { toast } from 'react-toastify'
 
 import { useUserPlaylists } from '@/zustand/playlist'
 import { useUser } from '@/zustand/user'
 
-import { getPlaylists } from '../../playlists/api/playlist'
-import { login } from '../api/auth'
+import { apiPlaylist } from '../../playlists/api/playlist'
+import { apiAuth } from '../api/auth'
 
 type LoginFormProps = {
   onLoggedOn?: () => void
 }
 
 function useLoginForm(onLoggedOn?: () => void) {
-  const [, setCookie] = useCookies(['session'])
   const [loading, setLoading] = useState(false)
 
   const [data, setData] = useState({
@@ -35,18 +33,19 @@ function useLoginForm(onLoggedOn?: () => void) {
 
     if (data.username === '' || data.password === '') return toast('Please fill all the fields!', { type: 'error' })
     setLoading(true)
-    const user = await login(data.username, data.password)
+    const res = await apiAuth.login(data.username, data.password).catch(e => e.response)
+    const user = res.data
 
     if (user?.token) {
-      setCookie('session', user.token)
       useUser.setState({
         id: user?.id ?? '',
         roles: user?.roles ?? [],
         username: user?.username ?? '',
         isLoggedIn: true,
       })
-      const userPlaylists = await getPlaylists({ user: user.id })
-      useUserPlaylists.setState({ playlists: userPlaylists ?? [] })
+
+      const userPlaylists = await apiPlaylist.lists({ user: user.id })
+      useUserPlaylists.setState({ playlists: userPlaylists.data ?? [] })
       toast(`Welcome ${user.username}!`, { type: 'success' })
       onLoggedOn?.()
     }

@@ -1,13 +1,12 @@
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import { Box, Button, Typography } from '@mui/material'
 import React, { useState } from 'react'
-import { useCookies } from 'react-cookie'
 import { toast } from 'react-toastify'
 
 import { ISong } from '@/features/songs/types'
 import { useUser } from '@/zustand/user'
 
-import { voteSong } from '../api/vote'
+import { apiVote } from '../api/vote'
 
 function useVote(song: ISong) {
   const { id: userId } = useUser()
@@ -27,8 +26,8 @@ interface VoteActionsProps {
 }
 
 export default function VoteAction({ song }: VoteActionsProps) {
-  const [cookies] = useCookies(['session'])
   const { isVoted, setIsVoted, totalVote } = useVote(song)
+  const { isLoggedIn } = useUser()
 
   return (
     <React.Fragment>
@@ -38,9 +37,9 @@ export default function VoteAction({ song }: VoteActionsProps) {
         startIcon={<KeyboardArrowUpIcon />}
         color={isVoted ? 'primary' : 'inherit'}
         onClick={async () => {
-          if (!cookies.session) return toast('You must be logged in to vote', { type: 'error' })
-          const success = await voteSong(song._id, !isVoted, cookies.session)
-          if (success) setIsVoted(!isVoted)
+          if (!isLoggedIn) return toast('You must be logged in to vote', { type: 'error' })
+          const data = isVoted ? await apiVote.voteDown(song._id) : await apiVote.voteUp(song._id)
+          data.status === 200 && setIsVoted(!isVoted)
         }}
       >
         <Box>

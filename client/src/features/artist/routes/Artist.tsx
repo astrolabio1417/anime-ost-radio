@@ -12,7 +12,7 @@ import { getSongCover, getsongThumbnail } from '@/helpers'
 import { usePlayer } from '@/zustand/player'
 import { useUser } from '@/zustand/user'
 
-import { getArtist } from '../api/artist'
+import { apiArtist } from '../api/artist'
 
 export default function Artist() {
   const { id } = useParams()
@@ -20,32 +20,30 @@ export default function Artist() {
   const { id: userId } = useUser()
   const { isLoading, data } = useQuery({
     queryKey: ['artist', id],
-    queryFn: () => getArtist(id ?? ''),
+    queryFn: () => apiArtist.get(id ?? ''),
     enabled: !!id,
   })
-
-  const firstSong = data?.songs?.[0]
+  const artist = data?.data
+  const firstSong = artist?.songs?.[0]
   const isPlaylistPlaying = playerId === id
-  const currentPlayingSong = isPlaylistPlaying ? data?.songs?.find(a => a._id === activeSongId) : undefined
+  const currentPlayingSong = isPlaylistPlaying ? artist?.songs?.find(a => a._id === activeSongId) : undefined
   const image = getSongCover(currentPlayingSong) ?? getSongCover(firstSong)
   const bgImage = getsongThumbnail(currentPlayingSong) ?? getsongThumbnail(firstSong)
 
-  console.log({ currentPlayingSong })
-
   return (
     <>
-      <Banner title={data?.artist ?? ''} subtitle={currentPlayingSong?.name ?? ''} image={image} bgImage={bgImage} />
+      <Banner title={artist?.artist ?? ''} subtitle={currentPlayingSong?.name ?? ''} image={image} bgImage={bgImage} />
       {isLoading && <Loading />}
-      {!isLoading && !data?.artist && (
+      {!isLoading && !artist?.artist && (
         <Typography p={2} variant="h6">
           Artist Not Found!
         </Typography>
       )}
       <List>
-        {data?.songs?.map(song => (
+        {artist?.songs?.map(song => (
           <SongItem
             key={song._id}
-            onClick={() => playPlaylist(id ?? 'artist-id', data?.songs ?? [], song._id)}
+            onClick={() => playPlaylist(id ?? 'artist-id', artist?.songs ?? [], song._id)}
             song={song}
             user={userId}
             secondaryAction={

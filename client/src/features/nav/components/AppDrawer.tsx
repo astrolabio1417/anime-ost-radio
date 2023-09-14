@@ -1,6 +1,7 @@
 import { Box, Drawer, Toolbar } from '@mui/material'
 
 import { DRAWER_WIDTH } from '@/constants'
+import PlaylistList from '@/features/playlists/components/PlaylistList'
 
 import AppNavTitle from './AppNavTitle'
 import NavList from './NavList'
@@ -33,6 +34,7 @@ export default function AppDrawer() {
       </Toolbar>
       <Box sx={{ overflow: 'auto', height: '100%', borderRight: '1px solid #E5EAF2', borderTop: '1px solid #E5EAF2' }}>
         <NavList />
+        <PlaylistList />
       </Box>
     </Drawer>
   )

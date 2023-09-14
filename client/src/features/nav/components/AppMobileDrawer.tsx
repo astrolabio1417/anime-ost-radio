@@ -3,6 +3,8 @@ import MenuIcon from '@mui/icons-material/Menu'
 import { Box, IconButton, Toolbar } from '@mui/material'
 import React, { useState } from 'react'
 
+import PlaylistList from '@/features/playlists/components/PlaylistList'
+
 import AppNavTitle from './AppNavTitle'
 import NavList from './NavList'
 
@@ -38,6 +40,7 @@ export default function AppMobileDrawer() {
           </IconButton>
         </Toolbar>
         <NavList onLinkClick={handleClose} />
+        <PlaylistList onLinkClick={handleClose} />
       </Box>
     </React.Fragment>
   )
