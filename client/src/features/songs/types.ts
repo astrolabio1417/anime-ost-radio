@@ -13,10 +13,7 @@ export type ISong = {
   name: string
   duration?: number
   artist?: string
-  show: {
-    name?: string
-    id?: string
-  }
+  show?: string
   image: {
     cover?: string
     thumbnail?: string

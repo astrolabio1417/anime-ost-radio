@@ -77,7 +77,7 @@ export default function Song() {
 
           {artist && <Typography variant="body1">Artist: {artist}</Typography>}
           {duration && <Typography variant="body1">Duration: {duration}</Typography>}
-          {show?.name && <Typography variant="body1">Anime: {show.name}</Typography>}
+          {show && <Typography variant="body1">Anime: {show}</Typography>}
           {timestamp && (
             <Typography variant="body1">Upload Date: {new Date(timestamp)?.toLocaleDateString()}</Typography>
           )}

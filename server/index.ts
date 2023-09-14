@@ -5,9 +5,9 @@ import dotenv from 'dotenv'
 import http from 'http'
 import { Server as IOServer } from 'socket.io'
 import mongoose from 'mongoose'
-import { cleanSongModel } from './src/models/songModel'
+import SongModel, { cleanSongModel } from './src/models/songModel'
 import { QUEUE_EVENTS, queue } from './src/queue'
-import { runAllanimeSongJob } from './src/songUpdateScheduler'
+import { getAllanimeSongJobFunc, runAllanimeSongJob } from './src/songUpdateScheduler'
 import cookieSession from 'cookie-session'
 import authRoutes from './src/routes/authRoutes'
 import { initRoleModel } from './src/models/roleModel'
@@ -48,7 +48,6 @@ export const io = new IOServer(server, corsOption)
         initRoleModel()
     })
     await mongoose.connect(mongoString)
-
     await cleanSongModel() // clean up old music list
     queue.play() // run radio
 

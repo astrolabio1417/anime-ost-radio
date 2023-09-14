@@ -28,10 +28,7 @@ export async function getAllanimeSongJobFunc(page = 1) {
                 duration: song?.duration,
                 musicUrl: song?.musicUrls?.[0]?.url,
                 name: song?.musicTitle?.full,
-                show: {
-                    name: song?.show?.name,
-                    id: song?.show?.showId,
-                },
+                show: song?.show?.name,
                 image: {
                     cover: song?.cover,
                     thumbnail: song?.show?.thumbnail,

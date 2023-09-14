@@ -32,7 +32,7 @@ export default function QueueSongs() {
             Duration: {formatDuration(duration)}
           </Typography>
         )}
-        {show?.name && <Typography variant="caption">Anime: {show.name}</Typography>}
+        {show && <Typography variant="caption">Anime: {show}</Typography>}
         {vote && <Typography variant="caption">Vote: {vote.total}</Typography>}
       </Banner>
 

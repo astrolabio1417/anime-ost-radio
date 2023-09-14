@@ -15,7 +15,6 @@ export type ISong = {
         cover?: string
         thumbnail?: string
     }
-    getDownloadLink(): string
     played: boolean
     vote: {
         list: mongoose.Types.ObjectId[]
@@ -84,6 +83,15 @@ export const SongSchema = new mongoose.Schema({
 const SongModel = mongoose.model<ISong>('Song', SongSchema)
 
 export async function cleanSongModel() {
+    const updateShows = await SongModel.updateMany({ 'show.id': { $exists: true } }, [
+        {
+            $set: {
+                show: '$show.name',
+            },
+        },
+    ])
+    console.log({ updateShows })
+
     // https://aimgf.youtube-anime.com/
     const updateMusic = await SongModel.updateMany({ musicUrl: { $regex: '^(?!https://).' } }, [
         {
