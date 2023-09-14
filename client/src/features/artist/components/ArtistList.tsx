@@ -18,7 +18,7 @@ export default function ArtistList(props: ArtistListProps) {
   return (
     <FixedSizeList
       className="no-scrollbars"
-      height={windowHeight - 225}
+      height={windowHeight - (windowHeight >= 900 ? 322 : 284)}
       width={windowWidth >= 900 ? windowWidth - DRAWER_WIDTH : windowWidth}
       itemSize={46}
       overscanCount={5}

@@ -1,7 +1,7 @@
 import { List, Stack, Typography } from '@mui/material'
 
 import Banner from '@/features/player/components/Banner'
-import { formatDuration } from '@/helpers'
+import { formatDuration, getSongCover, getsongThumbnail } from '@/helpers'
 import { usePlayer } from '@/zustand/player'
 import { useRadio } from '@/zustand/radio'
 import { useUser } from '@/zustand/user'
@@ -15,15 +15,16 @@ import VoteAction from '../components/VoteAction'
 export default function QueueSongs() {
   const { current, queue } = useRadio()
   const { id: userId } = useUser()
-  const { name, image, artist, duration, show, vote } = current ?? {}
+  const { name, artist, duration, show, vote } = current ?? {}
   const { activeSongId, playSong, play } = usePlayer()
+  const coverImage = getSongCover(current)
 
   return (
     <Stack width="100%" gap={2}>
       <Banner
         title={name ?? ''}
-        image={image?.thumbnail ?? image?.cover ?? ''}
-        bgImage={image?.cover ?? image?.thumbnail ?? '' ?? image?.thumbnail ?? image?.cover ?? ''}
+        image={coverImage}
+        bgImage={coverImage ?? getsongThumbnail(current) ?? ''}
         subtitle={artist}
       >
         {duration && (

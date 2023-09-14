@@ -1,7 +1,8 @@
 import { Box, Stack, Typography } from '@mui/material'
 
+import BannerBackground from '@/assets/banner-background.png'
 interface PlayerCardProps {
-  image: string
+  image?: string
   title: string
   subtitle: string
   imageSize: number | string
@@ -38,21 +39,19 @@ export default function PlayerCard(props: PlayerCardProps) {
       }}
       style={{ textShadow: '0px 4px 4px #282828' }}
     >
-      {image && (
-        <Box
-          sx={{
-            width: imageSize,
-            height: imageSize,
-            minWidth: imageSize,
-            minHeight: imageSize,
-          }}
-          overflow="hidden"
-          borderRadius={1}
-          bgcolor="#0C090A"
-        >
-          <img src={image} width="100%" height="100%" style={{ objectFit: 'cover' }} />
-        </Box>
-      )}
+      <Box
+        sx={{
+          width: imageSize,
+          height: imageSize,
+          minWidth: imageSize,
+          minHeight: imageSize,
+        }}
+        overflow="hidden"
+        borderRadius={1}
+        bgcolor="#0C090A"
+      >
+        <img src={image || BannerBackground} width="100%" height="100%" style={{ objectFit: 'cover' }} />
+      </Box>
       <Box overflow="hidden">
         <Typography
           variant="body1"
@@ -78,7 +77,8 @@ export default function PlayerCard(props: PlayerCardProps) {
             WebkitBoxOrient: 'vertical',
           }}
         >
-          {subtitle?.length ? subtitle : <>&nbsp;</>}
+          {subtitle}
+          {/* {subtitle?.length ? subtitle : <>&nbsp;</>} */}
         </Typography>
       </Box>
     </Stack>

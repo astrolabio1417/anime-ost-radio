@@ -26,7 +26,7 @@ export default function Banner(props: BannerProps) {
     >
       <Box
         style={{
-          backgroundImage: `url(${props?.bgImage?.length ? props?.bgImage : BannerBackground})`,
+          backgroundImage: `url(${props?.bgImage || BannerBackground})`,
           inset: 0,
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -42,7 +42,7 @@ export default function Banner(props: BannerProps) {
       <PlayerCard
         title={props.title}
         subtitle={props.subtitle ?? ''}
-        image={props.image?.length ? props.image : BannerBackground}
+        image={props.image}
         imageSize={200}
         titleSize={32}
         subtitleSize={14}

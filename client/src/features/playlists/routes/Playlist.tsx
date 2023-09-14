@@ -19,16 +19,17 @@ import { IPlaylist } from '../types'
 
 export default function Playlist() {
   const { id } = useParams()
+  const playlistId = id ?? ''
   const { data, isLoading } = useQuery<IPlaylist>({
-    queryKey: ['playlist', id],
-    queryFn: () => getPlaylist(id ?? ''),
+    queryKey: ['playlist', playlistId],
+    queryFn: () => getPlaylist(playlistId),
   })
   const [deletedSong, setDeletedSong] = useState<string[]>([])
   const { id: userId } = useUser()
   const { activeSongId, id: playerId, playPlaylist, play } = usePlayer()
 
   const playlistSongs = data?.songs?.filter(s => !deletedSong.includes(s._id))
-  const isPlaylistPlaying = playerId === id
+  const isPlaylistPlaying = playerId === playlistId
   const currentPlayingSong = isPlaylistPlaying ? playlistSongs?.find(a => a._id === activeSongId) : undefined
 
   useEffect(() => {
@@ -61,13 +62,13 @@ export default function Playlist() {
           <SongItem
             key={song._id}
             song={song}
-            onClick={() => playPlaylist(id ?? 'playlist-id', data?.songs ?? [], song._id)}
+            onClick={() => playPlaylist(playlistId, playlistSongs, song._id)}
             secondaryAction={
               <Stack direction="row" gap={1}>
                 {song._id === activeSongId && play && <MusicSpectrumAnimation />}
                 <AddToPlaylistAction song={song} />
                 {data?.user._id === userId && (
-                  <RemoveSongAction playlistId={id ?? ''} song={song} onDelete={handleDelete} />
+                  <RemoveSongAction playlistId={playlistId} song={song} onDelete={handleDelete} />
                 )}
               </Stack>
             }
