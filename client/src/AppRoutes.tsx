@@ -12,6 +12,8 @@ const Playlist = React.lazy(() => import('./features/playlists/routes/Playlist')
 const Song = React.lazy(() => import('@/features/songs/routes/Song'))
 const Artists = React.lazy(() => import('@/features/artist/routes/Artists'))
 const Artist = React.lazy(() => import('@/features/artist/routes/Artist'))
+const Shows = React.lazy(() => import('@/features/show/Routes/Shows'))
+const Show = React.lazy(() => import('@/features/show/Routes/Show'))
 
 export default function AppRoutes() {
   return (
@@ -26,6 +28,8 @@ export default function AppRoutes() {
         <Route path="/songs/:id" element={<Song />} />
         <Route path="/artists/" element={<Artists />} />
         <Route path="/artists/:id" element={<Artist />} />
+        <Route path="/shows/" element={<Shows />} />
+        <Route path="/shows/:id" element={<Show />} />
       </Routes>
     </Suspense>
   )

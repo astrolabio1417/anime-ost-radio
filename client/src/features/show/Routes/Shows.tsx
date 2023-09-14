@@ -3,20 +3,20 @@ import { useState } from 'react'
 
 import ListContainer from '@/components/ListContainer'
 
-import { apiArtist } from '../api/artist'
+import { apiShow } from '../api/show'
 
-export default function Artists() {
+export default function Shows() {
   const { data, isLoading } = useQuery({
-    queryKey: ['artists'],
-    queryFn: apiArtist.list,
+    queryKey: ['shows'],
+    queryFn: apiShow.list,
   })
   const [query, setQuery] = useState('')
-  const artists = data?.data?.filter(a => a.toLowerCase().includes(query.toLowerCase())) ?? []
+  const shows = data?.data?.filter(a => a.toLowerCase().includes(query.toLowerCase())) ?? []
 
   return (
     <ListContainer
-      title="Artists"
-      lists={artists?.map(a => ({ name: a, url: `/artists/${btoa(encodeURIComponent(a))}` }))}
+      title="Shows"
+      lists={shows?.map(s => ({ name: s, url: `/shows/${btoa(encodeURIComponent(s))}` }))}
       onSearchChange={(value: string) => setQuery(value)}
       isLoading={isLoading}
     />

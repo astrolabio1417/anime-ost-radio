@@ -1,6 +1,7 @@
 import AlbumIcon from '@mui/icons-material/Album'
 import HomeIcon from '@mui/icons-material/Home'
-import ListIcon from '@mui/icons-material/List'
+import LiveTvIcon from '@mui/icons-material/LiveTv'
+import QueueMusicIcon from '@mui/icons-material/QueueMusic'
 import SearchIcon from '@mui/icons-material/Search'
 import { Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import { Link } from 'react-router-dom'
@@ -44,13 +45,27 @@ export default function NavList(props: NavListProps) {
       <ListItem
         onClick={props.onLinkClick}
         component={Link}
+        to="/shows"
+        sx={{ color: props?.color ?? 'inherit' }}
+        disablePadding
+      >
+        <ListItemButton>
+          <ListItemIcon sx={{ color: props?.color ?? 'inherit' }}>
+            <LiveTvIcon />
+          </ListItemIcon>
+          <ListItemText primary="Shows" />
+        </ListItemButton>
+      </ListItem>
+      <ListItem
+        onClick={props.onLinkClick}
+        component={Link}
         to="/playlists"
         sx={{ color: props?.color ?? 'inherit' }}
         disablePadding
       >
         <ListItemButton>
           <ListItemIcon sx={{ color: props?.color ?? 'inherit' }}>
-            <ListIcon />
+            <QueueMusicIcon />
           </ListItemIcon>
           <ListItemText primary="Playlists" />
         </ListItemButton>
