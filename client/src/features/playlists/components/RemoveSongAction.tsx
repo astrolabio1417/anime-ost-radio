@@ -24,7 +24,7 @@ export default function RemoveSongAction({ song, onDelete, playlistId }: RemoveS
   async function handleDelete() {
     if (!isLoggedIn) return toast('You must be logged in to delete a song', { type: 'error' })
     const toastId = toast.loading(`Deleting ${song.name}...`)
-    const res = await apiPlaylist.removeSong(playlistId, song._id)
+    const res = await apiPlaylist.removeSong(playlistId, song._id).catch(e => e.response)
     toast.update(toastId, {
       render: res?.data.message ?? 'Something went wrong',
       type: 'success',

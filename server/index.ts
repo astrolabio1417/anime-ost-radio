@@ -16,6 +16,7 @@ import songRoutes from './src/routes/songRoutes'
 import streamRoutes from './src/routes/streamRoutes'
 import artistRoutes from './src/routes/artistRoutes'
 import cookieParser from 'cookie-parser'
+import showRoutes from './src/routes/showRotues'
 
 process.on('SIGINT', function () {
     schedule.gracefulShutdown().then(() => process.exit(0))
@@ -66,6 +67,7 @@ export const io = new IOServer(server, corsOption)
     authRoutes(app)
     userPlaylistRoutes(app)
     artistRoutes(app)
+    showRoutes(app)
 
     app.get('/', (req, res) => {
         res.send('Express')
