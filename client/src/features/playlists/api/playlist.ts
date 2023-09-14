@@ -5,10 +5,11 @@ import http from '@/http-common'
 
 export const apiPlaylist = {
   get: async (playlistId: string) => await http.get<IPlaylist>(`${API}/playlists/${playlistId}`),
-  lists: async ({ user, page }: { user?: string; page?: number }) => {
+  lists: async ({ user, page, limit }: { user?: string; page?: number; limit?: number }) => {
     const params = new URLSearchParams()
     user && params.set('user', user)
     page && params.set('page', `${page}`)
+    limit && params.set('limit', `${limit}`)
     return await http.get<IPlaylistsResponse>(`${API}/playlists`, { params })
   },
   create: async (playlist: CreatePlaylistI) =>
