@@ -3,14 +3,23 @@ import { PlaylistModel } from '../models/playlistModel'
 import SongModel from '../models/songModel'
 
 export const playlistsGet = async (req: Request, res: Response) => {
+    const limit = 10
+    const page = parseInt(`${req.query?.page}`) ?? 1
+    const skip = limit * (page - 1)
+
     try {
         const { user } = req.query ?? {}
         const playlists = await PlaylistModel.find({
             ...(user ? { user } : {}),
         })
+            .limit(limit)
+            .skip(skip)
             .populate('user')
             .populate('songs')
-        res.json(playlists)
+        res.json({
+            list: playlists,
+            hasNextPage: playlists.length >= limit,
+        })
     } catch (e) {
         console.error(e)
         res.status(400).json({ message: e })

@@ -21,6 +21,7 @@ export default function MainContainer(props: MainContainerProps) {
         xs: '60px',
         md: '90px',
       }}
+      marginBottom={2}
       bgcolor="background.default"
       position="relative"
     >

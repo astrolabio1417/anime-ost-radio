@@ -11,11 +11,10 @@ export const songList = async (req: Request, res: Response) => {
     const page = parseInt(`${qPage}`) ?? 1
     const skip = limit * (page - 1)
     const regex = { $regex: escapeRegex(`${search}`), $options: 'i' }
+    const query = { $or: [{ name: regex }, { artist: regex }, { 'show.name': regex }] }
 
     try {
-        const list = await SongModel.find(
-            search ? { $or: [{ name: regex }, { artist: regex }, { 'show.name': regex }] } : {},
-        )
+        const list = await SongModel.find(search ? query : {})
             .limit(limit)
             .skip(skip)
             .sort({ name: 1, artist: 1, 'show.name': 1 })

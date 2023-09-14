@@ -1,5 +1,5 @@
 import { API } from '@/constants'
-import { CreatePlaylistI, IPlaylist } from '@/features/playlists/types'
+import { CreatePlaylistI, IPlaylist, IPlaylistsResponse } from '@/features/playlists/types'
 import { ISong } from '@/features/songs/types'
 import http from '@/http-common'
 
@@ -9,7 +9,7 @@ export const apiPlaylist = {
     const params = new URLSearchParams()
     user && params.set('user', user)
     page && params.set('page', `${page}`)
-    return await http.get<IPlaylist[]>(`${API}/playlists`, { params })
+    return await http.get<IPlaylistsResponse>(`${API}/playlists`, { params })
   },
   create: async (playlist: CreatePlaylistI) =>
     await http.post<{ message: string; playlist?: IPlaylist }>(`${API}/playlists`, playlist),

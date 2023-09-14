@@ -14,4 +14,9 @@ export interface IPlaylist {
   }
 }
 
+export interface IPlaylistsResponse {
+  list: IPlaylist[]
+  hasNextPage: boolean
+}
+
 export type CreatePlaylistI = Omit<IPlaylist, '_id' | 'songs' | 'user'>
