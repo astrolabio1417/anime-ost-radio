@@ -39,8 +39,8 @@ export default function Playlists() {
               />
               <ImageListItemBar
                 sx={{ paddingX: 1 }}
-                title={playlist.title ?? 'no title'}
-                subtitle={playlist?.user?.username ?? ''}
+                title={playlist.title ? `${playlist.songs.length} Songs | ${playlist.title}` : 'no title'}
+                subtitle={playlist?.user?.username ? `by ${playlist.user.username}` : ''}
                 position="below"
               />
             </ImageListItem>
