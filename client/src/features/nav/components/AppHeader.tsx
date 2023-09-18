@@ -2,6 +2,7 @@ import { AppBar, Button, Stack, Toolbar } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
+import Microphone from '@/components/Microphone'
 import { DRAWER_WIDTH } from '@/constants'
 import { useUserPlaylists } from '@/zustand/playlist'
 import { useUser } from '@/zustand/user'
@@ -56,7 +57,10 @@ export default function AppHeader() {
             <AppNavTitle />
           </Stack>
           {isLoggedIn ? (
-            <UserAvatar username={username} onLogout={handleLogout} />
+            <>
+              <Microphone />
+              <UserAvatar username={username} onLogout={handleLogout} />
+            </>
           ) : (
             <Stack gap={1} direction="row">
               <Link to="/register">
