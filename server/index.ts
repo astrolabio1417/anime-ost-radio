@@ -68,9 +68,8 @@ export const io = new IOServer(server, corsOption)
                 this.push(packet)
                 this.push(null)
             }
-            queue.priorityBroadcast(bufferStream)
         })
-        socket.on('end-stream', () => queue.endPriorityBroadcast())
+        socket.on('end-stream', () => {})
     })
 
     streamRoutes(app)

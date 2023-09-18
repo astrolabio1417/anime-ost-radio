@@ -1,9 +1,10 @@
-import { Button, CircularProgress, Stack, TextField } from '@mui/material'
+import { Button, CircularProgress, Select, Stack, TextField } from '@mui/material'
 import { blue } from '@mui/material/colors'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 
 import { validateEmail } from '@/helpers'
+import { useUser } from '@/zustand/user'
 
 import { apiAuth } from '../api/auth'
 
@@ -16,6 +17,7 @@ type RegistrationDataI = {
   email: string
   password: string
   password2: string
+  roles: string[]
 }
 
 const defaultData = {
@@ -23,6 +25,7 @@ const defaultData = {
   email: '',
   password: '',
   password2: '',
+  roles: ['user'],
 }
 
 function useRegisterForm(onRegistered?: () => void) {
@@ -37,7 +40,7 @@ function useRegisterForm(onRegistered?: () => void) {
       if (!username || !email || !password || !password2) return toast('Please fill all the fields!', { type: 'error' })
       if (!validateEmail(email)) return toast('Invalid email!', { type: 'error' })
       if (password !== password2) return toast('Passwords do not match!', { type: 'error' })
-      const res = await apiAuth.register(username, email, password).catch(e => e.response)
+      const res = await apiAuth.register(username, email, password, data.roles).catch(e => e.response)
       const isSuccess = res.status === 200
       if (![200, 400].includes(res.status)) return toast('Something went wrong!', { type: 'error' })
       toast(res.data.message, { type: isSuccess ? 'success' : 'error' })
@@ -55,16 +58,28 @@ function useRegisterForm(onRegistered?: () => void) {
     }))
   }
 
+  function handleSelect(e: React.ChangeEvent<HTMLSelectElement>) {
+    const { options } = e.target
+    setData(data => ({
+      ...data,
+      [e.target.name]: [...options].filter(a => a.selected).map(a => a.value),
+    }))
+  }
+
   return {
     handleChange,
     handleSubmit,
+    handleSelect,
     data,
     loading,
   }
 }
 
 export default function RegisterForm(props: RegistrationFormContainerProps) {
-  const { data, handleChange, handleSubmit, loading } = useRegisterForm(props.onRegistered)
+  const { data, handleChange, handleSubmit, loading, handleSelect } = useRegisterForm(props.onRegistered)
+  const { roles } = useUser()
+  const isAdmin = !!roles.find(role => role.name === 'admin')
+  const ROLES = ['user', 'admin']
 
   return (
     <form onSubmit={handleSubmit} autoComplete="on">
@@ -89,6 +104,30 @@ export default function RegisterForm(props: RegistrationFormContainerProps) {
           type="password"
           fullWidth
         />
+        {isAdmin ? (
+          <Select
+            multiple
+            native
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore Typings are not considering `native`
+            onChange={handleSelect}
+            value={data.roles}
+            name="roles"
+            label="Roles"
+            inputProps={{
+              id: 'select-multiple-native',
+            }}
+            fullWidth
+          >
+            {ROLES.map(role => (
+              <option key={role} value={role}>
+                {role}
+              </option>
+            ))}
+          </Select>
+        ) : (
+          <></>
+        )}
         <Stack direction="row" gap={2}>
           <Button
             title="Register"

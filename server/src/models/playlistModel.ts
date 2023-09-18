@@ -1,6 +1,5 @@
 import mongoosePaginate from 'mongoose-paginate-v2'
 import mongoose, { Schema } from 'mongoose'
-import SongModel from './songModel'
 import UserModel from './userModel'
 
 export type IPlaylist = {
@@ -36,7 +35,7 @@ const PlaylistSchema = new Schema({
     songs: [
         {
             type: Schema.Types.ObjectId,
-            ref: SongModel,
+            ref: 'Song',
         },
     ],
     timestamp: { required: true, type: Date, default: new Date() },

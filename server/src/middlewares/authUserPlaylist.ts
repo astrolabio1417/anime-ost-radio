@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { PlaylistModel } from '../models/playlistModel'
 
-export const authUserPlaylist = async (req: Request, res: Response, next: NextFunction) => {
+export const isUserPlaylist = async (req: Request, res: Response, next: NextFunction) => {
     const playlistId = req.params.id
 
     try {

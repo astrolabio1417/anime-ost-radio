@@ -1,3 +1,4 @@
+import { IRole, ROLES_DICT } from './../models/roleModel'
 import Jwt from 'jsonwebtoken'
 import { Request, Response } from 'express'
 import UserModel from '../models/userModel'
@@ -15,18 +16,23 @@ export const signUp = async (req: Request, res: Response) => {
     const newUser = new UserModel({ username, email, password: bcrypt.hashSync(password, 8) })
 
     try {
-        const savedUser = await newUser.save()
-        if (roles) {
-            const modelRoles = await RoleModel.find({ name: { $in: req.body.roles } })
-            savedUser.roles = modelRoles.map(role => role._id)
-        } else {
-            const userRole = await RoleModel.findOne({ name: 'user' })
-            if (!userRole) return res.status(500).json({ message: '"user" is missing on userModel' })
-            savedUser.roles = [userRole._id]
+        if (roles && req.user.isAuthenticated) {
+            const user = await UserModel.findById(req.user.id).populate<{ roles: IRole[] }>('roles')
+            const isAdmin = user?.roles.find(a => a.name === ROLES_DICT.ADMIN)
+            if (isAdmin) {
+                const modelRoles = await RoleModel.find({ name: { $in: req.body.roles } })
+                newUser.roles = modelRoles.map(role => role._id)
+            }
         }
-        await savedUser.save()
+
+        const userRole = await RoleModel.findOne({ name: 'user' })
+        if (!userRole) return res.status(500).json({ message: '"user" is missing on userModel' })
+        newUser.roles = [...newUser.roles, userRole._id]
+
+        await newUser.save()
         res.json({ message: 'User was registered successfully!' })
     } catch (e) {
+        console.error(e)
         res.status(500).json({ message: e })
     }
 }
@@ -74,7 +80,7 @@ export const signOut = async (req: Request, res: Response) => {
 
 export const currentUser = async (req: Request, res: Response) => {
     try {
-        const user = await UserModel.findById(req.user.id)
+        const user = await UserModel.findById(req.user.id).populate('roles')
         if (!user) return res.status(404).json({ message: 'User not found!' })
         const { username, roles, _id, email } = user
         return res.json({ id: _id, username, roles, email })

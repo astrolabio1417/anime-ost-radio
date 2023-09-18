@@ -40,17 +40,17 @@ class Queue extends EventEmitter {
 
     stream: fs.ReadStream | undefined
     throttle: Throttle | undefined
-    priorityStream: Readable
+    priorityStream?: PassThrough
 
     constructor() {
         super()
         this.currentTrack = ''
         this.clients = new Map()
         this.isPlaying = false
-        this.bitrate = 128 // 320 // 128 // 320
+        this.bitrate = 320 // 320 // 128 // 320
         this.timemark = 0
         this.isPriorityStreaming = false
-        this.priorityStream = new Readable({ read() {} })
+        console.log('start', this.priorityStream)
     }
 
     async getCurrentTrack() {
@@ -75,38 +75,6 @@ class Queue extends EventEmitter {
 
     broadcast(chunk: any) {
         this.clients.forEach(client => client.write(chunk))
-    }
-
-    async priorityBroadcast(readStream: fs.ReadStream | Readable) {
-        console.log('ended?', this.priorityStream.readableEnded)
-
-        if (!readStream.readableEnded) {
-            const chunk = readStream.read()
-            if (chunk !== null) this.priorityStream.push(chunk)
-        }
-
-        if (this.isPriorityStreaming) return
-        this.isPriorityStreaming = true
-        this.pause()
-
-        console.log('--- starting priority stream ---')
-        encodeReadStream(this.priorityStream, this.bitrate)
-            .pipe()
-            .on('data', chunk => this.broadcast(chunk))
-            .on('end', () => this.onPriorityStreamEnd())
-            .on('error', () => this.onPriorityStreamEnd())
-    }
-
-    endPriorityBroadcast() {
-        console.log('--- end priority stream ---')
-        this.priorityStream.push(null)
-    }
-
-    onPriorityStreamEnd() {
-        console.log('--- priority stream ended ---')
-        this.priorityStream = new Readable({ read() {} })
-        this.isPriorityStreaming = false
-        this.play()
     }
 
     async queue(limit: number = 10) {
@@ -154,7 +122,6 @@ class Queue extends EventEmitter {
 
     pause() {
         this.isPlaying = false
-        this.throttle?.pause()
         this.throttle?.removeAllListeners('end')
         this.throttle?.end()
     }
@@ -177,6 +144,7 @@ class Queue extends EventEmitter {
             return
         }
 
+        if (!this.isPlaying) return console.log('--- not playing, stopping the radio broadcast ---')
         console.log(`Playing ${track.name} by ${track.artist} | `, ` bitrate: ${this.bitrate}`)
         this.throttle = new Throttle((this.bitrate * 1000) / 8)
         console.log('--- starting radio stream ---')

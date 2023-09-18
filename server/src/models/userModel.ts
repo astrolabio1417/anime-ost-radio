@@ -1,5 +1,4 @@
 import mongoose, { Schema } from 'mongoose'
-import RoleModel from './roleModel'
 
 type UserI = {
     username: string
@@ -23,7 +22,7 @@ const UserModel = mongoose.model(
         roles: [
             {
                 type: Schema.Types.ObjectId,
-                ref: RoleModel,
+                ref: 'Role',
             },
         ],
     }),

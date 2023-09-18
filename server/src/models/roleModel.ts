@@ -1,10 +1,15 @@
 import mongoose, { Schema } from 'mongoose'
 
-type IRole = {
+export type IRole = {
     name: string
 }
 
-export const ROLES = ['user', 'admin']
+export const ROLES_DICT = {
+    USER: 'user',
+    ADMIN: 'admin',
+}
+
+export const ROLES = Object.values(ROLES_DICT)
 
 const RoleModel = mongoose.model(
     'Role',

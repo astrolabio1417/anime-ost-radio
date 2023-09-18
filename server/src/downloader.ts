@@ -29,7 +29,7 @@ async function downloadRange(output: string, url: string, range: IRange): Promis
         return output
     } catch (e) {
         console.error('Range Downloader error: ', e)
-        fs.unlinkSync(tmpOutput)
+        fs.existsSync(tmpOutput) && fs.unlinkSync(tmpOutput)
         return null
     }
 }
@@ -50,7 +50,10 @@ export async function download(
     filename = escapeFilename(filename)
     const outputFile = `${tmpPath}/${filename}`
 
-    if (fs.existsSync(outputFile)) return fs.createReadStream(outputFile).on('close', () => fs.unlinkSync(outputFile))
+    if (fs.existsSync(outputFile)) {
+        return fs.createReadStream(outputFile).on('close', () => fs.existsSync(outputFile) && fs.unlinkSync(outputFile))
+    }
+
     console.log(`${url} downloading...`)
     const contentLength = await getContentLength(url).catch(e => console.error('Cannot get the content length!', e))
 
@@ -79,14 +82,14 @@ export async function download(
     )
     console.log('download chunks finished...')
     const isAllChunkDownloaded = !chunks.includes(null)
-    console.log({ isAllChunkDownloaded, promises: chunks })
+    console.log({ isAllChunkDownloaded, chunks })
 
     if (!isAllChunkDownloaded) return await download(url, filename, errors)
 
     const mergeWriter = fs.createWriteStream(outputFile)
     const streams = chunks.map(fname => fs.createReadStream(fname as string))
     await merger(streams, mergeWriter)
-    chunks.forEach(fname => fs.unlinkSync(fname as string))
+    chunks.forEach(fname => fname && fs.existsSync(fname) && fs.unlinkSync(fname))
     console.log(`${outputFile} download finished...`)
     return fs.createReadStream(outputFile).on('close', () => fs.unlinkSync(outputFile))
 }

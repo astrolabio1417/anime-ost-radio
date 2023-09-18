@@ -3,6 +3,14 @@ import ffmpegPath from 'ffmpeg-static'
 import fs from 'fs'
 import { Readable } from 'stream'
 
+type ProgressDataI = {
+    frames: number
+    currentFps: number
+    currentKbps: number
+    targetSize: number
+    timemark: string
+}
+
 export default function encodeReadStream(stream: fs.ReadStream | Readable, bitrate: number = 320) {
     const ffmpegStream = ffmpegFluent(stream)
         .setFfmpegPath(ffmpegPath ?? '')
@@ -21,9 +29,9 @@ export default function encodeReadStream(stream: fs.ReadStream | Readable, bitra
                 options: { n: '-50dB', d: 5 },
             },
         ])
-        .on('progress', data => console.log('ffmpeg encoding Progress: ', data))
+        .on('progress', (data: ProgressDataI) => console.log('FFMPEG progress: ', data.timemark))
         .on('error', err => console.error(err))
-        .on('end', () => console.log('finised encoding'))
+        .on('end', () => console.log('FFMPEG finised encoding'))
 
     return ffmpegStream
 }

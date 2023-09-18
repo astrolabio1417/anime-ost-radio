@@ -16,7 +16,7 @@ export const stream = (req: Request, res: Response) => {
 }
 
 export const streamPause = async (_: Request, res: Response) => {
-    queue.endPriorityBroadcast()
+    queue.pause()
     res.json({ isPlaying: queue.isPlaying })
 }
 

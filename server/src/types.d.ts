@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 declare namespace Express {
     export interface Request {
-        session?: {
-            token?: string
-        }
-        user: UserJwtPayloadI
+        session?: { token: string }
+        user: UserJwtPayloadI & { isAuthenticated: boolean }
     }
 }
 
