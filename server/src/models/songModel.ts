@@ -1,16 +1,13 @@
 import mongoose, { Schema } from 'mongoose'
 import UserModel from './userModel'
+import mongoosePaginate from 'mongoose-paginate-v2'
 
 export type ISong = {
-    sourceId: string
-    musicUrl?: string
     name: string
+    musicUrl?: string
     duration?: number
     artist?: string
-    show: {
-        name?: string
-        id?: string
-    }
+    show: string
     image: {
         cover?: string
         thumbnail?: string
@@ -22,67 +19,46 @@ export type ISong = {
         timestamp?: Date
     }
     timestamp: Date
-} & Document
+}
 
 export const SongSchema = new mongoose.Schema({
-    sourceId: {
-        unique: true,
-        required: true,
-        type: String,
-    },
-    name: {
-        required: true,
-        type: String,
-    },
-    duration: {
-        required: false,
-        type: Number,
-    },
-    artist: {
-        required: false,
-        type: String,
-    },
-    musicUrl: {
-        required: false,
-        type: String,
-    },
-    show: {
-        name: { required: false, type: String },
-        id: { required: false, type: String },
-    },
+    name: { required: true, type: String },
+    duration: { required: false, type: Number },
+    artist: { required: false, type: String },
+    musicUrl: { required: false, type: String },
+    show: { type: String },
+    timestamp: { required: true, type: Date, default: new Date() },
+    played: { required: true, type: Boolean, default: false },
     image: {
-        cover: {
-            required: false,
-            type: String,
-        },
-        thumbnail: {
-            required: false,
-            type: String,
-        },
-    },
-    played: {
-        required: true,
-        type: Boolean,
+        cover: { required: false, type: String },
+        thumbnail: { required: false, type: String },
     },
     vote: {
-        list: [{ type: Schema.Types.ObjectId, ref: UserModel }],
-        total: {
-            type: Number,
+        list: {
+            type: [{ type: Schema.Types.ObjectId, ref: UserModel }],
+            default: [],
             required: true,
         },
-        timestamp: {
-            type: Date,
-        },
-    },
-    timestamp: {
-        required: true,
-        type: Date,
+        total: { type: Number, default: 0, required: true },
+        timestamp: { type: Date },
     },
 })
 
-const SongModel = mongoose.model<ISong>('Song', SongSchema)
+SongSchema.index({ name: 1, artist: 1, show: 1 }, { unique: true })
+
+SongSchema.plugin(mongoosePaginate)
+
+export type SongDocument = mongoose.Document & ISong
+
+const SongModel = mongoose.model<ISong, mongoose.PaginateModel<SongDocument>>('Song', SongSchema)
 
 export async function cleanSongModel() {
+    const updateTimestamp = await SongModel.updateMany({ timestamp: { $exists: false } }, [
+        {
+            $set: { timestamp: Date.now() },
+        },
+    ])
+    console.log({ updateTimestamp })
     const updateShows = await SongModel.updateMany({ 'show.id': { $exists: true } }, [
         {
             $set: {

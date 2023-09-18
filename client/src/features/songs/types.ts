@@ -1,10 +1,8 @@
+import { IPagination } from '@/types'
+
 export type ISongListResponse = {
-  list: ISong[]
-  total: number
-  limit: number
-  page: number
-  hasNextPage: boolean
-}
+  docs: ISong[]
+} & IPagination
 
 export type ISong = {
   _id: string

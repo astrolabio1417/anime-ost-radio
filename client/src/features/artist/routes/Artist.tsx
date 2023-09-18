@@ -5,7 +5,6 @@ import { useParams } from 'react-router-dom'
 import Loading from '@/components/Loading'
 import Banner from '@/features/player/components/Banner'
 import AddToPlaylistAction from '@/features/songs/components/AddToPlaylistAction'
-import MusicSpectrumAnimation from '@/features/songs/components/MusicSpectrumAnimation'
 import SongItem from '@/features/songs/components/SongItem'
 import VoteAction from '@/features/songs/components/VoteAction'
 import { getSongCover, getsongThumbnail } from '@/helpers'
@@ -16,7 +15,7 @@ import { apiArtist } from '../api/artist'
 
 export default function Artist() {
   const { id } = useParams()
-  const { playPlaylist, activeSongId, play, id: playerId } = usePlayer()
+  const { playPlaylist, activeSongId, id: playerId } = usePlayer()
   const { id: userId } = useUser()
   const { isLoading, data } = useQuery({
     queryKey: ['artist', id],
@@ -48,7 +47,6 @@ export default function Artist() {
             user={userId}
             secondaryAction={
               <Stack direction="row" gap={1}>
-                {song._id === activeSongId && play && <MusicSpectrumAnimation />}
                 <AddToPlaylistAction song={song} />
                 <VoteAction song={song} />
               </Stack>

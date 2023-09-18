@@ -17,6 +17,7 @@ import streamRoutes from './src/routes/streamRoutes'
 import artistRoutes from './src/routes/artistRoutes'
 import cookieParser from 'cookie-parser'
 import showRoutes from './src/routes/showRotues'
+import { Stream } from 'stream'
 
 process.on('SIGINT', function () {
     schedule.gracefulShutdown().then(() => process.exit(0))
@@ -60,6 +61,16 @@ export const io = new IOServer(server, corsOption)
         io.to(socket.id).emit(QUEUE_EVENTS.ON_QUEUE_CHANGE, await queue.queue(20))
         io.to(socket.id).emit(QUEUE_EVENTS.ON_TRACK_CHANGE, await queue.getCurrentTrack())
         io.to(socket.id).emit(QUEUE_EVENTS.ON_TIME_CHANGE, queue.timemark)
+
+        socket.on('stream', (packet: Buffer) => {
+            const bufferStream = new Stream.Readable()
+            bufferStream._read = function () {
+                this.push(packet)
+                this.push(null)
+            }
+            queue.priorityBroadcast(bufferStream)
+        })
+        socket.on('end-stream', () => queue.endPriorityBroadcast())
     })
 
     streamRoutes(app)

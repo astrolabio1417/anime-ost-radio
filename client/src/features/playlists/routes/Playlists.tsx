@@ -3,26 +3,42 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import BannerBackground from '@/assets/banner-background.png'
+import Loading from '@/components/Loading'
+import TextFieldDebounce from '@/components/TextFieldDebounce'
 
 import { apiPlaylist } from '../api/playlist'
 
 export default function Playlists() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const page = parseInt(searchParams.get('page') ?? '1') ?? 1
+  const page = searchParams.get('page') ?? '1'
+  const queryValue = searchParams.get('search') ?? ''
 
-  const { data } = useQuery({
-    queryKey: ['playlists', page],
-    queryFn: () => apiPlaylist.lists({ page: page }),
+  const { data, isLoading } = useQuery({
+    queryKey: ['playlists', page, queryValue],
+    queryFn: () => apiPlaylist.lists({ page: page, query: { title: queryValue } }),
   })
-  const playlists = data?.data?.list
+
+  const playlists = data?.data?.docs
   const matches = useMediaQuery('(max-width: 600px)')
+
+  function handleSearchFieldChange(value: string) {
+    setSearchParams(params => {
+      params.set('search', value)
+      params.set('page', '1')
+      return params
+    })
+  }
 
   return (
     <>
-      <Typography paddingX={2} paddingTop={2} variant="h5">
-        Playlists
-      </Typography>
-      <ImageList cols={matches ? 1 : 2}>
+      <Stack gap={2} padding={2} paddingBottom={0}>
+        <Typography variant="h5">Playlists</Typography>
+        <TextFieldDebounce label="Search" onChange={handleSearchFieldChange} />
+        <Typography variant="overline">Search List</Typography>
+      </Stack>
+
+      {isLoading && <Loading />}
+      <ImageList sx={{ paddingX: 2 }} cols={matches ? 1 : 2}>
         <>
           {playlists?.map(playlist => (
             <ImageListItem
@@ -48,19 +64,21 @@ export default function Playlists() {
         </>
       </ImageList>
 
-      <Stack alignItems="center">
-        <Pagination
-          hideNextButton={!data?.data.hasNextPage}
-          hidePrevButton={page <= 1}
-          count={data?.data.hasNextPage ? page + 1 : page}
-          onChange={(_, page) => {
-            setSearchParams(params => {
-              params.set('page', `${page}`)
-              return params
-            })
-          }}
-        />
-      </Stack>
+      {
+        <Stack alignItems="center">
+          <Pagination
+            hideNextButton={!data?.data.hasNextPage}
+            hidePrevButton={!data?.data.hasPrevPage}
+            count={data?.data.totalPages}
+            onChange={(_, page) => {
+              setSearchParams(params => {
+                params.set('page', `${page}`)
+                return params
+              })
+            }}
+          />
+        </Stack>
+      }
     </>
   )
 }

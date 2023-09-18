@@ -3,29 +3,25 @@ import { PlaylistModel } from '../models/playlistModel'
 import SongModel from '../models/songModel'
 
 export const playlistsGet = async (req: Request, res: Response) => {
-    const limit = parseInt(`${req.query.limit}`) || 30
-    const page = parseInt(`${req.query?.page}`) ?? 1
-    const skip = limit * (page - 1)
-
-    try {
-        const { user } = req.query ?? {}
-        const playlists = await PlaylistModel.find(user ? { user } : {})
-            .limit(limit)
-            .skip(skip)
-            .populate('user')
-            .populate('songs')
-
-        res.json({
-            list: playlists,
-            total: playlists.length,
-            page,
-            limit,
-            hasNextPage: playlists.length >= limit,
-        })
-    } catch (e) {
-        console.error(e)
-        res.status(400).json({ message: e })
+    const { limit, page, sort, title, user } = req.query
+    const dbQuery = {
+        ...(title && { title: { $regex: title, $options: 'i' } }),
+        ...(user && { user: user }),
     }
+    const options = {
+        page: page ? Number(page) : 1,
+        limit: limit ? Number(limit) : 30,
+        sort: sort ? sort : { timestamp: 1 },
+    }
+
+    PlaylistModel.paginate(dbQuery, options)
+        .then(result => {
+            res.json(result)
+        })
+        .catch(e => {
+            console.error(e)
+            res.status(500).json({ message: e })
+        })
 }
 
 export const playlistCreate = async (req: Request, res: Response) => {
@@ -85,8 +81,10 @@ export const playlistAddSong = async (req: Request, res: Response) => {
             { _id: req.params.id, songs: { $ne: req.params.songId } },
             { $push: { songs: song._id } },
         )
-        if (playlist.modifiedCount === 0) return res.status(400).json({ message: 'Song already in playlist' })
-        res.json({ message: 'Song added to playlist', song })
+        res.json({
+            message: playlist.modifiedCount === 0 ? 'Song already in playlist' : 'Song added to playlist',
+            song,
+        })
     } catch (e) {
         console.error(e)
         res.status(400).json({ message: e })
@@ -99,8 +97,9 @@ export const playlistRemoveSong = async (req: Request, res: Response) => {
             { _id: req.params.id, songs: { $eq: req.params.songId } },
             { $pull: { songs: req.params.songId } },
         )
-        if (playlist.modifiedCount === 0) return res.status(400).json({ message: 'Song not in playlist' })
-        res.json({ message: 'Song has been removed from the playlist' })
+        res.json({
+            message: playlist.modifiedCount === 0 ? 'Song not in playlist' : 'Song has been removed from the playlist',
+        })
     } catch (e) {
         console.error(e)
         res.status(400).json({ message: e })

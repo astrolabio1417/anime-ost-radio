@@ -11,7 +11,7 @@ export async function getAllanimeSong(page = 1): Promise<IAllanimeSongsResponse 
     }
     api.searchParams.set('extensions', JSON.stringify(extensions))
     const variables = {
-        search: { sortBy: 'Latest_Update' }, // Popular
+        search: { sortBy: 'Latest_Update' }, // Latest_Update, Popular, Recommendation, Random
         limit: 26,
         page: page,
     }
@@ -30,9 +30,14 @@ export async function getAllanimeSong(page = 1): Promise<IAllanimeSongsResponse 
     }
 
     const data = (await res.json()) as IAllanimeSongsResponse
-    data?.data?.musics?.edges?.map(music => {
-        if (!music?.musicUrls?.['0'].url.startsWith('https://')) {
-            music.musicUrls['0'].url = `https://aimgf.youtube-anime.com/${music.musicUrls['0'].url}`
+
+    data?.data?.musics.edges.map(music => {
+        if (!music.musicUrls || !Array.isArray(music.musicUrls)) return
+
+        const firstMusic = music.musicUrls?.[0]
+        if (!firstMusic?.url) return
+        if (!firstMusic.url?.startsWith('https://')) {
+            music.musicUrls['0'].url = `https://aimgf.youtube-anime.com/${firstMusic.url}`
         }
 
         if (music?.cover && !music.cover?.startsWith('http')) {
@@ -40,7 +45,10 @@ export async function getAllanimeSong(page = 1): Promise<IAllanimeSongsResponse 
             const xPath = music.cover.startsWith('images') ? '' : 'images/'
             music['cover'] = `https://wp.youtube-anime.com/aln.youtube-anime.com/${xPath}${music.cover}`
         }
+
+        return music
     })
+
     return data
 }
 
@@ -59,15 +67,13 @@ type IAllanimeSongsResponse = {
                 musicTitle: {
                     full: string
                 }
-                musicUrls: [
-                    {
-                        url: string
-                        marchRank: number
-                        downloadState: string
-                        type: string
-                        lastActionDate: number
-                    },
-                ]
+                musicUrls: {
+                    url?: string
+                    marchRank: number
+                    downloadState: 'Uploading' | 'Finished'
+                    type: string
+                    lastActionDate: number
+                }[]
                 show: {
                     name: string
                     showId: string

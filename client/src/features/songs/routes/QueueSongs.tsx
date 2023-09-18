@@ -7,7 +7,6 @@ import { useRadio } from '@/zustand/radio'
 import { useUser } from '@/zustand/user'
 
 import AddToPlaylistAction from '../components/AddToPlaylistAction'
-import MusicSpectrumAnimation from '../components/MusicSpectrumAnimation'
 import PlayRadioButton from '../components/PlayRadioButton'
 import SongItem from '../components/SongItem'
 import VoteAction from '../components/VoteAction'
@@ -16,7 +15,7 @@ export default function QueueSongs() {
   const { current, queue } = useRadio()
   const { id: userId } = useUser()
   const { name, artist, duration, show, vote } = current ?? {}
-  const { activeSongId, playSong, play } = usePlayer()
+  const { playSong } = usePlayer()
   const coverImage = getSongCover(current)
 
   return (
@@ -51,7 +50,6 @@ export default function QueueSongs() {
             onClick={() => playSong(song)}
             secondaryAction={
               <Stack direction="row" gap={1}>
-                {song._id === activeSongId && play && <MusicSpectrumAnimation />}
                 <AddToPlaylistAction song={song} />
                 <VoteAction song={song} />
               </Stack>

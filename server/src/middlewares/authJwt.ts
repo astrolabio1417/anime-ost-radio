@@ -22,6 +22,7 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
 
 export const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        if (!req.user) return res.status(403).json({ message: 'Unauthorized' })
         const user = await UserModel.findById(req.user.id)
         const roles = await RoleModel.find({
             _id: { $in: user?.roles },

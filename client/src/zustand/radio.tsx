@@ -17,7 +17,7 @@ const defaultState: RadioState = {
     sourceId: '',
     name: '',
     musicUrl: '',
-    show: {},
+    show: '',
     image: {},
     played: false,
     vote: {
@@ -34,7 +34,7 @@ const defaultState: RadioState = {
 
 export const useRadio = create<RadioState>()(() => ({ ...defaultState }))
 
-const socket = io(import.meta.env.VITE_SERVER_URL)
+export const socket = io(import.meta.env.VITE_SERVER_URL)
 
 socket.on('connect', () => {
   console.log('connected to socket!')

@@ -11,7 +11,6 @@ import { usePlayer } from '@/zustand/player'
 import { useUser } from '@/zustand/user'
 
 import Banner from '../../player/components/Banner'
-import MusicSpectrumAnimation from '../../songs/components/MusicSpectrumAnimation'
 import SongItem from '../../songs/components/SongItem'
 import { apiPlaylist } from '../api/playlist'
 import RemoveSongAction from '../components/RemoveSongAction'
@@ -25,7 +24,7 @@ export default function Playlist() {
   })
   const [deletedSong, setDeletedSong] = useState<string[]>([])
   const { id: userId } = useUser()
-  const { activeSongId, id: playerId, playPlaylist, play } = usePlayer()
+  const { activeSongId, id: playerId, playPlaylist } = usePlayer()
 
   const playlist = data?.data
   const playlistSongs = playlist?.songs?.filter(s => !deletedSong.includes(s._id))
@@ -65,7 +64,6 @@ export default function Playlist() {
             onClick={() => playPlaylist(playlistId, [...playlistSongs], song._id)}
             secondaryAction={
               <Stack direction="row" gap={1}>
-                {song._id === activeSongId && play && <MusicSpectrumAnimation />}
                 <AddToPlaylistAction song={song} />
                 {playlist?.user._id === userId && (
                   <RemoveSongAction playlistId={playlistId} song={song} onDelete={handleDelete} />

@@ -5,11 +5,22 @@ import http from '@/http-common'
 
 export const apiPlaylist = {
   get: async (playlistId: string) => await http.get<IPlaylist>(`${API}/playlists/${playlistId}`),
-  lists: async ({ user, page, limit }: { user?: string; page?: number; limit?: number }) => {
+  lists: async ({
+    user,
+    query,
+    page,
+    limit,
+  }: {
+    user?: string
+    page?: string
+    limit?: number
+    query?: { [key: string]: string }
+  }) => {
     const params = new URLSearchParams()
-    user && params.set('user', user)
-    page && params.set('page', `${page}`)
+    params.set('page', `${page ?? '1'}`)
+    user && params.set('user', `${user}`)
     limit && params.set('limit', `${limit}`)
+    query && Object.keys(query).map(key => params.set(key, query[key]))
     return await http.get<IPlaylistsResponse>(`${API}/playlists`, { params })
   },
   create: async (playlist: CreatePlaylistI) =>

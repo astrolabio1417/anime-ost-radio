@@ -1,4 +1,3 @@
-import fs from 'fs'
 import { Request, Response } from 'express'
 import { queue } from '../queue'
 
@@ -17,16 +16,11 @@ export const stream = (req: Request, res: Response) => {
 }
 
 export const streamPause = async (_: Request, res: Response) => {
-    queue.pause()
+    queue.endPriorityBroadcast()
     res.json({ isPlaying: queue.isPlaying })
 }
 
 export const streamPlay = async (_: Request, res: Response) => {
     if (!queue.isPlaying) await queue.play()
     res.json({ isPlaying: queue.isPlaying })
-}
-
-export const streamBroadcast = async (_: Request, res: Response) => {
-    await queue.priorityBroadcast(fs.createReadStream(`${process.cwd()}/test-sheep.mp3`))
-    res.json({ ok: true })
 }

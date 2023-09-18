@@ -54,6 +54,7 @@ export default function PlayerCard(props: PlayerCardProps) {
       </Box>
       <Box overflow="hidden">
         <Typography
+          lineHeight="1.2"
           variant="body1"
           fontSize={titleSize}
           sx={{
@@ -78,7 +79,6 @@ export default function PlayerCard(props: PlayerCardProps) {
           }}
         >
           {subtitle}
-          {/* {subtitle?.length ? subtitle : <>&nbsp;</>} */}
         </Typography>
       </Box>
     </Stack>

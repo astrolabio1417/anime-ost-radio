@@ -1,17 +1,15 @@
-import ffmpegFluent from 'fluent-ffmpeg'
-import ffmpegPath from 'ffmpeg-static'
 import { randomUUID } from 'crypto'
-import { PassThrough } from 'stream'
+import { PassThrough, Readable } from 'stream'
 import Throttle from 'throttle'
 import fs from 'fs'
-import { USER_AGENT } from './data/constant'
 import { sleep } from './helpers/sleep'
-import SongModel, { ISong } from './models/songModel'
+import SongModel, { ISong, SongDocument } from './models/songModel'
 import { checkObjectId } from './helpers/checkObjectId'
 import { FilterQuery, SortOrder } from 'mongoose'
 import { download, tmpPath } from './downloader'
 import EventEmitter from 'events'
 import { escapeFilename } from './helpers/escapeFilename'
+import encodeReadStream from './encoder'
 
 const QueueSort: {
     [key: string]: SortOrder | { $meta: any }
@@ -35,23 +33,24 @@ export enum QUEUE_EVENTS {
 class Queue extends EventEmitter {
     currentTrack: string
     clients: Map<string, PassThrough>
-    index: number
     isPlaying: boolean
-    stream: fs.ReadStream | undefined
-    userAgent: string
-    throttle: Throttle | undefined
     bitrate: number
     timemark: number
+    isPriorityStreaming: boolean
+
+    stream: fs.ReadStream | undefined
+    throttle: Throttle | undefined
+    priorityStream: Readable
 
     constructor() {
         super()
         this.currentTrack = ''
         this.clients = new Map()
-        this.index = 0
         this.isPlaying = false
         this.bitrate = 128 // 320 // 128 // 320
-        this.userAgent = USER_AGENT
         this.timemark = 0
+        this.isPriorityStreaming = false
+        this.priorityStream = new Readable({ read() {} })
     }
 
     async getCurrentTrack() {
@@ -66,7 +65,6 @@ class Queue extends EventEmitter {
     addClient() {
         const id = randomUUID()
         const client = new PassThrough()
-
         this.clients.set(id, client)
         return { id, client }
     }
@@ -76,23 +74,39 @@ class Queue extends EventEmitter {
     }
 
     broadcast(chunk: any) {
-        this.clients.forEach(client => {
-            client.write(chunk)
-        })
+        this.clients.forEach(client => client.write(chunk))
     }
 
-    async priorityBroadcast(readStream: fs.ReadStream) {
+    async priorityBroadcast(readStream: fs.ReadStream | Readable) {
+        console.log('ended?', this.priorityStream.readableEnded)
+
+        if (!readStream.readableEnded) {
+            const chunk = readStream.read()
+            if (chunk !== null) this.priorityStream.push(chunk)
+        }
+
+        if (this.isPriorityStreaming) return
+        this.isPriorityStreaming = true
         this.pause()
-        await sleep(10000)
-        const throttle = new Throttle((this.bitrate * 1000) / 8)
-        this.encodeReadStream(readStream, this.bitrate)
-            .pipe(throttle)
-            .on('data', chunk => {
-                console.log({ chunk })
-                this.broadcast(chunk)
-            })
-            .on('close', () => this.play())
-            .on('error', () => this.play())
+
+        console.log('--- starting priority stream ---')
+        encodeReadStream(this.priorityStream, this.bitrate)
+            .pipe()
+            .on('data', chunk => this.broadcast(chunk))
+            .on('end', () => this.onPriorityStreamEnd())
+            .on('error', () => this.onPriorityStreamEnd())
+    }
+
+    endPriorityBroadcast() {
+        console.log('--- end priority stream ---')
+        this.priorityStream.push(null)
+    }
+
+    onPriorityStreamEnd() {
+        console.log('--- priority stream ended ---')
+        this.priorityStream = new Readable({ read() {} })
+        this.isPriorityStreaming = false
+        this.play()
     }
 
     async queue(limit: number = 10) {
@@ -103,61 +117,52 @@ class Queue extends EventEmitter {
         return await SongModel.findOne(getQueueOption(this.currentTrack)).sort(QueueSort)
     }
 
-    async rotateTracks() {
-        console.debug('[func]: Rotate Tracks')
+    async rotateTrack(): Promise<SongDocument> {
+        console.log('--- rotating tracks ---')
 
         if (this.currentTrack) {
-            console.debug('[func]: set current track to played')
+            console.log('--- clearing vote list ---')
             await SongModel.findByIdAndUpdate(this.currentTrack, {
                 $set: { 'vote.list': [], 'vote.total': 0, played: true },
                 $unset: { 'vote.timestamp': true },
             })
         }
 
-        console.debug('[func]: setting next track')
+        console.log('--- get next track ---')
         const nextTrack = await this.getNextTrack()
         this.currentTrack = nextTrack?.id?.toString() ?? ''
-        console.debug(`[func]: next track: ${nextTrack?.name} ${nextTrack?._id}`)
 
         if (!nextTrack) {
-            console.debug('[func]: reset all song to played = false')
-            // reset tracks
+            console.log('--- no more tracks, resetting played flags ---')
             await SongModel.updateMany({ played: false }, { $set: { played: true } })
             await sleep(3000)
-            await this.rotateTracks()
-            return
+            return this.rotateTrack()
         }
+
         this.emit(QUEUE_EVENTS.ON_TRACK_CHANGE, nextTrack)
         this.emit(QUEUE_EVENTS.ON_QUEUE_CHANGE, await this.queue(20))
-        await this.loadTrackStream()
+        if (!nextTrack.musicUrl) throw `No music url for ${nextTrack.name} by ${nextTrack.artist} #${nextTrack._id}`
+        await this.loadTrackStream(nextTrack.musicUrl, nextTrack.name)
+        return nextTrack
     }
 
     async play() {
-        if (!this.getCurrentTrack()) await this.rotateTracks()
-        if (!this.stream) {
-            const loaded = await this.loadTrackStream()
-            if (!loaded) {
-                await this.rotateTracks()
-                await this.play()
-                return
-            }
-        }
-        await this.startBroadcast()
+        if (this.isPriorityStreaming) return console.log('priority stream is running!')
+        this.isPlaying = true
+        this.startBroadcast()
     }
 
     pause() {
-        if (!this.throttle || !this.isPlaying) return
         this.isPlaying = false
-        this.throttle.removeAllListeners('end')
-        this.throttle.end()
+        this.throttle?.pause()
+        this.throttle?.removeAllListeners('end')
+        this.throttle?.end()
     }
 
-    async loadTrackStream() {
-        console.log('trying to load track stream ------------------------------------')
-        const track = await this.getCurrentTrack()
-        if (!track?.musicUrl) return
-        const stream = await this.createTrackReadStream(track.musicUrl, track.name)
-        if (!stream) return (this.stream = undefined)
+    async loadTrackStream(url: string, name: string) {
+        console.log('--- loading track stream ---')
+        if (!url || !name) return
+        const stream = await this.createTrackReadStream(url, name)
         return (this.stream = stream)
     }
 
@@ -165,55 +170,24 @@ class Queue extends EventEmitter {
         const track = await this.getCurrentTrack()
 
         if (!track || !this.stream) {
-            console.debug('[func]: rotating for track')
+            console.log('--- no track to play, rotating is 5 secs ---')
             await sleep(5000)
-            await this.rotateTracks()
+            await this.rotateTrack()
             await this.play()
             return
         }
 
         console.log(`Playing ${track.name} by ${track.artist} | `, ` bitrate: ${this.bitrate}`)
-        this.isPlaying = true
         this.throttle = new Throttle((this.bitrate * 1000) / 8)
+        console.log('--- starting radio stream ---')
         this.stream
             .pipe(this.throttle)
-            .on('data', chunk => {
-                this.broadcast(chunk)
+            .on('data', chunk => this.broadcast(chunk))
+            .on('end', () => this.rotateTrack().then(() => this.play()))
+            .on('error', e => {
+                console.error(e)
+                this.play()
             })
-            .on('end', () => {
-                this.rotateTracks().then(() => this.play())
-            })
-            .on('error', () => {
-                this.rotateTracks().then(() => this.play())
-            })
-    }
-
-    encodeReadStream(stream: fs.ReadStream, bitrate: number = 320) {
-        const ffmpegStream = ffmpegFluent(stream)
-            .setFfmpegPath(ffmpegPath ?? '')
-            .format('mp3')
-            .noVideo()
-            .audioBitrate(bitrate)
-            .audioChannels(2)
-            .audioFrequency(44100)
-            .audioFilters([
-                {
-                    filter: 'volume',
-                    options: ['0.5'],
-                },
-                {
-                    filter: 'silencedetect',
-                    options: { n: '-50dB', d: 5 },
-                },
-            ])
-            .on('progress', data => {
-                console.log('ffmpeg encoding Progress: ', data)
-            })
-            .on('error', err => {
-                console.error(err)
-            })
-
-        return ffmpegStream
     }
 
     setTimemark(timemark: number) {
@@ -222,20 +196,6 @@ class Queue extends EventEmitter {
     }
 
     async createTrackReadStream(path: string, name: string) {
-        if (!/^(https|http):\/\//gi.test(path)) {
-            if (!fs.existsSync(path)) return
-            return fs.createReadStream(path)
-        }
-
-        let url: URL | null = null
-
-        try {
-            url = new URL(path)
-        } catch (e) {
-            console.error(e)
-        }
-
-        if (!url) return
         const filename = escapeFilename(name.substring(0, 220))
         const encodedFilename = `${tmpPath}/${filename}-encoded.mp3`
 
@@ -247,7 +207,7 @@ class Queue extends EventEmitter {
         if (!readableStream) return
         const encoded = await new Promise<boolean>((resolve, reject) => {
             const writeStream = fs.createWriteStream(encodedFilename)
-            this.encodeReadStream(readableStream, this.bitrate)
+            encodeReadStream(readableStream, this.bitrate)
                 .pipe(writeStream)
                 .on('close', () => resolve(true))
                 .on('error', e => {

@@ -6,7 +6,6 @@ import { DRAWER_WIDTH, RADIO_STREAM } from '@/constants'
 import { PlayerSongI, usePlayer } from '@/zustand/player'
 import { useRadio } from '@/zustand/radio'
 
-import MusicSpectrumAnimation from '../../songs/components/MusicSpectrumAnimation'
 import { Player } from '../components/Player'
 
 export default function PlayerContainer() {
@@ -61,17 +60,13 @@ export default function PlayerContainer() {
         zIndex={10}
         sx={{
           alignItems: 'center',
+          cursor: 'pointer',
         }}
         onClick={() => setShowMobilePlayer(true)}
       >
         <Box display="inline-block" width="60px" height="100%">
           <img src={song?.image ?? ''} height="100%" width="100%" />
         </Box>
-        {play && (
-          <Box paddingLeft={1} paddingTop={1}>
-            <MusicSpectrumAnimation />
-          </Box>
-        )}
         <Typography variant="body2" color="white" paddingX={1}>
           {song?.title}
         </Typography>

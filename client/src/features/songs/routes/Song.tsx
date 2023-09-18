@@ -4,15 +4,15 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import { Box, Button, Stack, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { Fragment } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
 import Loading from '@/components/Loading'
 import Banner from '@/features/player/components/Banner'
+import { formatDuration } from '@/helpers'
 import { usePlayer } from '@/zustand/player'
 
 import { apiSong } from '../api/songs'
 import AddToPlaylistAction from '../components/AddToPlaylistAction'
-import MusicSpectrumAnimation from '../components/MusicSpectrumAnimation'
 
 export default function Song() {
   const { id } = useParams()
@@ -41,19 +41,14 @@ export default function Song() {
         <Box padding={2}>
           <Stack direction="row" flexWrap="wrap" gap={2} pb={5}>
             {id === activeSongId && play ? (
-              <>
-                <Box paddingTop={1}>
-                  <MusicSpectrumAnimation />
-                </Box>
-                <Button
-                  startIcon={<PauseIcon />}
-                  variant="text"
-                  color="inherit"
-                  onClick={() => usePlayer.setState({ play: false })}
-                >
-                  Pause
-                </Button>
-              </>
+              <Button
+                startIcon={<PauseIcon />}
+                variant="text"
+                color="inherit"
+                onClick={() => usePlayer.setState({ play: false })}
+              >
+                Pause
+              </Button>
             ) : (
               <Button
                 startIcon={<PlayArrowIcon />}
@@ -75,9 +70,23 @@ export default function Song() {
             {song._id && <AddToPlaylistAction song={song} />}
           </Stack>
 
-          {artist && <Typography variant="body1">Artist: {artist}</Typography>}
-          {duration && <Typography variant="body1">Duration: {duration}</Typography>}
-          {show && <Typography variant="body1">Anime: {show}</Typography>}
+          {artist && (
+            <Typography variant="body1">
+              Artist:{' '}
+              <Link style={{ color: 'inherit' }} to={`/artists/${btoa(encodeURIComponent(artist))}`}>
+                {artist}
+              </Link>
+            </Typography>
+          )}
+          {show && (
+            <Typography variant="body1">
+              Anime:{' '}
+              <Link style={{ color: 'inherit' }} to={`/shows/${btoa(encodeURIComponent(show))}`}>
+                {show}
+              </Link>
+            </Typography>
+          )}
+          {duration && <Typography variant="body1">Duration: {formatDuration(duration)}</Typography>}
           {timestamp && (
             <Typography variant="body1">Upload Date: {new Date(timestamp)?.toLocaleDateString()}</Typography>
           )}

@@ -1,3 +1,5 @@
+import { IPagination } from '@/types'
+
 import { ISong } from '../songs/types'
 
 export interface IPlaylist {
@@ -14,9 +16,8 @@ export interface IPlaylist {
   }
 }
 
-export interface IPlaylistsResponse {
-  list: IPlaylist[]
-  hasNextPage: boolean
+export interface IPlaylistsResponse extends IPagination {
+  docs: IPlaylist[]
 }
 
 export type CreatePlaylistI = Omit<IPlaylist, '_id' | 'songs' | 'user'>

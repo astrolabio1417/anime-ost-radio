@@ -1,54 +1,40 @@
 import schedule from 'node-schedule'
 import { getAllanimeSong } from './services/allanimeSongs'
-import SongModel from './models/songModel'
+import SongModel, { ISong } from './models/songModel'
 import { sleep } from './helpers/sleep'
 
 let isJobRunning = false
+const SLEEP_TIME = 5000
 
 export async function getAllanimeSongJobFunc(page = 1) {
     isJobRunning = true
-    console.log(`[schedule]: song scraper job running... page: ${page}`)
+    console.log('[schedule]: Start at page: ', page)
 
     try {
         const data = await getAllanimeSong(page)
         const songs = data?.data?.musics?.edges
 
         if (!songs?.length) {
-            console.log(data)
-            await sleep(2000)
+            await sleep(SLEEP_TIME)
             getAllanimeSongJobFunc(page)
+            console.log('[schedule]: No data | End at page: ', page)
             return
         }
 
-        const downloadableSongs = songs
-            .filter(song => song?.musicUrls?.[0].downloadState === 'Finished')
-            .map(song => ({
-                sourceId: song._id,
-                artist: song?.artist?.name?.full,
-                duration: song?.duration,
-                musicUrl: song?.musicUrls?.[0]?.url,
-                name: song?.musicTitle?.full,
-                show: song?.show?.name,
-                image: {
-                    cover: song?.cover,
-                    thumbnail: song?.show?.thumbnail,
-                },
-            }))
-
-        const newSongPromises = downloadableSongs.map(song =>
-            SongModel.create({
-                ...song,
-                vote: {
-                    list: [],
-                    total: 0,
-                },
-                played: false,
-                timestamp: Date.now(),
-            }).catch(e => {
-                console.error(e)
-                return null
-            }),
-        )
+        const newSongPromises = songs
+            .filter(a => {
+                return a.musicUrls?.[0]?.url
+            })
+            .map(song =>
+                SongModel.create({
+                    artist: song?.artist?.name?.full,
+                    duration: song?.duration,
+                    musicUrl: song?.musicUrls?.[0]?.url,
+                    name: song?.musicTitle?.full,
+                    show: song?.show?.name,
+                    image: { cover: song?.cover, thumbnail: song?.show?.thumbnail },
+                } as ISong).catch(() => null),
+            )
 
         const newSongs = await Promise.all(newSongPromises)
         const added = newSongs.filter(song => song !== null)
@@ -57,14 +43,16 @@ export async function getAllanimeSongJobFunc(page = 1) {
 
         if (!added.length) {
             isJobRunning = false
+            console.log('[schedule]: No Added Data | End at page: ', page)
             return
         }
 
         // crawl next page
-        await sleep(2000)
+        await sleep(SLEEP_TIME)
         await getAllanimeSongJobFunc(page + 1)
     } catch (e) {
-        console.error(`[schedule] song scraper job error ${e}`)
+        console.error('[schedule] song scraper job error ', e)
+        console.log('[schedule]: End at page: ', page)
         isJobRunning = false
     }
 }
@@ -78,11 +66,10 @@ export function runAllanimeSongJob() {
     // getAllanimeSongJobFunc(1)
 
     const allanimeSongJob = schedule.scheduleJob(time, async function () {
-        if (isJobRunning) {
-            return console.log('[schedule]: Job is still RUNNING...')
-        }
+        if (isJobRunning) return console.log('[schedule]: Job is still RUNNING...')
+        console.log(`[schedule]: Job is running...`)
         await getAllanimeSongJobFunc(1)
-        console.log(`[schedule]: song insertation ENDED`)
+        console.log('[schedule]: Job Ended')
     })
     return allanimeSongJob
 }

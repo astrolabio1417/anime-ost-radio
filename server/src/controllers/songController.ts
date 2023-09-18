@@ -1,35 +1,29 @@
 import { Request, Response } from 'express'
-import { escapeRegex } from '../helpers/escapeRegex'
 import SongModel from '../models/songModel'
 import { QUEUE_EVENTS, queue } from '../queue'
 import { checkObjectId } from '../helpers/checkObjectId'
 import { io } from '../..'
 
-export const songList = async (req: Request, res: Response) => {
-    const { page: qPage, search } = req.query
-    const limit = 30
-    const page = parseInt(`${qPage}`) ?? 1
-    const skip = limit * (page - 1)
-    const regex = { $regex: escapeRegex(`${search}`), $options: 'i' }
-    const query = { $or: [{ name: regex }, { artist: regex }, { show: regex }] }
-
-    try {
-        const list = await SongModel.find(search ? query : {})
-            .limit(limit)
-            .skip(skip)
-            .sort({ name: 1, artist: 1, show: 1 })
-
-        res.json({
-            list,
-            total: list.length,
-            page,
-            limit,
-            hasNextPage: list.length >= limit,
-        })
-    } catch (e) {
-        console.error(e)
-        res.status(400).json({ message: e })
+export const songList = (req: Request, res: Response) => {
+    const { limit, page, sort, name, artist, show } = req.query
+    const dbQuery = {
+        ...(name && { name: { $regex: name, $options: 'i' } }),
+        ...(artist && { artist: { $regex: artist, $options: 'i' } }),
+        ...(show && { show: { $regex: show, $options: 'i' } }),
     }
+    const options = {
+        page: page ? Number(page) : 1,
+        limit: limit ? Number(limit) : 30,
+        sort: sort ? sort : { timestamp: 1 },
+    }
+
+    SongModel.paginate(dbQuery, options)
+        .then(result => {
+            res.json(result)
+        })
+        .catch(e => {
+            res.status(500).json({ message: e })
+        })
 }
 export const songQueueList = async (_: Request, res: Response) => {
     const list = (await queue.queue()) ?? []

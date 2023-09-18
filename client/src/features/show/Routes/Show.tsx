@@ -9,7 +9,6 @@ import { getSongCover } from '@/helpers'
 import { usePlayer } from '@/zustand/player'
 
 import Banner from '../../player/components/Banner'
-import MusicSpectrumAnimation from '../../songs/components/MusicSpectrumAnimation'
 import SongItem from '../../songs/components/SongItem'
 
 export default function Show() {
@@ -19,7 +18,7 @@ export default function Show() {
     queryKey: ['show', showId],
     queryFn: () => apiShow.get(showId),
   })
-  const { activeSongId, id: playerId, playPlaylist, play } = usePlayer()
+  const { activeSongId, id: playerId, playPlaylist } = usePlayer()
   const songs = data?.data.songs
   const isPlaylistPlaying = playerId === showId
   const currentPlayingSong = isPlaylistPlaying ? songs?.find(a => a._id === activeSongId) : undefined
@@ -50,7 +49,6 @@ export default function Show() {
             onClick={() => playPlaylist(showId, [...songs], song._id)}
             secondaryAction={
               <Stack direction="row" gap={1}>
-                {song._id === activeSongId && play && <MusicSpectrumAnimation />}
                 <AddToPlaylistAction song={song} />
               </Stack>
             }
