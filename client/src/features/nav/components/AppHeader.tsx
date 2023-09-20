@@ -2,8 +2,8 @@ import { AppBar, Button, Stack, Toolbar } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
-import Microphone from '@/components/Microphone'
 import { DRAWER_WIDTH } from '@/constants'
+import Microphone from '@/features/player/components/Microphone'
 import { useUserPlaylists } from '@/zustand/playlist'
 import { useUser } from '@/zustand/user'
 
@@ -13,8 +13,9 @@ import AppNavTitle from './AppNavTitle'
 import UserAvatar from './UserAvatar'
 
 export default function AppHeader() {
-  const { logout, username, isLoggedIn } = useUser()
+  const { logout, username, isLoggedIn, roles } = useUser()
   const { clearPlaylists } = useUserPlaylists()
+  const isAuthorized = !!roles.find(role => role.name === 'admin')
 
   async function handleLogout() {
     await apiAuth.logout()
@@ -58,7 +59,7 @@ export default function AppHeader() {
           </Stack>
           {isLoggedIn ? (
             <>
-              <Microphone />
+              {isAuthorized && <Microphone />}
               <UserAvatar username={username} onLogout={handleLogout} />
             </>
           ) : (

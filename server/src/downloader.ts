@@ -91,7 +91,7 @@ export async function download(
     await merger(streams, mergeWriter)
     chunks.forEach(fname => fname && fs.existsSync(fname) && fs.unlinkSync(fname))
     console.log(`${outputFile} download finished...`)
-    return fs.createReadStream(outputFile).on('close', () => fs.unlinkSync(outputFile))
+    return fs.createReadStream(outputFile).on('close', () => fs.existsSync(outputFile) && fs.unlinkSync(outputFile))
 }
 
 async function merger(streams: fs.ReadStream[], writeStream: fs.WriteStream) {

@@ -17,7 +17,6 @@ import streamRoutes from './src/routes/streamRoutes'
 import artistRoutes from './src/routes/artistRoutes'
 import cookieParser from 'cookie-parser'
 import showRoutes from './src/routes/showRotues'
-import { Stream } from 'stream'
 
 process.on('SIGINT', function () {
     schedule.gracefulShutdown().then(() => process.exit(0))
@@ -53,6 +52,8 @@ export const io = new IOServer(server, corsOption)
     await cleanSongModel() // clean up old music list
     queue.play() // run radio
 
+    const listenerPeers: Set<string> = new Set()
+
     queue.on(QUEUE_EVENTS.ON_TIME_CHANGE, timemark => io.emit(QUEUE_EVENTS.ON_TIME_CHANGE, timemark))
     queue.on(QUEUE_EVENTS.ON_TRACK_CHANGE, track => io.emit(QUEUE_EVENTS.ON_TRACK_CHANGE, track))
     queue.on(QUEUE_EVENTS.ON_QUEUE_CHANGE, track => io.emit(QUEUE_EVENTS.ON_QUEUE_CHANGE, track))
@@ -62,14 +63,35 @@ export const io = new IOServer(server, corsOption)
         io.to(socket.id).emit(QUEUE_EVENTS.ON_TRACK_CHANGE, await queue.getCurrentTrack())
         io.to(socket.id).emit(QUEUE_EVENTS.ON_TIME_CHANGE, queue.timemark)
 
-        socket.on('stream', (packet: Buffer) => {
-            const bufferStream = new Stream.Readable()
-            bufferStream._read = function () {
-                this.push(packet)
-                this.push(null)
-            }
+        socket.on('listeners', () => {
+            io.to(socket.id).emit('update-user-list', { users: [...listenerPeers].filter(s => s !== socket.id) })
         })
-        socket.on('end-stream', () => {})
+
+        socket.on('listen', () => {
+            console.log('connected ', socket.id)
+            listenerPeers.add(socket.id)
+            socket.broadcast.emit('add-user', { user: socket.id })
+        })
+
+        socket.on('unlisten', onDisconnect)
+        socket.on('disconnect', onDisconnect)
+
+        socket.on('call-user', (data: { offer: RTCSessionDescriptionInit; to: string }) => {
+            console.log('call user', { to: data.to })
+            socket.to(data.to).emit('call-made', { offer: data.offer, socket: socket.id })
+        })
+
+        socket.on('make-answer', (data: { answer: RTCSessionDescriptionInit; to: string }) => {
+            console.log('make answer', { to: data.to })
+            socket.to(data.to).emit('answer-made', { answer: data.answer, socket: socket.id })
+        })
+
+        function onDisconnect() {
+            console.log('disconnected ', socket.id, listenerPeers)
+            listenerPeers.delete(socket.id)
+            console.log(listenerPeers)
+            socket.broadcast.emit('remove-user', { user: socket.id })
+        }
     })
 
     streamRoutes(app)

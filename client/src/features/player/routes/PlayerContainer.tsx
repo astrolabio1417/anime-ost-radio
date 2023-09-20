@@ -7,6 +7,7 @@ import { PlayerSongI, usePlayer } from '@/zustand/player'
 import { useRadio } from '@/zustand/radio'
 
 import { Player } from '../components/Player'
+import RadioVoice from '../components/RadioVoice'
 
 export default function PlayerContainer() {
   const [showMobilePlayer, setShowMobilePlayer] = useState(false)
@@ -113,6 +114,7 @@ export default function PlayerContainer() {
           songs={playlistSongs}
           initialIndex={initialIndex}
         />
+        <RadioVoice />
       </Box>
     </Box>
   )

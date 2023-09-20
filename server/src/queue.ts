@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto'
-import { PassThrough, Readable } from 'stream'
+import { PassThrough } from 'stream'
 import Throttle from 'throttle'
 import fs from 'fs'
 import { sleep } from './helpers/sleep'
