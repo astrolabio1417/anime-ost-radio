@@ -1,8 +1,8 @@
-import { Box, Button, Checkbox, FormControlLabel, FormGroup, Typography } from '@mui/material'
+import { Box, Button, Checkbox, FormControlLabel, FormGroup, Modal, Typography } from '@mui/material'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 
-import Modal from '@/components/Modal'
+import ModalContainer from '@/components/ModalContainer'
 import { ISong } from '@/features/songs/types'
 import { useUserPlaylists } from '@/zustand/playlist'
 
@@ -63,7 +63,7 @@ export default function AddToPlaylistForm(props: AddToPlaylistFormProps) {
 
   return (
     <Box width="100%" height="100%">
-      <FormGroup sx={{ padding: 2 }}>
+      <FormGroup>
         <Typography variant="overline">Save song to...</Typography>
 
         {playlists.map(playlist => (
@@ -79,16 +79,22 @@ export default function AddToPlaylistForm(props: AddToPlaylistFormProps) {
           />
         ))}
 
-        <Button title="Create New Playlist" variant="contained" color="primary" onClick={() => setFormOpen(true)}>
+        <Button
+          sx={{ marginTop: 1 }}
+          title="Create New Playlist"
+          variant="contained"
+          color="primary"
+          onClick={() => setFormOpen(true)}
+        >
           Create New Playlist
         </Button>
       </FormGroup>
 
-      <Modal style={{ width: '100%', maxWidth: '600px' }} isOpen={openForm} onClose={() => setFormOpen(false)}>
-        <Box padding={2}>
+      <Modal open={openForm} onClose={() => setFormOpen(false)}>
+        <ModalContainer>
           <Typography variant="overline">Create Playlist</Typography>
           <CreatePlaylistForm />
-        </Box>
+        </ModalContainer>
       </Modal>
     </Box>
   )

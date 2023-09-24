@@ -6,7 +6,7 @@ export interface IPlaylist {
   _id: string
   title: string
   songs: ISong[]
-  image: {
+  image?: {
     cover?: string
     thumbnail?: string
   }
@@ -16,8 +16,39 @@ export interface IPlaylist {
   }
 }
 
+export interface IPlaylistDataForm extends Omit<IPlaylist, '_id' | 'songs' | 'user' | 'image'> {
+  image: {
+    cover: FileList | string | null
+    thumbnail: FileList | string | null
+  }
+}
+
 export interface IPlaylistsResponse extends IPagination {
   docs: IPlaylist[]
 }
 
-export type CreatePlaylistI = Omit<IPlaylist, '_id' | 'songs' | 'user'>
+export interface IPlaylistCreateResponse {
+  message: string
+  playlist: IPlaylist
+}
+
+export interface IPlaylistCreateResponseError {
+  message: string
+  playlistId: IPlaylist
+}
+
+export interface IPlaylistUpdateResponse {
+  message: string
+  playlist: IPlaylist
+}
+
+export interface IPlaylistUpdateResponseError {
+  message: string
+  playlistId: string
+}
+
+export interface IPlaylistSongUpdateResponse {
+  message: string
+  playlistId: string
+  songId: string
+}

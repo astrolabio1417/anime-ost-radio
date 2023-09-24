@@ -43,7 +43,7 @@ const PlaylistSchema = new Schema({
 
 PlaylistSchema.plugin(mongoosePaginate)
 
-type PlaylistDocument = mongoose.Document & IPlaylist
+export type PlaylistDocument = mongoose.Document & IPlaylist
 
 const PlaylistModel = mongoose.model<IPlaylist, mongoose.PaginateModel<PlaylistDocument>>('Playlist', PlaylistSchema)
 

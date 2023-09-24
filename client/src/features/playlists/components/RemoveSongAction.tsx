@@ -1,5 +1,6 @@
 import DeleteIcon from '@mui/icons-material/Delete'
 import { IconButton } from '@mui/material'
+import { AxiosError } from 'axios'
 import React from 'react'
 import { toast } from 'react-toastify'
 
@@ -9,6 +10,7 @@ import { useUserPlaylists } from '@/zustand/playlist'
 import { useUser } from '@/zustand/user'
 
 import { apiPlaylist } from '../api/playlist'
+import { IPlaylistSongUpdateResponse } from '../types'
 
 interface RemoveSongActionProps {
   playlistId: string
@@ -24,20 +26,32 @@ export default function RemoveSongAction({ song, onDelete, playlistId }: RemoveS
   async function handleDelete() {
     if (!isLoggedIn) return toast('You must be logged in to delete a song', { type: 'error' })
     const toastId = toast.loading(`Deleting ${song.name}...`)
-    const res = await apiPlaylist.removeSong(playlistId, song._id).catch(e => e.response)
-    toast.update(toastId, {
-      render: res?.data.message ?? 'Something went wrong',
-      type: 'success',
-      isLoading: false,
-      autoClose: 3000,
-    })
-    onDelete?.(song)
-    removeFromStates(playlistId, song)
-  }
 
-  function removeFromStates(playlistId: string, song: ISong) {
-    playlistId === id && removeSong(song)
-    removeSongToPlaylist(playlistId, song)
+    try {
+      const res = await apiPlaylist.removeSong(playlistId, song._id)
+
+      toast.update(toastId, {
+        render: res.data.message,
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+      })
+
+      onDelete?.(song)
+      playlistId === id && removeSong(song)
+      removeSongToPlaylist(playlistId, song)
+    } catch (err) {
+      const error = err as AxiosError<IPlaylistSongUpdateResponse>
+
+      toast.update(toastId, {
+        render: error.response?.data.message ?? error.message,
+        type: 'error',
+        isLoading: false,
+        autoClose: 3000,
+      })
+
+      console.error(error)
+    }
   }
 
   return (

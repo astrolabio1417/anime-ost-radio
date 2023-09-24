@@ -1,9 +1,9 @@
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
-import { IconButton } from '@mui/material'
+import { IconButton, Modal } from '@mui/material'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 
-import Modal from '@/components/Modal'
+import ModalContainer from '@/components/ModalContainer'
 import { ISong } from '@/features/songs/types'
 import { useUser } from '@/zustand/user'
 
@@ -29,8 +29,10 @@ export default function AddToPlaylistAction({ song }: AddToPlaylistActionProps) 
       </IconButton>
 
       {showModal && (
-        <Modal style={{ width: '100%', maxWidth: '600px' }} isOpen={showModal} onClose={() => setShowModal(false)}>
-          <AddToPlaylistForm song={song} />
+        <Modal style={{ width: '100%', maxWidth: '600px' }} open={showModal} onClose={() => setShowModal(false)}>
+          <ModalContainer>
+            <AddToPlaylistForm song={song} />
+          </ModalContainer>
         </Modal>
       )}
     </React.Fragment>

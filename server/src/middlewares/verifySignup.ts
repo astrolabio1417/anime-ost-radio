@@ -20,9 +20,7 @@ export const checkDuplicateEmailOrUsername = async (req: Request, res: Response,
 export const checkRolesExisted = (req: Request, res: Response, next: NextFunction) => {
     for (const role of req.body?.ROLES ?? []) {
         if (ROLES.includes(role)) continue
-        return res.status(400).send({
-            message: `Failed Role ${role} does not exists!`,
-        })
+        return res.status(400).json({ message: `Failed Role ${role} does not exists!` })
     }
 
     next()

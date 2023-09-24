@@ -1,4 +1,4 @@
-export type IUser = {
+export interface IUser {
   id: string
   username: string
   email: string
@@ -9,15 +9,15 @@ export type IUser = {
   }[]
 }
 
-export type IRegisterResponse = {
-  message?: string
-} & IUser
+export interface IRegisterResponse {
+  message: string
+}
 
-export type ILoginResponse = {
+export interface ILoginResponse extends IUser {
   token: string
-  message?: string
-} & IUser
+  message: string
+}
 
-export type ILogoutResponse = {
+export interface ILogoutResponse {
   message: string
 }

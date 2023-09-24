@@ -7,84 +7,29 @@ import { Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText } f
 import { Link } from 'react-router-dom'
 
 interface NavListProps {
-  color?: string
   onLinkClick?: () => void
 }
 
 export default function NavList(props: NavListProps) {
+  const links = [
+    { label: 'Home', href: '/', icon: <HomeIcon /> },
+    { label: 'Search', href: '/search', icon: <SearchIcon /> },
+    { label: 'Shows', href: '/shows', icon: <LiveTvIcon /> },
+    { label: 'Playlists', href: '/playlists', icon: <QueueMusicIcon /> },
+    { label: 'Artists', href: '/artists', icon: <AlbumIcon /> },
+  ]
+
   return (
     <List>
-      <ListItem
-        onClick={props.onLinkClick}
-        component={Link}
-        to="/"
-        sx={{ color: props?.color ?? 'inherit' }}
-        disablePadding
-      >
-        <ListItemButton>
-          <ListItemIcon sx={{ color: props?.color ?? 'inherit' }}>
-            <HomeIcon />
-          </ListItemIcon>
-          <ListItemText primary="Home" />
-        </ListItemButton>
-      </ListItem>
-      <ListItem
-        onClick={props.onLinkClick}
-        component={Link}
-        to="/search"
-        sx={{ color: props?.color ?? 'inherit' }}
-        disablePadding
-      >
-        <ListItemButton>
-          <ListItemIcon sx={{ color: props?.color ?? 'inherit' }}>
-            <SearchIcon />
-          </ListItemIcon>
-          <ListItemText primary="Search" />
-        </ListItemButton>
-      </ListItem>
-      <ListItem
-        onClick={props.onLinkClick}
-        component={Link}
-        to="/shows"
-        sx={{ color: props?.color ?? 'inherit' }}
-        disablePadding
-      >
-        <ListItemButton>
-          <ListItemIcon sx={{ color: props?.color ?? 'inherit' }}>
-            <LiveTvIcon />
-          </ListItemIcon>
-          <ListItemText primary="Shows" />
-        </ListItemButton>
-      </ListItem>
-      <ListItem
-        onClick={props.onLinkClick}
-        component={Link}
-        to="/playlists"
-        sx={{ color: props?.color ?? 'inherit' }}
-        disablePadding
-      >
-        <ListItemButton>
-          <ListItemIcon sx={{ color: props?.color ?? 'inherit' }}>
-            <QueueMusicIcon />
-          </ListItemIcon>
-          <ListItemText primary="Playlists" />
-        </ListItemButton>
-      </ListItem>
-      <ListItem
-        onClick={props.onLinkClick}
-        component={Link}
-        to="/artists"
-        sx={{ color: props?.color ?? 'inherit' }}
-        disablePadding
-      >
-        <ListItemButton>
-          <ListItemIcon sx={{ color: props?.color ?? 'inherit' }}>
-            <AlbumIcon />
-          </ListItemIcon>
-          <ListItemText primary="Artists" />
-        </ListItemButton>
-      </ListItem>
-      <Divider sx={{ bgcolor: props?.color ?? 'inherit' }} />
+      {links.map(item => (
+        <ListItem key={item.href} disablePadding>
+          <ListItemButton onClick={props.onLinkClick} component={Link} to={item.href}>
+            <ListItemIcon>{item.icon}</ListItemIcon>
+            <ListItemText primary={item.label} />
+          </ListItemButton>
+        </ListItem>
+      ))}
+      <Divider />
     </List>
   )
 }

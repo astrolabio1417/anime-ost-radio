@@ -1,5 +1,5 @@
 import { Application } from 'express'
-import { showSongs, showsGet } from '../controllers/songController'
+import { showSongs, showsGet } from '../controllers/showController'
 
 const showRoutes = (app: Application) => {
     app.get('/api/shows', showsGet)

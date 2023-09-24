@@ -68,7 +68,6 @@ export const io = new IOServer(server, corsOption)
         })
 
         socket.on('listen', () => {
-            console.log('connected ', socket.id)
             listenerPeers.add(socket.id)
             socket.broadcast.emit('add-user', { user: socket.id })
         })
@@ -77,19 +76,15 @@ export const io = new IOServer(server, corsOption)
         socket.on('disconnect', onDisconnect)
 
         socket.on('call-user', (data: { offer: RTCSessionDescriptionInit; to: string }) => {
-            console.log('call user', { to: data.to })
             socket.to(data.to).emit('call-made', { offer: data.offer, socket: socket.id })
         })
 
         socket.on('make-answer', (data: { answer: RTCSessionDescriptionInit; to: string }) => {
-            console.log('make answer', { to: data.to })
             socket.to(data.to).emit('answer-made', { answer: data.answer, socket: socket.id })
         })
 
         function onDisconnect() {
-            console.log('disconnected ', socket.id, listenerPeers)
             listenerPeers.delete(socket.id)
-            console.log(listenerPeers)
             socket.broadcast.emit('remove-user', { user: socket.id })
         }
     })

@@ -1,5 +1,6 @@
 import { Button, CircularProgress, Stack, TextField } from '@mui/material'
 import { blue } from '@mui/material/colors'
+import { AxiosError } from 'axios'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 
@@ -33,24 +34,19 @@ function useLoginForm(onLoggedOn?: () => void) {
 
     if (data.username === '' || data.password === '') return toast('Please fill all the fields!', { type: 'error' })
     setLoading(true)
-    const res = await apiAuth.login(data.username, data.password).catch(e => e.response)
-    const user = res.data
 
-    if (user?.token) {
-      useUser.setState({
-        id: user?.id ?? '',
-        roles: user?.roles ?? [],
-        username: user?.username ?? '',
-        isLoggedIn: true,
-      })
-
-      const userPlaylists = await apiPlaylist.lists({ user: user.id, limit: 1000 })
-      useUserPlaylists.setState({ playlists: userPlaylists.data.docs ?? [] })
-      toast(`Welcome ${user.username}!`, { type: 'success' })
+    try {
+      const res = await apiAuth.login(data.username, data.password)
+      const { id, roles, username } = res.data
+      useUser.setState({ id, roles, username, isLoggedIn: true })
+      useUserPlaylists.getState().init(id)
       onLoggedOn?.()
+      toast(`Welcome ${username}!`, { type: 'success' })
+    } catch (e) {
+      const error = e as AxiosError<{ message: string }>
+      toast(error.response?.data.message ?? error.message, { type: 'error' })
     }
 
-    if (user?.message) toast(user.message, { type: 'error' })
     setLoading(false)
   }
 

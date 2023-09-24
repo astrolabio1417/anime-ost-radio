@@ -19,6 +19,7 @@ export const signUp = async (req: Request, res: Response) => {
         if (roles && req.user.isAuthenticated) {
             const user = await UserModel.findById(req.user.id).populate<{ roles: IRole[] }>('roles')
             const isAdmin = user?.roles.find(a => a.name === ROLES_DICT.ADMIN)
+
             if (isAdmin) {
                 const modelRoles = await RoleModel.find({ name: { $in: req.body.roles } })
                 newUser.roles = modelRoles.map(role => role._id)
@@ -33,7 +34,7 @@ export const signUp = async (req: Request, res: Response) => {
         res.json({ message: 'User was registered successfully!' })
     } catch (e) {
         console.error(e)
-        res.status(500).json({ message: e })
+        res.status(400).json({ message: "Couldn't register" })
     }
 }
 
@@ -52,20 +53,13 @@ export const signIn = async (req: Request, res: Response) => {
             allowInsecureKeySizes: true,
             expiresIn: 86400 * 30, // 30 days
         })
-        req.session = {
-            ...req.session,
-            token,
-        }
-        res.status(200).json({
-            id: user._id,
-            username,
-            email: user.email,
-            roles: user.roles,
-            token,
-        })
+        req.session = { ...req.session, token }
+        const userJson = { ...user.toJSON(), password: undefined }
+        delete userJson.password
+        res.status(200).json({ ...userJson, token, message: 'You have been signed in!' })
     } catch (e) {
         console.error(e)
-        res.status(500).json({ message: e })
+        res.status(400).json({ message: "Couldn't sign in" })
     }
 }
 
@@ -74,7 +68,7 @@ export const signOut = async (req: Request, res: Response) => {
         req.session = undefined
         return res.status(200).send({ message: "You've been signed out!" })
     } catch (e) {
-        res.status(500).json({ message: e })
+        res.status(400).json({ message: "Couldn't sign out" })
     }
 }
 
@@ -86,6 +80,6 @@ export const currentUser = async (req: Request, res: Response) => {
         return res.json({ id: _id, username, roles, email })
     } catch (e) {
         console.error(e)
-        return res.status(400).json({ message: e })
+        return res.status(400).json({ message: "Couldn't get current user" })
     }
 }

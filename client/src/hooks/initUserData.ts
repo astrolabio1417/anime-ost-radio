@@ -1,8 +1,8 @@
+import { AxiosError } from 'axios'
 import { useEffect } from 'react'
 
 import { apiAuth } from '@/features/auth/api/auth'
 
-import { apiPlaylist } from '../features/playlists/api/playlist'
 import { useUserPlaylists } from '../zustand/playlist'
 import { useUser } from '../zustand/user'
 
@@ -11,16 +11,15 @@ export default function useUserData() {
     setUserData()
 
     async function setUserData() {
-      const data = await apiAuth.getCurrentUser()
-      if (data.status !== 200) return
-      useUser.setState({
-        id: data.data.id,
-        roles: data.data.roles,
-        username: data.data.username,
-        isLoggedIn: true,
-      })
-      const userPlaylists = await apiPlaylist.lists({ user: data.data.id, limit: 1000 })
-      userPlaylists.status === 200 && useUserPlaylists.setState({ playlists: userPlaylists.data.docs ?? [] })
+      try {
+        const data = await apiAuth.getCurrentUser()
+        const { id, roles, username } = data.data
+        useUser.setState({ id, roles, username, isLoggedIn: true })
+        useUserPlaylists.getState().init(id)
+      } catch (e) {
+        const error = e as AxiosError<{ message: string }>
+        console.error(error)
+      }
     }
   }, [])
 

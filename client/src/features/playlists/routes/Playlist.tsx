@@ -42,10 +42,10 @@ export default function Playlist() {
   return (
     <Box>
       <Banner
-        title={playlist?.title ?? ''}
-        subtitle={currentPlayingSong?.name ?? ''}
-        bgImage={getSongCover(currentPlayingSong) ?? playlist?.image?.cover ?? ''}
-        image={playlist?.image?.cover ?? ''}
+        title={playlist?.title || ''}
+        subtitle={currentPlayingSong?.name || ''}
+        bgImage={getSongCover(currentPlayingSong) || playlist?.image?.cover || ''}
+        image={playlist?.image?.thumbnail || ''}
       />
 
       {!isLoading && !playlist?._id && (

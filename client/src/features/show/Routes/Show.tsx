@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom'
 import Loading from '@/components/Loading'
 import { apiShow } from '@/features/show/api/show'
 import AddToPlaylistAction from '@/features/songs/components/AddToPlaylistAction'
+import VoteAction from '@/features/songs/components/VoteAction'
 import { getSongCover } from '@/helpers'
 import { usePlayer } from '@/zustand/player'
 
@@ -50,6 +51,7 @@ export default function Show() {
             secondaryAction={
               <Stack direction="row" gap={1}>
                 <AddToPlaylistAction song={song} />
+                <VoteAction song={song} />
               </Stack>
             }
           />

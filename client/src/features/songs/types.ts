@@ -1,10 +1,10 @@
 import { IPagination } from '@/types'
 
-export type ISongListResponse = {
+export interface ISongListResponse extends IPagination {
   docs: ISong[]
-} & IPagination
+}
 
-export type ISong = {
+export interface ISong {
   _id: string
   sourceId: string
   musicUrl: string

@@ -1,5 +1,6 @@
 import { Button, CircularProgress, Select, Stack, TextField } from '@mui/material'
 import { blue } from '@mui/material/colors'
+import { AxiosError } from 'axios'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 
@@ -40,13 +41,15 @@ function useRegisterForm(onRegistered?: () => void) {
       if (!username || !email || !password || !password2) return toast('Please fill all the fields!', { type: 'error' })
       if (!validateEmail(email)) return toast('Invalid email!', { type: 'error' })
       if (password !== password2) return toast('Passwords do not match!', { type: 'error' })
-      const res = await apiAuth.register(username, email, password, data.roles).catch(e => e.response)
-      const isSuccess = res.status === 200
-      if (![200, 400].includes(res.status)) return toast('Something went wrong!', { type: 'error' })
-      toast(res.data.message, { type: isSuccess ? 'success' : 'error' })
-      if (isSuccess) {
+
+      try {
+        const res = await apiAuth.register(username, email, password, data.roles).catch(e => e.response)
+        toast(res.data.message, { type: 'success' })
         setData({ ...defaultData })
         onRegistered?.()
+      } catch (e) {
+        const error = e as AxiosError<{ message: string }>
+        toast(error.response?.data.message ?? error.message, { type: 'error' })
       }
     })().finally(() => setLoading(false))
   }
