@@ -1,4 +1,3 @@
-import CloseIcon from '@mui/icons-material/Close'
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline'
 import {
   Avatar,
@@ -32,6 +31,7 @@ interface PlaylistListItemProps {
 export default function PlaylistListItem(props: PlaylistListItemProps) {
   const { playlist } = props
   const [edit, setEdit] = useState(false)
+  const btnId = `playlist-${playlist._id}-btn`
 
   async function handleSubmit(data: IPlaylistDataForm) {
     const toastId = toast.loading('Updating playlist...')
@@ -59,9 +59,10 @@ export default function PlaylistListItem(props: PlaylistListItemProps) {
 
   return (
     <ListItem
+      sx={{ [`:hover #${btnId}`]: { visibility: 'visible' } }}
       secondaryAction={
-        <IconButton onClick={() => setEdit(p => !p)}>
-          {edit ? <CloseIcon /> : <DriveFileRenameOutlineIcon />}
+        <IconButton id={btnId} sx={{ visibility: 'hidden' }} onClick={() => setEdit(p => !p)}>
+          <DriveFileRenameOutlineIcon />
         </IconButton>
       }
       disablePadding
