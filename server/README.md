@@ -1,16 +1,43 @@
 -   API
 
-*   localhost:port/stream : Stream
-*   localhost:port/api/song : [GET] Song List
-*   localhost:port/api/song/[songId] : [GET] Song Item
-*   localhost:port/api/song/[songId]/vote : [POST] Upvote Song Item /
-*   localhost:port/api/queue : [GET] Queue List
+*   /api/stream : Stream
 
+*   /api/queue : [GET] Queue List
+
+*   /api/songs : [GET] Song List
+*   /api/songs/[songId] : [GET] Song Item
+*   /api/songs/[songId]/vote : [PUT] Upvote Song 
+*   /api/songs/[songId]/vote : [DELETE] Downvote Song
+
+*   /api/playlists : [GET] Playlist List
+*   /api/playlists : [POST] Create Playlist
+*   /api/playlists/[playlistId] : [GET] Playlist Item
+*   /api/playlists/[playlistId] : [PUT] Update Playlist
+*   /api/playlists/[playlistId]/songs/[songId] : [PUT] Add Song to Playlist
+*   /api/playlists/[playlistId]/songs/[songId] : [DELETE] Remove Song to Playlist
+
+
+*   /api/shows : [GET] Show List
+*   /api/shows/[songId] : [GET] Show Item
+
+*   /api/artists : [GET] Artist List
+*   /api/artists/[songId] : [GET] Artist Item
+
+  
 -   ENVIRONMENT VARIABLES
 
-*   PORT: [number] expres js port
-*   DATABASE_URL: [string] mongodb url
-*   AUTO_UPDATE_SONGS: [boolean] run data scrapper
+*   PORT:  expres js port
+*   DATABASE_URL: mongodb url
+*   ORIGIN:  url separated by comma
+*   SECRET_KEYS:  secret keys separated by comma
+*   JWT_SECRET:  jwt secret
+
+*   BUCKET_NAME:  aws bucket name
+*   BUCKET_ENDPOINT:  aws endpoint
+*   BUCKET_REGION:  aws bucket region
+*   BUCKET_ACCESS_KEY_ID: aws KEY ID
+*   BUCKET_SECRET_ACCESS_KEY: aws secret ACCESS KEY
+
 
 -   SETUP
 
