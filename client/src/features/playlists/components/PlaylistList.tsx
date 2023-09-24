@@ -12,8 +12,6 @@ interface PlaylistListProps {
 export default function PlaylistList(props: PlaylistListProps) {
   const { playlists } = useUserPlaylists()
 
-  console.log({ playlists })
-
   return (
     <List sx={{ paddingTop: 0 }}>
       <PlaylistListHeader />

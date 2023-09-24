@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
 
-import { ISong } from '../types'
+import { ISong } from '@/features/songs/types'
 
 export default function useQueue() {
   const [queue, setQueue] = useState<ISong[]>([])

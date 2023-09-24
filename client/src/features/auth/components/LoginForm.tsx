@@ -7,7 +7,6 @@ import { toast } from 'react-toastify'
 import { useUserPlaylists } from '@/zustand/playlist'
 import { useUser } from '@/zustand/user'
 
-import { apiPlaylist } from '../../playlists/api/playlist'
 import { apiAuth } from '../api/auth'
 
 type LoginFormProps = {
