@@ -3,6 +3,7 @@ import {
     PlaylistGet,
     playlistAddSong,
     playlistCreate,
+    playlistDelete,
     playlistRemoveSong,
     playlistUpdate,
     playlistValidate,
@@ -39,6 +40,7 @@ const userPlaylistRoutes = (app: Application) => {
         ],
         playlistCreate,
     )
+    app.delete('/api/playlists/:id', [authUserToken, isAuthenticated, isUserPlaylist], playlistDelete)
     app.get('/api/playlists/:id', PlaylistGet)
     app.put(
         '/api/playlists/:id/',

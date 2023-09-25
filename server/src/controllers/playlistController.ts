@@ -34,6 +34,7 @@ export const playlistsGet = async (req: Request, res: Response) => {
         page: page ? Number(page) : 1,
         limit: limit ? Number(limit) : 30,
         sort: sort ? sort : { timestamp: 1 },
+        populate: 'user',
     }
 
     try {
@@ -59,6 +60,26 @@ export const playlistCreate = async (req: Request, res: Response) => {
     } catch (e) {
         console.error(e)
         res.status(400).json({ message: "Couldn't create playlist" })
+    }
+}
+
+export const playlistDelete = async (req: Request, res: Response) => {
+    const data = { playlistId: req.params.id }
+
+    try {
+        const playlist = await PlaylistModel.deleteOne({ _id: req.params.id, user: req.user.id })
+
+        if (playlist.deletedCount === 0) {
+            return res.status(404).json({ message: 'Cannot delete playlist', ...data })
+        }
+
+        res.json({
+            message: 'Playlist Deleted',
+            ...data,
+        })
+    } catch (e) {
+        console.error(e)
+        res.status(400).json({ message: 'Cannot delete playlist', ...data })
     }
 }
 

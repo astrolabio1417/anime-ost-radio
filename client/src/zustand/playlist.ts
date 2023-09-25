@@ -12,9 +12,10 @@ interface PlaylistsState {
 interface PlaylistsFunction {
   init: (userId: string) => void
   addPlaylist: (playlist: IPlaylist) => void
+  removePlaylist: (playlistId: string) => void
+  updatePlaylist: (playlistId: string, playlist: IPlaylist) => void
   addSongToPlaylist: (playlistId: string, song: ISong) => void
   removeSongToPlaylist: (playlistId: string, song: ISong) => void
-  updatePlaylist: (playlistId: string, playlist: IPlaylist) => void
   clearPlaylists: () => void
 }
 
@@ -35,6 +36,7 @@ export const useUserPlaylists = create<PlaylistsState & PlaylistsFunction>(set =
   },
   addPlaylist: playlist =>
     set(prev => ({ playlists: [...prev.playlists.filter(p => p._id !== playlist._id), playlist] })),
+  removePlaylist: playlistId => set(prev => ({ playlists: prev.playlists.filter(p => p._id !== playlistId) })),
   addSongToPlaylist: (playlistId, song: ISong) =>
     set(prev => ({
       playlists: prev.playlists.map(p => (p._id === playlistId ? { ...p, songs: [...p.songs, song] } : p)),

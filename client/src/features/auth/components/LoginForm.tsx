@@ -36,9 +36,9 @@ function useLoginForm(onLoggedOn?: () => void) {
 
     try {
       const res = await apiAuth.login(data.username, data.password)
-      const { id, roles, username } = res.data
-      useUser.setState({ id, roles, username, isLoggedIn: true })
-      useUserPlaylists.getState().init(id)
+      const { _id, roles, username } = res.data
+      useUser.setState({ id: _id, roles, username, isLoggedIn: true })
+      useUserPlaylists.getState().init(_id)
       onLoggedOn?.()
       toast(`Welcome ${username}!`, { type: 'success' })
     } catch (e) {

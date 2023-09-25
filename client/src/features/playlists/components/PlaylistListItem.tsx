@@ -1,7 +1,9 @@
+import DeleteIcon from '@mui/icons-material/Delete'
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline'
 import {
   Avatar,
   Box,
+  ButtonGroup,
   IconButton,
   ListItem,
   ListItemAvatar,
@@ -21,6 +23,7 @@ import { useUserPlaylists } from '@/zustand/playlist'
 
 import { apiPlaylist } from '../api/playlist'
 import { IPlaylist, IPlaylistDataForm, IPlaylistUpdateResponseError } from '../types'
+import DeletePlaylistForm from './DeletePlaylistForm'
 import PlaylistForm from './PlaylistForm'
 
 interface PlaylistListItemProps {
@@ -31,6 +34,7 @@ interface PlaylistListItemProps {
 export default function PlaylistListItem(props: PlaylistListItemProps) {
   const { playlist } = props
   const [edit, setEdit] = useState(false)
+  const [deleteModal, setDeleteModal] = useState(false)
   const btnId = `playlist-${playlist._id}-btn`
 
   async function handleSubmit(data: IPlaylistDataForm) {
@@ -61,9 +65,14 @@ export default function PlaylistListItem(props: PlaylistListItemProps) {
     <ListItem
       sx={{ [`:hover #${btnId}`]: { visibility: 'visible' } }}
       secondaryAction={
-        <IconButton id={btnId} sx={{ visibility: 'hidden' }} onClick={() => setEdit(p => !p)}>
-          <DriveFileRenameOutlineIcon />
-        </IconButton>
+        <ButtonGroup>
+          <IconButton className="edit-btn" id={btnId} sx={{ visibility: 'hidden' }} onClick={() => setEdit(p => !p)}>
+            <DriveFileRenameOutlineIcon fontSize="small" />
+          </IconButton>
+          <IconButton id={btnId} sx={{ visibility: 'hidden' }} onClick={() => setDeleteModal(p => !p)}>
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </ButtonGroup>
       }
       disablePadding
     >
@@ -76,6 +85,13 @@ export default function PlaylistListItem(props: PlaylistListItemProps) {
 
         <ListItemText primary={playlist.title} />
       </ListItemButton>
+      {deleteModal && (
+        <Modal open={deleteModal} onClose={() => setDeleteModal(false)}>
+          <ModalContainer>
+            <DeletePlaylistForm playlistId={playlist._id} onClose={() => setDeleteModal(false)} />
+          </ModalContainer>
+        </Modal>
+      )}
       {edit && (
         <Modal open={edit} onClose={() => setEdit(false)}>
           <ModalContainer>

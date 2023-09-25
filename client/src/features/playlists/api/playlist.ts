@@ -38,6 +38,9 @@ export const apiPlaylist = {
       createPlaylistFormData(playlist),
     )
   },
+  delete: async (playlistd: string) => {
+    return await http.delete<IPlaylistUpdateResponse>(`${API}/playlists/${playlistd}`)
+  },
   addSong: async (playlistId: string, songId: string) =>
     await http.put<IPlaylistSongUpdateResponse>(`${API}/playlists/${playlistId}/songs/${songId}`),
   removeSong: async (playlistId: string, songId: string) =>
