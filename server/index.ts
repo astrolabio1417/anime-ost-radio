@@ -23,7 +23,6 @@ process.on('SIGINT', function () {
 })
 
 dotenv.config()
-const reactAppPath = path.join(__dirname, 'react', 'index.html')
 const mongoString: string | undefined = process.env.DATABASE_URL ?? ''
 const sessionKeys = process.env.SECRET_KEY?.split(',') ?? ['generate-key-1']
 const origin = process.env.ORIGINS?.split(',') ?? ['http://localhost:5173', 'http://localhost:8000']
@@ -98,7 +97,7 @@ export const io = new IOServer(server, corsOption)
     showRoutes(app)
 
     app.get('*', (req, res) => {
-        res.sendFile(reactAppPath)
+        res.sendFile(path.join(__dirname, 'react', 'index.html'))
     })
 
     server.listen(port, () => {
