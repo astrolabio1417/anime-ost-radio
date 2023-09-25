@@ -5,7 +5,6 @@ import dotenv from 'dotenv'
 import http from 'http'
 import { Server as IOServer } from 'socket.io'
 import mongoose from 'mongoose'
-import { cleanSongModel } from './src/models/songModel'
 import { QUEUE_EVENTS, queue } from './src/queue'
 import { runAllanimeSongJob } from './src/songUpdateScheduler'
 import cookieSession from 'cookie-session'
@@ -18,14 +17,13 @@ import artistRoutes from './src/routes/artistRoutes'
 import cookieParser from 'cookie-parser'
 import showRoutes from './src/routes/showRotues'
 import path from 'path'
-import fs from 'fs'
 
 process.on('SIGINT', function () {
     schedule.gracefulShutdown().then(() => process.exit(0))
 })
 
 dotenv.config()
-const reactAppPath = path.resolve(__dirname, 'react', 'index.html')
+const reactAppPath = path.join(__dirname, 'react', 'index.html')
 const mongoString: string | undefined = process.env.DATABASE_URL ?? ''
 const sessionKeys = process.env.SECRET_KEY?.split(',') ?? ['generate-key-1']
 const origin = process.env.ORIGINS?.split(',') ?? ['http://localhost:5173', 'http://localhost:8000']
@@ -53,7 +51,6 @@ export const io = new IOServer(server, corsOption)
         initRoleModel()
     })
     await mongoose.connect(mongoString)
-    await cleanSongModel() // clean up old music list
     queue.play() // run radio
 
     const listenerPeers: Set<string> = new Set()
@@ -100,15 +97,9 @@ export const io = new IOServer(server, corsOption)
     artistRoutes(app)
     showRoutes(app)
 
-    if (fs.existsSync(reactAppPath)) {
-        app.get('*', (req, res) => {
-            res.sendFile(reactAppPath)
-        })
-    } else {
-        app.get('*', (req, res) => {
-            res.send('Express App!')
-        })
-    }
+    app.get('*', (req, res) => {
+        res.sendFile(reactAppPath)
+    })
 
     server.listen(port, () => {
         console.log(`[server]: Server is running at http://localhost:${port}`)
