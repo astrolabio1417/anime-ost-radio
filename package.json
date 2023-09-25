@@ -4,12 +4,19 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "postinstall": "(cd server && npm install --include=dev); (cd client && npm install --include=dev)",
+        "build:merge": "mv client/dist server/dist/react",
+        "build": "(rimraf server/dist); (cd client && npm run build); (cd server && npm run build); (npm run build:merge);",
+        "clean": "(rimraf client/node_modules); (cd server && npm prune --omit=dev); (rimraf node_modules)",
+        "start": "node server/dist/index.js",
         "dev": "concurrently --kill-others \"cd client && npm run dev\" \"cd server && npm run dev\""
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
         "concurrently": "^8.2.0"
+    },
+    "devDependencies": {
+        "rimraf": "^5.0.1"
     }
 }

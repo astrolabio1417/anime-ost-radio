@@ -17,12 +17,15 @@ import streamRoutes from './src/routes/streamRoutes'
 import artistRoutes from './src/routes/artistRoutes'
 import cookieParser from 'cookie-parser'
 import showRoutes from './src/routes/showRotues'
+import path from 'path'
+import fs from 'fs'
 
 process.on('SIGINT', function () {
     schedule.gracefulShutdown().then(() => process.exit(0))
 })
 
 dotenv.config()
+const reactAppPath = path.resolve(__dirname, 'react', 'index.html')
 const mongoString: string | undefined = process.env.DATABASE_URL ?? ''
 const sessionKeys = process.env.SECRET_KEY?.split(',') ?? ['generate-key-1']
 const origin = process.env.ORIGINS?.split(',') ?? ['http://localhost:5173', 'http://localhost:8000']
@@ -35,6 +38,7 @@ app.use(express.json())
 app.use(cors({ credentials: true, origin: origin }))
 app.use(cookieSession({ name: 'session', keys: sessionKeys, httpOnly: true }))
 app.use(cookieParser())
+app.use(express.static('react'))
 
 const corsOption = { cors: { origin } }
 const server = http.createServer(app)
@@ -96,9 +100,15 @@ export const io = new IOServer(server, corsOption)
     artistRoutes(app)
     showRoutes(app)
 
-    app.get('/', (req, res) => {
-        res.send('Express')
-    })
+    if (fs.existsSync(reactAppPath)) {
+        app.get('*', (req, res) => {
+            res.sendFile(reactAppPath)
+        })
+    } else {
+        app.get('*', (req, res) => {
+            res.send('Express App!')
+        })
+    }
 
     server.listen(port, () => {
         console.log(`[server]: Server is running at http://localhost:${port}`)

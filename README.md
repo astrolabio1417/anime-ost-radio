@@ -38,16 +38,9 @@
 -   BUCKET_ACCESS_KEY_ID: aws KEY ID
 -   BUCKET_SECRET_ACCESS_KEY: aws secret ACCESS KEY
 
-#### SETUP
+#### RUN DEV
 
-##### client
-
--   cd client
--   npm install
--   npm run dev
-
-##### server
-
--   cd server
--   npm install
--   npm run dev
+```
+ npm install
+ npm run dev
+```

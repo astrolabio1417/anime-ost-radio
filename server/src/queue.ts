@@ -36,7 +36,6 @@ class Queue extends EventEmitter {
     isPlaying: boolean
     bitrate: number
     timemark: number
-    isPriorityStreaming: boolean
 
     stream: fs.ReadStream | undefined
     throttle: Throttle | undefined
@@ -49,8 +48,6 @@ class Queue extends EventEmitter {
         this.isPlaying = false
         this.bitrate = 320 // 320 // 128 // 320
         this.timemark = 0
-        this.isPriorityStreaming = false
-        console.log('start', this.priorityStream)
     }
 
     async getCurrentTrack() {
@@ -115,7 +112,6 @@ class Queue extends EventEmitter {
     }
 
     async play() {
-        if (this.isPriorityStreaming) return console.log('priority stream is running!')
         this.isPlaying = true
         this.startBroadcast()
     }
