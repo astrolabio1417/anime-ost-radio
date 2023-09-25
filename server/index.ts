@@ -35,7 +35,7 @@ app.use(express.json())
 app.use(cors({ credentials: true, origin: origin }))
 app.use(cookieSession({ name: 'session', keys: sessionKeys, httpOnly: true }))
 app.use(cookieParser())
-app.use(express.static('react'))
+app.use(express.static(path.resolve(__dirname, 'react')))
 
 const corsOption = { cors: { origin } }
 const server = http.createServer(app)
@@ -97,7 +97,7 @@ export const io = new IOServer(server, corsOption)
     showRoutes(app)
 
     app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, 'react', 'index.html'))
+        res.sendFile(path.resolve(__dirname, 'react', 'index.html'))
     })
 
     server.listen(port, () => {

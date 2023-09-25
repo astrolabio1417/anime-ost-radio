@@ -19,7 +19,8 @@ WORKDIR /app
 ENV node_env='production'
 
 COPY --from=backend-build /app /app
-COPY --from=frontend-build /app/dist /app/react
+COPY --from=frontend-build /app/dist /app/dist/react
+
 
 EXPOSE 3000
 CMD [ "npm", "run", "start" ]
