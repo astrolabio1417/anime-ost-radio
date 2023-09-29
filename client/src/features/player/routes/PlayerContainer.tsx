@@ -47,7 +47,7 @@ export default function PlayerContainer() {
   }
 
   return (
-    <Box display={song ? 'block' : 'none'}>
+    <Box>
       <Box
         height="60px"
         position="fixed"

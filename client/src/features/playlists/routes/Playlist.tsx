@@ -1,12 +1,15 @@
-import { Box, Divider, Stack, Typography } from '@mui/material'
+import { Divider, Stack, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import Loading from '@/components/Loading'
+import PageHelmet from '@/components/PageHelmet'
+import BannerButtonsContainer from '@/features/player/components/BannerButtonsContainer'
+import BannerPlayButton from '@/features/player/components/BannerPlayButton'
 import AddToPlaylistAction from '@/features/songs/components/AddToPlaylistAction'
 import { ISong } from '@/features/songs/types'
-import { getSongCover } from '@/helpers'
+import { getSongCover, getsongThumbnail } from '@/helpers'
 import { usePlayer } from '@/zustand/player'
 import { useUser } from '@/zustand/user'
 
@@ -24,7 +27,7 @@ export default function Playlist() {
   })
   const [deletedSong, setDeletedSong] = useState<string[]>([])
   const { id: userId } = useUser()
-  const { activeSongId, id: playerId, playPlaylist } = usePlayer()
+  const { activeSongId, id: playerId, playPlaylist, play, playPlayer, pausePlayer } = usePlayer()
 
   const playlist = data?.data
   const playlistSongs = playlist?.songs?.filter(s => !deletedSong.includes(s._id))
@@ -39,40 +42,59 @@ export default function Playlist() {
     setDeletedSong(prev => [...prev, song._id])
   }
 
+  function handlePlay() {
+    if (isPlaylistPlaying) {
+      play ? pausePlayer() : playPlayer()
+      return
+    }
+
+    if (!playlistSongs) return
+    playPlaylist(playlistId, [...playlistSongs], playlistSongs[0]._id)
+  }
+
   return (
-    <Box>
-      <Banner
-        title={playlist?.title || ''}
-        subtitle={currentPlayingSong?.name || ''}
-        bgImage={getSongCover(currentPlayingSong) || playlist?.image?.cover || ''}
-        image={playlist?.image?.thumbnail || ''}
-      />
+    <Fragment>
+      <PageHelmet title={playlist?.title ?? 'Playlist'} />
 
-      {!isLoading && !playlist?._id && (
-        <Typography p={2} variant="h6">
-          Playlist Not Found!
-        </Typography>
-      )}
+      <Stack gap={2}>
+        <Banner
+          title={playlist?.title || ''}
+          subtitle={currentPlayingSong?.name || ''}
+          bgImage={getSongCover(currentPlayingSong) || getSongCover(playlist)}
+          image={getsongThumbnail(playlist) || getsongThumbnail(currentPlayingSong)}
+        />
 
-      {isLoading && <Loading />}
+        <BannerButtonsContainer>
+          <BannerPlayButton isPlaying={isPlaylistPlaying && play} onClick={handlePlay} />
+          {currentPlayingSong && <AddToPlaylistAction song={currentPlayingSong} />}
+        </BannerButtonsContainer>
 
-      <Stack divider={<Divider variant="fullWidth" />}>
-        {playlistSongs?.map(song => (
-          <SongItem
-            key={song._id}
-            song={song}
-            onClick={() => playPlaylist(playlistId, [...playlistSongs], song._id)}
-            secondaryAction={
-              <Stack direction="row" gap={1}>
-                <AddToPlaylistAction song={song} />
-                {playlist?.user._id === userId && (
-                  <RemoveSongAction playlistId={playlistId} song={song} onDelete={handleDelete} />
-                )}
-              </Stack>
-            }
-          />
-        ))}
+        {!isLoading && !playlist?._id && (
+          <Typography p={2} variant="h6">
+            Playlist Not Found!
+          </Typography>
+        )}
+
+        {isLoading && <Loading />}
+
+        <Stack divider={<Divider variant="fullWidth" />}>
+          {playlistSongs?.map(song => (
+            <SongItem
+              key={song._id}
+              song={song}
+              onClick={() => playPlaylist(playlistId, [...playlistSongs], song._id)}
+              secondaryAction={
+                <Stack direction="row" gap={1}>
+                  <AddToPlaylistAction song={song} />
+                  {playlist?.user._id === userId && (
+                    <RemoveSongAction playlistId={playlistId} song={song} onDelete={handleDelete} />
+                  )}
+                </Stack>
+              }
+            />
+          ))}
+        </Stack>
       </Stack>
-    </Box>
+    </Fragment>
   )
 }

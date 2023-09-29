@@ -9,17 +9,16 @@ export default function AppNavTitle(props: AppNavTitleProps) {
   return (
     <Typography
       onClick={props.onClick}
-      variant="body2"
       color="inherit"
-      fontSize={20}
-      fontFamily={'cursive'}
+      fontSize="1.3rem"
+      fontWeight={600}
       component={Link}
       to="/"
       sx={{
         textDecoration: 'none',
       }}
     >
-      AniGroove
+      AnimeBeats
     </Typography>
   )
 }

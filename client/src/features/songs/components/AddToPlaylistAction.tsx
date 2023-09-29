@@ -1,4 +1,4 @@
-import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
+import FavoriteIcon from '@mui/icons-material/Favorite'
 import { IconButton, Modal } from '@mui/material'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
@@ -25,7 +25,7 @@ export default function AddToPlaylistAction({ song }: AddToPlaylistActionProps) 
   return (
     <React.Fragment>
       <IconButton title="Add to playlist" onClick={handleClick} edge="end" aria-label="playlist" color="inherit">
-        <PlaylistAddIcon />
+        <FavoriteIcon />
       </IconButton>
 
       {showModal && (

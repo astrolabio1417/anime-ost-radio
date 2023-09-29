@@ -35,7 +35,7 @@ export default function PlaylistListItem(props: PlaylistListItemProps) {
   const { playlist } = props
   const [edit, setEdit] = useState(false)
   const [deleteModal, setDeleteModal] = useState(false)
-  const btnId = `playlist-${playlist._id}-btn`
+  const btnGroupId = `playlist-${playlist._id}-btn`
 
   async function handleSubmit(data: IPlaylistDataForm) {
     const toastId = toast.loading('Updating playlist...')
@@ -63,13 +63,13 @@ export default function PlaylistListItem(props: PlaylistListItemProps) {
 
   return (
     <ListItem
-      sx={{ [`:hover #${btnId}`]: { visibility: 'visible' } }}
+      sx={{ [`:hover #${btnGroupId}`]: { visibility: 'visible' } }}
       secondaryAction={
-        <ButtonGroup>
-          <IconButton className="edit-btn" id={btnId} sx={{ visibility: 'hidden' }} onClick={() => setEdit(p => !p)}>
+        <ButtonGroup id={btnGroupId} sx={{ visibility: { xs: 'visible', md: 'hidden' } }}>
+          <IconButton onClick={() => setEdit(p => !p)}>
             <DriveFileRenameOutlineIcon fontSize="small" />
           </IconButton>
-          <IconButton id={btnId} sx={{ visibility: 'hidden' }} onClick={() => setDeleteModal(p => !p)}>
+          <IconButton onClick={() => setDeleteModal(p => !p)}>
             <DeleteIcon fontSize="small" />
           </IconButton>
         </ButtonGroup>
@@ -95,7 +95,7 @@ export default function PlaylistListItem(props: PlaylistListItemProps) {
       {edit && (
         <Modal open={edit} onClose={() => setEdit(false)}>
           <ModalContainer>
-            <Typography variant="overline">Edit Playlist</Typography>
+            <Typography variant="subtitle2">Edit Playlist</Typography>
             <PlaylistForm
               initialData={{
                 title: playlist.title,

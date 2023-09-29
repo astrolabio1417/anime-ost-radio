@@ -6,7 +6,7 @@ export interface IPlaylist {
   _id: string
   title: string
   songs: ISong[]
-  image?: {
+  image: {
     cover?: string
     thumbnail?: string
   }

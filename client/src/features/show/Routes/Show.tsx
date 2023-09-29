@@ -1,12 +1,16 @@
-import { Box, Divider, Stack, Typography } from '@mui/material'
+import { Divider, Stack, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
+import { Fragment } from 'react'
 import { useParams } from 'react-router-dom'
 
 import Loading from '@/components/Loading'
+import PageHelmet from '@/components/PageHelmet'
+import BannerButtonsContainer from '@/features/player/components/BannerButtonsContainer'
+import BannerPlayButton from '@/features/player/components/BannerPlayButton'
 import { apiShow } from '@/features/show/api/show'
 import AddToPlaylistAction from '@/features/songs/components/AddToPlaylistAction'
 import VoteAction from '@/features/songs/components/VoteAction'
-import { getSongCover } from '@/helpers'
+import { getSongCover, getsongThumbnail } from '@/helpers'
 import { usePlayer } from '@/zustand/player'
 
 import Banner from '../../player/components/Banner'
@@ -19,44 +23,66 @@ export default function Show() {
     queryKey: ['show', showId],
     queryFn: () => apiShow.get(showId),
   })
-  const { activeSongId, id: playerId, playPlaylist } = usePlayer()
+  const { activeSongId, id: playerId, playPlaylist, playPlayer, pausePlayer, play } = usePlayer()
   const songs = data?.data.songs
   const isPlaylistPlaying = playerId === showId
   const currentPlayingSong = isPlaylistPlaying ? songs?.find(a => a._id === activeSongId) : undefined
-  const showImage = getSongCover(currentPlayingSong) ?? ''
+  const showCover = getSongCover(currentPlayingSong)
+  const showThumbnail = getsongThumbnail(currentPlayingSong)
+
+  function handlePlay() {
+    if (isPlaylistPlaying) {
+      play ? pausePlayer() : playPlayer()
+      return
+    }
+
+    if (!songs) return
+
+    playPlaylist(showId, [...songs], songs[0]._id)
+    playPlayer()
+  }
 
   return (
-    <Box>
-      <Banner
-        title={data?.data?.show ?? ''}
-        subtitle={currentPlayingSong?.name ?? ''}
-        bgImage={showImage}
-        image={showImage}
-      />
+    <Fragment>
+      <PageHelmet title={`${data?.data.show ?? 'Anime Songs'}`} />
 
-      {!isLoading && !data?.data?.show && (
-        <Typography p={2} variant="h6">
-          Show Not Found!
-        </Typography>
-      )}
+      <Stack gap={2}>
+        <Banner
+          title={data?.data?.show ?? ''}
+          subtitle={currentPlayingSong?.name ?? ''}
+          bgImage={showCover}
+          image={showThumbnail}
+        />
 
-      {isLoading && <Loading />}
+        {!isLoading && !data?.data?.show && (
+          <Typography p={2} variant="h6">
+            Show Not Found!
+          </Typography>
+        )}
 
-      <Stack divider={<Divider variant="fullWidth" />}>
-        {songs?.map(song => (
-          <SongItem
-            key={song._id}
-            song={song}
-            onClick={() => playPlaylist(showId, [...songs], song._id)}
-            secondaryAction={
-              <Stack direction="row" gap={1}>
-                <AddToPlaylistAction song={song} />
-                <VoteAction song={song} />
-              </Stack>
-            }
-          />
-        ))}
+        {isLoading && <Loading />}
+
+        <BannerButtonsContainer>
+          <BannerPlayButton isPlaying={isPlaylistPlaying && play} onClick={handlePlay} />
+          {currentPlayingSong && <AddToPlaylistAction song={currentPlayingSong} />}
+        </BannerButtonsContainer>
+
+        <Stack divider={<Divider variant="fullWidth" />}>
+          {songs?.map(song => (
+            <SongItem
+              key={song._id}
+              song={song}
+              onClick={() => playPlaylist(showId, [...songs], song._id)}
+              secondaryAction={
+                <Stack direction="row" gap={1}>
+                  <AddToPlaylistAction song={song} />
+                  <VoteAction song={song} />
+                </Stack>
+              }
+            />
+          ))}
+        </Stack>
       </Stack>
-    </Box>
+    </Fragment>
   )
 }

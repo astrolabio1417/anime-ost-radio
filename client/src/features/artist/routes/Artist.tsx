@@ -1,9 +1,13 @@
 import { List, Stack, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
+import { Fragment } from 'react'
 import { useParams } from 'react-router-dom'
 
 import Loading from '@/components/Loading'
+import PageHelmet from '@/components/PageHelmet'
 import Banner from '@/features/player/components/Banner'
+import BannerButtonsContainer from '@/features/player/components/BannerButtonsContainer'
+import BannerPlayButton from '@/features/player/components/BannerPlayButton'
 import AddToPlaylistAction from '@/features/songs/components/AddToPlaylistAction'
 import SongItem from '@/features/songs/components/SongItem'
 import VoteAction from '@/features/songs/components/VoteAction'
@@ -15,12 +19,13 @@ import { apiArtist } from '../api/artist'
 
 export default function Artist() {
   const { id } = useParams()
-  const { playPlaylist, activeSongId, id: playerId } = usePlayer()
+  const artistId = id ?? ''
+  const { playPlaylist, activeSongId, id: playerId, play, playPlayer, pausePlayer } = usePlayer()
   const { id: userId } = useUser()
   const { isLoading, data } = useQuery({
-    queryKey: ['artist', id],
-    queryFn: () => apiArtist.get(id ?? ''),
-    enabled: !!id,
+    queryKey: ['artist', artistId],
+    queryFn: () => apiArtist.get(artistId),
+    enabled: !!artistId,
   })
   const artist = data?.data
   const firstSong = artist?.songs?.[0]
@@ -29,31 +34,59 @@ export default function Artist() {
   const image = getSongCover(currentPlayingSong) ?? getSongCover(firstSong)
   const bgImage = getsongThumbnail(currentPlayingSong) ?? getsongThumbnail(firstSong)
 
+  function handlePlay() {
+    if (isPlaylistPlaying) {
+      play ? pausePlayer() : playPlayer()
+      return
+    }
+
+    if (!artist?.songs) return
+
+    playPlaylist(artistId, [...artist.songs], artist.songs[0]._id)
+    playPlayer()
+  }
+
   return (
-    <>
-      <Banner title={artist?.artist ?? ''} subtitle={currentPlayingSong?.name ?? ''} image={image} bgImage={bgImage} />
-      {isLoading && <Loading />}
-      {!isLoading && !artist?.artist && (
-        <Typography p={2} variant="h6">
-          Artist Not Found!
-        </Typography>
-      )}
-      <List>
-        {artist?.songs?.map(song => (
-          <SongItem
-            key={song._id}
-            onClick={() => playPlaylist(id ?? 'artist-id', artist?.songs ?? [], song._id)}
-            song={song}
-            user={userId}
-            secondaryAction={
-              <Stack direction="row" gap={1}>
-                <AddToPlaylistAction song={song} />
-                <VoteAction song={song} />
-              </Stack>
-            }
-          />
-        ))}
-      </List>
-    </>
+    <Fragment>
+      <PageHelmet title={artist?.artist ?? 'Artist'} />
+
+      <Stack gap={2}>
+        <Banner
+          title={artist?.artist ?? ''}
+          subtitle={currentPlayingSong?.name ?? ''}
+          image={image}
+          bgImage={bgImage}
+        />
+
+        <BannerButtonsContainer>
+          <BannerPlayButton isPlaying={isPlaylistPlaying && play} onClick={handlePlay} />
+          {currentPlayingSong && <AddToPlaylistAction song={currentPlayingSong} />}
+        </BannerButtonsContainer>
+
+        {isLoading && <Loading />}
+        {!isLoading && !artist?.artist && (
+          <Typography p={2} variant="h6">
+            Artist Not Found!
+          </Typography>
+        )}
+
+        <List>
+          {artist?.songs?.map(song => (
+            <SongItem
+              key={song._id}
+              onClick={() => playPlaylist(artistId ?? 'artist-id', artist?.songs ?? [], song._id)}
+              song={song}
+              user={userId}
+              secondaryAction={
+                <Stack direction="row" gap={1}>
+                  <AddToPlaylistAction song={song} />
+                  <VoteAction song={song} />
+                </Stack>
+              }
+            />
+          ))}
+        </List>
+      </Stack>
+    </Fragment>
   )
 }

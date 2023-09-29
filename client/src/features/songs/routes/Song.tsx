@@ -7,6 +7,7 @@ import { Fragment } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import Loading from '@/components/Loading'
+import PageHelmet from '@/components/PageHelmet'
 import Banner from '@/features/player/components/Banner'
 import { formatDuration } from '@/helpers'
 import { usePlayer } from '@/zustand/player'
@@ -29,6 +30,8 @@ export default function Song() {
 
   return (
     <Fragment>
+      <PageHelmet title={name ?? 'Anime Song'} />
+
       <Banner
         title={name ?? ''}
         subtitle={artist ?? ''}

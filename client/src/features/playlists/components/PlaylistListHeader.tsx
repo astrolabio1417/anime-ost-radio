@@ -34,7 +34,7 @@ export default function PlaylistListHeader() {
       </ListItem>
       <Modal open={showForm} onClose={() => setShowForm(false)}>
         <ModalContainer>
-          <Typography variant="overline">Create New Playlist</Typography>
+          <Typography variant="subtitle2">Create New Playlist</Typography>
           <CreatePlaylistForm />
         </ModalContainer>
       </Modal>

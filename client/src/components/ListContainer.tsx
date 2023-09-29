@@ -24,7 +24,9 @@ export default function ListContainer(props: ListContainerProps) {
   return (
     <Box width="100%">
       <Stack gap={2} padding={2}>
-        <Typography variant="h5">{title}</Typography>
+        <Typography variant="h6" fontWeight={700}>
+          {title}
+        </Typography>
         <TextFieldDebounce label="Search" onChange={onSearchChange} />
       </Stack>
 

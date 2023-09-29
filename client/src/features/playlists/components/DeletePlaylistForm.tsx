@@ -38,11 +38,11 @@ export default function DeletePlaylistForm(props: DeletePlaylistFormProps) {
 
   return (
     <form>
-      <Typography variant="body1" fontWeight={700} mb={2}>
+      <Typography variant="subtitle2" mb={2}>
         Are you sure you want to delete this playlist?
       </Typography>
       <Typography variant="body2" mb={2}>
-        This will delete the playlist and all of its songs, You cannot undo this action.
+        This will delete the playlist, You cannot undo this action.
       </Typography>
       <ButtonGroup>
         <Button onClick={handleDelete} variant="contained" color="error">

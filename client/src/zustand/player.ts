@@ -27,6 +27,8 @@ interface PlayerFn {
   playSong: (song: ISong) => void
   playPlaylist: (playlistId: string, songs: ISong[], activeSongId: string) => void
   removeSong: (song: ISong) => void
+  playPlayer: () => void
+  pausePlayer: () => void
 }
 
 const defaultState: PlayerState = {
@@ -76,4 +78,6 @@ export const usePlayer = create<PlayerState & PlayerFn>()(set => ({
     }))
   },
   removeSong: (song: ISong) => set(prev => ({ ...prev, songs: prev.songs.filter(s => s.id !== song._id) })),
+  playPlayer: () => set(prev => ({ ...prev, play: true })),
+  pausePlayer: () => set(prev => ({ ...prev, play: false })),
 }))

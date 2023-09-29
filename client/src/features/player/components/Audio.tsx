@@ -32,6 +32,7 @@ const Audio = forwardRef<AudioHandle, AudioProps>(function Audio(props, ref) {
 
       return {
         play() {
+          if (isAudioLive()) audio?.load()
           audio?.play()
         },
         pause() {
@@ -58,16 +59,12 @@ const Audio = forwardRef<AudioHandle, AudioProps>(function Audio(props, ref) {
 
   function seekToBufferedEnd() {
     const audio = audioRef.current
-
     if (!audio) return
-    const rangeToReload = 10
-
-    if (audio.buffered.end(0) - audio.currentTime >= rangeToReload) {
-      audio.load()
-      return
-    }
-
     audio.currentTime = audio.buffered.end(0)
+  }
+
+  function isAudioLive() {
+    return audioRef.current?.duration === Infinity
   }
 
   function seekAudio(value: number) {

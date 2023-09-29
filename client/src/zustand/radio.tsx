@@ -29,7 +29,7 @@ const defaultState: RadioState = {
   queue: [],
   timestamp: 0,
   isConnected: false,
-  isLive: false,
+  isLive: true,
 }
 
 export const useRadio = create<RadioState>()(() => ({ ...defaultState }))

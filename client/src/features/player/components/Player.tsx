@@ -31,7 +31,7 @@ export function Player(props: PlayerProps) {
   const current = index !== undefined ? props.songs?.[index] : null
   const downloadUrl = current?.downloadUrl ?? current?.src
   const [playerState, setPlayerState] = useState({
-    play: true,
+    play: false,
     loop: false,
     isSeeking: false,
     mute: false,

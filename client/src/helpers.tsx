@@ -1,7 +1,5 @@
 import moment from 'moment'
 
-import { ISong } from './features/songs/types'
-
 export function formatDuration(duration: number) {
   if (!duration) return
   return moment.utc(duration * 1000).format('mm:ss') // HH:mm:ss
@@ -17,12 +15,12 @@ export function formatSeek(value: number) {
   return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
 }
 
-export function getsongThumbnail(song?: ISong) {
+export function getsongThumbnail(song?: { image: { thumbnail?: string; cover?: string } }) {
   if (!song) return song
   return song.image?.thumbnail ?? song.image?.cover ?? ''
 }
 
-export function getSongCover(song?: ISong) {
+export function getSongCover(song?: { image: { thumbnail?: string; cover?: string } }) {
   if (!song) return song
   return song.image?.cover ?? song.image?.thumbnail ?? ''
 }

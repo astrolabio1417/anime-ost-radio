@@ -1,9 +1,11 @@
 import { ImageList, ImageListItem, ImageListItemBar, Pagination, Stack, Typography, useMediaQuery } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
+import { Fragment } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import BannerBackground from '@/assets/banner-background.png'
 import Loading from '@/components/Loading'
+import PageHelmet from '@/components/PageHelmet'
 import TextFieldDebounce from '@/components/TextFieldDebounce'
 
 import { apiPlaylist } from '../api/playlist'
@@ -30,11 +32,13 @@ export default function Playlists() {
   }
 
   return (
-    <>
+    <Fragment>
+      <PageHelmet title={'Playlists'} />
       <Stack gap={2} padding={2} paddingBottom={0}>
-        <Typography variant="h5">Playlists</Typography>
+        <Typography variant="h6" fontWeight={700}>
+          Playlists
+        </Typography>
         <TextFieldDebounce label="Search" onChange={handleSearchFieldChange} />
-        <Typography variant="overline">Search List</Typography>
       </Stack>
 
       {isLoading && <Loading />}
@@ -79,6 +83,6 @@ export default function Playlists() {
           />
         </Stack>
       }
-    </>
+    </Fragment>
   )
 }

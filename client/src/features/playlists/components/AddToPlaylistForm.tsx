@@ -64,7 +64,7 @@ export default function AddToPlaylistForm(props: AddToPlaylistFormProps) {
   return (
     <Box width="100%" height="100%">
       <FormGroup>
-        <Typography variant="overline">Save song to...</Typography>
+        <Typography variant="subtitle2">Save song to...</Typography>
 
         {playlists.map(playlist => (
           <FormControlLabel
@@ -92,7 +92,7 @@ export default function AddToPlaylistForm(props: AddToPlaylistFormProps) {
 
       <Modal open={openForm} onClose={() => setFormOpen(false)}>
         <ModalContainer>
-          <Typography variant="overline">Create Playlist</Typography>
+          <Typography variant="subtitle2">Create Playlist</Typography>
           <CreatePlaylistForm />
         </ModalContainer>
       </Modal>
