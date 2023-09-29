@@ -1,11 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { toast } from 'react-toastify'
-import { io } from 'socket.io-client'
 
+import { socket } from '@/appSocket'
 import { PEER_EVENTS, RTC_CONFIG } from '@/constants'
 import { usePlayer } from '@/zustand/player'
-
-const socket = io(import.meta.env.VITE_SERVER_URL)
 
 export default function RadioVoice() {
   const remoteAudioRef = useRef<HTMLAudioElement>(null)

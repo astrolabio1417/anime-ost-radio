@@ -1,6 +1,6 @@
-import { io } from 'socket.io-client'
 import { create } from 'zustand'
 
+import { socket } from '@/appSocket'
 import { ISong } from '@/features/songs/types'
 
 interface RadioState {
@@ -33,8 +33,6 @@ const defaultState: RadioState = {
 }
 
 export const useRadio = create<RadioState>()(() => ({ ...defaultState }))
-
-export const socket = io(import.meta.env.VITE_SERVER_URL)
 
 socket.on('connect', () => {
   console.log('connected to socket!')

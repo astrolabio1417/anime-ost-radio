@@ -3,11 +3,10 @@ import MicOffIcon from '@mui/icons-material/MicOff'
 import { IconButton, Typography } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
-import { io } from 'socket.io-client'
 
+import { socket } from '@/appSocket'
 import { PEER_EVENTS, RTC_CONFIG } from '@/constants'
 
-const socket = io(import.meta.env.VITE_SERVER_URL)
 const MICROPHONE_ACCESS_DENIED_ERROR = 'Microphone access denied, check your microphone permission'
 
 export default function Microphone() {
