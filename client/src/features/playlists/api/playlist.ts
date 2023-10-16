@@ -21,6 +21,7 @@ export const apiPlaylist = {
     page?: string
     limit?: number
     query?: { [key: string]: string }
+    populate?: string
   }) => {
     const params = new URLSearchParams()
     params.set('page', `${page ?? '1'}`)

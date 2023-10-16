@@ -34,7 +34,7 @@ export const playlistsGet = async (req: Request, res: Response) => {
         page: page ? Number(page) : 1,
         limit: limit ? Number(limit) : 30,
         sort: sort ? sort : { timestamp: 1 },
-        populate: 'user',
+        populate: ['user', 'songs'],
     }
 
     try {

@@ -1,5 +1,6 @@
 import { Box, Button, Checkbox, FormControlLabel, FormGroup, Modal, Typography } from '@mui/material'
 import { useState } from 'react'
+import { AxiosError } from 'axios'
 import { toast } from 'react-toastify'
 
 import ModalContainer from '@/components/ModalContainer'
@@ -7,7 +8,7 @@ import { ISong } from '@/features/songs/types'
 import { useUserPlaylists } from '@/zustand/playlist'
 
 import { apiPlaylist } from '../api/playlist'
-import { IPlaylist } from '../types'
+import { IPlaylist, IPlaylistUpdateResponseError } from '../types'
 import CreatePlaylistForm from './CreatePlaylistForm'
 
 interface AddToPlaylistFormProps {
@@ -25,18 +26,29 @@ function useAddToPlaylistForm() {
   async function handleCheckboxChange(playlist: IPlaylist, song: ISong, checked: boolean) {
     if (checked) {
       const toastId = toast.loading(`Adding ${song.name} to playlist...`)
-      const res = await apiPlaylist.addSong(playlist._id, song._id)
-      const isAdded = res.status === 200
 
-      if (isAdded) addSongToStatePlaylist(playlist._id, song)
+      try {
+        const res = await apiPlaylist.addSong(playlist._id, song._id)
+        const isAdded = res.status === 200
 
-      toast.update(toastId, {
-        render: res.data.message ?? 'Something went wrong',
-        type: isAdded ? 'success' : 'error',
-        isLoading: false,
-        autoClose: 3000,
-      })
+        if (isAdded) addSongToStatePlaylist(playlist._id, song)
 
+        toast.update(toastId, {
+          render: res.data.message ?? 'Something went wrong',
+          type: isAdded ? 'success' : 'error',
+          isLoading: false,
+          autoClose: 3000,
+        })
+      } catch (e) {
+        const error = e as AxiosError<IPlaylistUpdateResponseError>
+
+        toast.update(toastId, {
+          render: error.response?.data.message ?? error.message,
+          type: 'error',
+          isLoading: false,
+          autoClose: 3000,
+        })
+      }
       return
     }
 
