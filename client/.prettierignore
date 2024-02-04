@@ -1,0 +1,6 @@
+ ## file extensions
+ *.*
+ .vscode/settings.json
++LICENSE
+ !*.css
+ !*.js

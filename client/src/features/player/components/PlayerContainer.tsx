@@ -19,17 +19,17 @@ export default function PlayerContainer() {
   const playlistSongs: PlayerSongI[] = !isLive
     ? songs
     : currentRadioTrack
-    ? [
-        {
-          id: currentRadioTrack._id,
-          image: currentRadioTrack.image.cover ?? currentRadioTrack.image.thumbnail ?? '',
-          src: RADIO_STREAM,
-          title: currentRadioTrack.name,
-          subtitle: currentRadioTrack.artist,
-          downloadUrl: currentRadioTrack.musicUrl,
-        },
-      ]
-    : []
+      ? [
+          {
+            id: currentRadioTrack._id,
+            image: currentRadioTrack.image.cover ?? currentRadioTrack.image.thumbnail ?? '',
+            src: RADIO_STREAM,
+            title: currentRadioTrack.name,
+            subtitle: currentRadioTrack.artist,
+            downloadUrl: currentRadioTrack.musicUrl,
+          },
+        ]
+      : []
   const song = isLive ? playlistSongs[0] : playlistSongs.find(a => a.id === activeSongId)
   const initialIndex = isLive ? 0 : songs.findIndex(a => a.id === activeSongId) ?? 0
 
