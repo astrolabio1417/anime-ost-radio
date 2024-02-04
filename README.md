@@ -29,7 +29,6 @@
 -   PORT: expres js port
 -   DATABASE_URL: mongodb url
 -   ORIGIN: url separated by comma
--   SECRET_KEYS: secret keys separated by comma
 -   JWT_SECRET: jwt secret
 
 -   BUCKET_NAME: aws bucket name

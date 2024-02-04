@@ -13,13 +13,13 @@ import AppNavTitle from './AppNavTitle'
 import UserAvatar from './UserAvatar'
 
 export default function AppHeader() {
-  const { logout, username, isLoggedIn, roles } = useUser()
+  const { username, isLoggedIn, roles } = useUser()
   const { clearPlaylists } = useUserPlaylists()
   const isAuthorized = !!roles.find(role => role.name === 'admin')
 
   async function handleLogout() {
     await apiAuth.logout()
-    logout()
+    useUser.getState().logout()
     clearPlaylists()
     toast('See you next time!', { type: 'success' })
   }
@@ -57,9 +57,10 @@ export default function AppHeader() {
             <AppMobileDrawer />
             <AppNavTitle />
           </Stack>
+          <Microphone />
           {isLoggedIn ? (
             <>
-              {isAuthorized && <Microphone />}
+              {/* {isAuthorized && <Microphone />} */}
               <UserAvatar username={username} onLogout={handleLogout} />
             </>
           ) : (

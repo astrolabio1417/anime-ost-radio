@@ -1,3 +1,4 @@
+import Hls from 'hls.js'
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 
 interface AudioProps {
@@ -48,6 +49,19 @@ const Audio = forwardRef<AudioHandle, AudioProps>(function Audio(props, ref) {
   )
 
   useEffect(() => {
+    if (!audioRef.current) return
+
+    if (Hls.isSupported()) {
+      const hls = new Hls()
+      hls.loadSource(props.src)
+      hls.attachMedia(audioRef.current)
+      return
+    }
+
+    audioRef.current.src = props.src
+  }, [props.src])
+
+  useEffect(() => {
     if (props.volume === undefined) return
     setAudioVolume(props.volume)
   }, [props.volume])
@@ -96,7 +110,6 @@ const Audio = forwardRef<AudioHandle, AudioProps>(function Audio(props, ref) {
   return (
     <audio
       ref={audioRef}
-      src={props.src}
       hidden={props.hidden ?? false}
       onEnded={props.onEnd}
       onPlay={props.onPlay}

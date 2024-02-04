@@ -22,6 +22,7 @@ interface PlayerProps {
   initialPlay?: boolean
   onSongChange?: (song: PlayerSongI) => void
   onPlayChange?: (isPlaying: boolean) => void
+  onVolumeChange?: (volume: number) => void
 }
 
 export function Player(props: PlayerProps) {
@@ -55,7 +56,9 @@ export function Player(props: PlayerProps) {
   const handleTimeChange = (seek: number) => !playerState.isSeeking && setPlayerState(prev => ({ ...prev, seek }))
 
   const handleVolumeChange = (_: Event, newVolume: number | number[]) => {
-    setPlayerState(prev => ({ ...prev, volume: Array.isArray(newVolume) ? newVolume[0] : newVolume, mute: false }))
+    const volume = Array.isArray(newVolume) ? newVolume[0] : newVolume
+    setPlayerState(prev => ({ ...prev, volume, mute: false }))
+    props.onVolumeChange?.(volume)
   }
 
   const handleOnSeek = (_: Event, newSeek: number | number[]) => {

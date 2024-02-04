@@ -7,24 +7,26 @@ import { PlayerSongI, usePlayer } from '@/zustand/player'
 import { useRadio } from '@/zustand/radio'
 
 import { Player } from '../components/Player'
-import RadioVoice from '../components/RadioVoice'
+import VoiceReceiver from '../components/VoiceReceiver'
 
 export default function PlayerContainer() {
   const [showMobilePlayer, setShowMobilePlayer] = useState(false)
   const { songs, activeSongId, play } = usePlayer()
-  const { isLive, current } = useRadio()
+  const isLive = useRadio(state => state.isLive)
+  const currentRadioTrack = useRadio(state => state.current)
+  const [volume, setVolume] = useState(1)
 
   const playlistSongs: PlayerSongI[] = !isLive
     ? songs
-    : current
+    : currentRadioTrack
     ? [
         {
-          id: current._id,
-          image: current.image.cover ?? current.image.thumbnail ?? '',
+          id: currentRadioTrack._id,
+          image: currentRadioTrack.image.cover ?? currentRadioTrack.image.thumbnail ?? '',
           src: RADIO_STREAM,
-          title: current.name,
-          subtitle: current.artist,
-          downloadUrl: current.musicUrl,
+          title: currentRadioTrack.name,
+          subtitle: currentRadioTrack.artist,
+          downloadUrl: currentRadioTrack.musicUrl,
         },
       ]
     : []
@@ -32,11 +34,9 @@ export default function PlayerContainer() {
   const initialIndex = isLive ? 0 : songs.findIndex(a => a.id === activeSongId) ?? 0
 
   useEffect(() => {
-    if (!isLive) return
-    usePlayer.setState({
-      activeSongId: current._id,
-    })
-  }, [isLive, current])
+    if (!isLive || !currentRadioTrack?._id) return
+    usePlayer.setState({ activeSongId: currentRadioTrack._id })
+  }, [isLive, currentRadioTrack?._id])
 
   function onSongChange(song: PlayerSongI) {
     usePlayer.setState({ activeSongId: song.id })
@@ -108,13 +108,14 @@ export default function PlayerContainer() {
           </IconButton>
         </Toolbar>
         <Player
+          onVolumeChange={setVolume}
           initialPlay={play}
           onSongChange={onSongChange}
           onPlayChange={handleOnPlay}
           songs={playlistSongs}
           initialIndex={initialIndex}
         />
-        <RadioVoice />
+        <VoiceReceiver volume={volume} disable={!(isLive && play)} />
       </Box>
     </Box>
   )
