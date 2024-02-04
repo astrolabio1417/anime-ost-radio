@@ -1,12 +1,12 @@
 import { Pause, PlayArrow } from '@mui/icons-material'
 import { ButtonBase } from '@mui/material'
 
-interface BannerPlayButtonProps {
+interface PlayButton {
   onClick: () => void
   isPlaying: boolean
 }
 
-export default function BannerPlayButton(props: BannerPlayButtonProps) {
+export default function PlayButton(props: PlayButton) {
   return (
     <ButtonBase
       sx={{

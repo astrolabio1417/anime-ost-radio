@@ -1,6 +1,6 @@
 export const API = `${import.meta.env.VITE_SERVER_URL}/api`
 export const RADIO_STREAM = `${import.meta.env.VITE_SERVER_URL}/hls/test.m3u8`
-export const DRAWER_WIDTH = 300
+export const DRAWER_WIDTH = 200
 export const RADIO_PLAYLIST_ID = 'LIVE-RADIO'
 export const JSON_HEADER = {
   'Content-Type': 'application/json',

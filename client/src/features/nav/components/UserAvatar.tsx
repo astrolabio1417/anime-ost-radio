@@ -24,14 +24,20 @@ export default function UserAvatar(props: UserAvatarProps) {
         <PersonIcon sx={{ color: 'white' }} />
       </IconButton>
       <Box
-        sx={{ boxShadow: 3 }}
-        display={open ? 'block' : 'none'}
+        sx={{
+          boxShadow: 3,
+          opacity: open ? 1 : 0,
+          transform: `translateY(${open ? '0' : '-20px'})`,
+          transition: 'all 0.3s ease-out',
+        }}
+        visibility={open ? 'visible' : 'hidden'}
         bgcolor="background.default"
         position="absolute"
         borderRadius={1}
         marginTop={0.4}
         width={170}
         right={1}
+        zIndex={2}
       >
         <MenuList sx={{ color: '#000000' }}>
           {props.username && <MenuItem>{props.username}</MenuItem>}

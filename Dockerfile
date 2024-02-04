@@ -3,24 +3,33 @@ FROM node:20-alpine3.17 as base
 WORKDIR /app
 ENV node_env='production'
 
+# frontend build
 FROM base as frontend-build
 
-COPY client ./
-RUN npm install --include=dev && npm run build && rm -rf node_modules
+COPY client .
+RUN npm ci --include=dev && npm run build && rm -rf node_modules
 
-FROM base as backend-build
+# backend build
+FROM base as express-build
 
-COPY server ./
-RUN npm install --include=dev && npm run build && npm prune --omit=dev
+COPY server .
 
+RUN npm CI --include=dev && npm run build && npm prune --omit=dev
+
+# final
 FROM node:20-alpine3.17
 
 WORKDIR /app
+
 ENV node_env='production'
 
-COPY --from=backend-build /app /app
-COPY --from=frontend-build /app/dist /app/dist/react
+RUN apk add --no-cache ffmpeg nginx nginx-mod-rtmp \
+    && mkdir -p /tmp/hls
 
+COPY --from=express-build /app /app
+COPY --from=frontend-build /app/dist /app/dist/react
+COPY ./nginx_conf /etc/nginx
 
 EXPOSE 3000
+
 CMD [ "npm", "run", "start" ]

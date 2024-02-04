@@ -1,24 +1,48 @@
 module.exports = {
-  root: true,
-  env: { browser: true, es2020: true },
+  env: {
+    browser: true,
+    es2021: true,
+    node: true,
+  },
   extends: [
     'eslint:recommended',
+    'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
-    "plugin:@tanstack/eslint-plugin-query/recommended",
+    'plugin:prettier/recommended',
     'plugin:react-hooks/recommended',
-    'prettier',
+    'plugin:@tanstack/eslint-plugin-query/recommended',
   ],
-  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  overrides: [],
   parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh', '@tanstack/query', "simple-import-sort"],
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    project: './tsconfig.json',
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
+  plugins: ['react', '@typescript-eslint', 'prettier', 'react-refresh', '@tanstack/query', 'simple-import-sort'],
   rules: {
-    "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error",
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
+    'react/jsx-uses-react': 'error',
+    'react/jsx-uses-vars': 'error',
+    'react/react-in-jsx-scope': 0,
+    'prettier/prettier': [
+      'error',
+      {
+        endOfLine: 'auto',
+      },
     ],
-    "@tanstack/query/exhaustive-deps": "error",
-    "@tanstack/query/prefer-query-object-syntax": "error"
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
+    'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+    '@tanstack/query/exhaustive-deps': 'error',
+    '@tanstack/query/prefer-query-object-syntax': 'error',
+  },
+  ignorePatterns: ['.eslintrc.cjs', 'vite.config.ts'],
+  settings: {
+    react: {
+      version: 'detect',
+    },
   },
 }

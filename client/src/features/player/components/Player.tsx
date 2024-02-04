@@ -1,7 +1,7 @@
 import DownloadIcon from '@mui/icons-material/Download'
 import LoopIcon from '@mui/icons-material/Loop'
-import PauseCircleOutlineIcon from '@mui/icons-material/PauseCircleOutline'
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline'
+import PauseRounded from '@mui/icons-material/PauseRounded'
+import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded'
 import SkipNextIcon from '@mui/icons-material/SkipNext'
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious'
 import { Box, IconButton, Slider, Stack, Typography } from '@mui/material'
@@ -18,6 +18,7 @@ import Volume from './Volume'
 
 interface PlayerProps {
   songs: PlayerSongI[]
+  isLive?: boolean
   initialIndex?: number
   initialPlay?: boolean
   onSongChange?: (song: PlayerSongI) => void
@@ -99,6 +100,7 @@ export function Player(props: PlayerProps) {
   return (
     <Fragment>
       <Audio
+        hls={props.isLive}
         src={current?.src ?? ''}
         ref={audioRef}
         onEnd={playNext}
@@ -114,7 +116,6 @@ export function Player(props: PlayerProps) {
         width="100%"
         height="inherit"
         bgcolor="#252525"
-        overflow="hidden"
         direction="row"
         flexWrap="wrap"
         paddingX={2}
@@ -123,25 +124,29 @@ export function Player(props: PlayerProps) {
         alignItems="center"
         color="white"
         gap={2}
+        sx={{
+          overflowY: 'auto',
+          overflowX: 'hidden',
+        }}
       >
         <Box position="relative" overflow="hidden" width={{ xs: '100%', md: '20%' }}>
           <PlayerCard
             title={current?.title ?? ''}
             subtitle={current?.subtitle ?? ''}
             image={current?.image ?? ''}
-            imageSize={windowWidth >= 900 ? 56 : '50vh'}
-            titleSize={windowWidth >= 900 ? 15 : 24}
-            subtitleSize={windowWidth >= 900 ? 10 : 20}
+            imageSize={windowWidth >= 600 ? 56 : '50vh'}
+            titleSize={windowWidth >= 600 ? 15 : 24}
+            subtitleSize={windowWidth >= 600 ? 10 : 20}
             alignItems="center"
-            titleLineClamp={windowWidth >= 900 ? 1 : 4}
-            subtitleLineClamp={windowWidth >= 900 ? 1 : 4}
+            titleLineClamp={windowWidth >= 600 ? 1 : 4}
+            subtitleLineClamp={windowWidth >= 600 ? 1 : 4}
           />
         </Box>
 
         <Stack alignItems="center" width={{ xs: '100%', md: '50%' }}>
-          {/* player buttons  */}
+          {/* controls  */}
           <Stack direction="row" alignItems="center" width="100%">
-            {/* left */}
+            {/* left controls */}
             <Stack direction="row" gap={1} width="100%" justifyContent="flex-end">
               <IconButton title="Loop" onClick={toggleLoop} color={playerState.loop ? 'primary' : 'inherit'}>
                 <LoopIcon fontSize="small" />
@@ -157,13 +162,9 @@ export function Player(props: PlayerProps) {
               </IconButton>
             </Stack>
             <IconButton title="Play" color="inherit" onClick={handlePlayPause}>
-              {playerState.play ? (
-                <PauseCircleOutlineIcon fontSize="large" />
-              ) : (
-                <PlayCircleOutlineIcon fontSize="large" />
-              )}
+              {playerState.play ? <PauseRounded fontSize="large" /> : <PlayArrowRounded fontSize="large" />}
             </IconButton>
-            {/* right */}
+            {/* right controls */}
             <Stack direction="row" gap={1} width="100%">
               <IconButton
                 title="Next"
@@ -182,9 +183,17 @@ export function Player(props: PlayerProps) {
             </Stack>
           </Stack>
 
-          <Stack direction="row" alignItems="center" width="100%" gap={2}>
-            <Typography variant="body2">{formatSeek(playerState.seek ?? 0)}</Typography>
+          <Box width="100%">
             <Slider
+              sx={{
+                '& .MuiSlider-thumb': {
+                  width: 12,
+                  height: 12,
+                  backgroundColor: '#fff',
+                  '&::before': { boxShadow: '0 4px 8px rgba(0,0,0,0.4)' },
+                  '&:hover, &.Mui-focusVisible, &.Mui-active': { boxShadow: 'none' },
+                },
+              }}
               disabled={playerState.duration === Infinity}
               step={1}
               value={playerState.seek ?? 0}
@@ -193,26 +202,22 @@ export function Player(props: PlayerProps) {
               onChangeCommitted={handleOnSeekCommitted}
               color="primary"
             />
-            <Typography variant="body2">
-              {playerState.duration === Infinity ? (
-                <LiveText onClick={() => audioRef.current?.seekToBufferedEnd()} />
-              ) : (
-                formatSeek(playerState.duration ?? 0)
-              )}
-            </Typography>
-          </Stack>
+
+            <Stack justifyContent="space-between" direction="row" marginTop={-1.7}>
+              <Typography variant="body2">{formatSeek(playerState.seek ?? 0)}</Typography>
+              <Typography textAlign="end" variant="body2">
+                {props.isLive ? (
+                  <LiveText onClick={() => audioRef.current?.seekToBufferedEnd()} />
+                ) : (
+                  formatSeek(playerState.duration ?? 0)
+                )}
+              </Typography>
+            </Stack>
+          </Box>
         </Stack>
 
-        <Box
-          width="20%"
-          sx={{
-            display: {
-              xs: 'none',
-              md: 'block',
-            },
-          }}
-        >
-          <Box width="100%" maxWidth="200px" marginLeft="auto">
+        <Box width="20%" sx={{ display: { xs: 'none', md: 'block' } }}>
+          <Box width="100%" maxWidth="150px" marginLeft="auto">
             <Volume
               volume={audioRef.current?.muted ? 0 : playerState.volume}
               onClick={handleMute}

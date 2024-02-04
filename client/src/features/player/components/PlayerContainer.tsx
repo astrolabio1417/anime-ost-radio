@@ -2,12 +2,12 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { Box, IconButton, Toolbar, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 
-import { DRAWER_WIDTH, RADIO_STREAM } from '@/constants'
+import { RADIO_STREAM } from '@/constants'
 import { PlayerSongI, usePlayer } from '@/zustand/player'
 import { useRadio } from '@/zustand/radio'
 
-import { Player } from '../components/Player'
-import VoiceReceiver from '../components/VoiceReceiver'
+import { Player } from './Player'
+import VoiceReceiver from './VoiceReceiver'
 
 export default function PlayerContainer() {
   const [showMobilePlayer, setShowMobilePlayer] = useState(false)
@@ -47,22 +47,14 @@ export default function PlayerContainer() {
   }
 
   return (
-    <Box>
+    <Box sx={{ width: '100%', height: '100%', gridArea: 'playbar', overflow: 'hidden' }}>
       <Box
         height="60px"
-        position="fixed"
-        display={{
-          xs: 'flex',
-          md: 'none',
-        }}
-        bottom={0}
+        display={{ xs: 'flex', sm: 'none' }}
         bgcolor="#252525"
         width="100%"
         zIndex={10}
-        sx={{
-          alignItems: 'center',
-          cursor: 'pointer',
-        }}
+        sx={{ alignItems: 'center', cursor: 'pointer' }}
         onClick={() => setShowMobilePlayer(true)}
       >
         <Box display="inline-block" width="60px" height="100%">
@@ -74,39 +66,35 @@ export default function PlayerContainer() {
       </Box>
 
       <Box
-        position="fixed"
-        width={{
-          xs: '100%',
-          md: `calc(100% - ${DRAWER_WIDTH}px)`,
-        }}
-        height={{
-          xs: '100%',
-          md: 'auto',
-        }}
+        width="100%"
+        height="100%"
         bottom={0}
         zIndex={1101}
         bgcolor="#252525"
+        position={{ xs: 'absolute', sm: 'unset' }}
+        visibility={{ xs: showMobilePlayer ? 'visible' : 'hidden', sm: 'visible' }}
         sx={{
-          overflowY: 'auto',
           transform: {
             xs: `translateY(${showMobilePlayer ? '0%' : '100%'})`,
-            md: 'none',
+            sm: 'none',
           },
-          transition: 'transform 0.4s ease-in-out',
+          overflowX: 'hidden',
+          overflowY: 'auto',
+          transition: 'all 0.4s ease-in-out',
         }}
       >
         <Toolbar
           sx={{
-            position: 'fixed',
-            display: {
-              md: 'none',
-            },
+            position: 'absolute',
+            zIndex: 2,
+            display: { sm: 'none' },
           }}
         >
           <IconButton title="Close" sx={{ color: 'white' }} size="large" onClick={() => setShowMobilePlayer(false)}>
             <KeyboardArrowDownIcon />
           </IconButton>
         </Toolbar>
+
         <Player
           onVolumeChange={setVolume}
           initialPlay={play}
@@ -114,7 +102,9 @@ export default function PlayerContainer() {
           onPlayChange={handleOnPlay}
           songs={playlistSongs}
           initialIndex={initialIndex}
+          isLive={isLive}
         />
+
         <VoiceReceiver volume={volume} disable={!(isLive && play)} />
       </Box>
     </Box>

@@ -84,7 +84,7 @@ export default function Songs() {
           ))}
         </List>
 
-        <Stack alignItems="center">
+        <Stack paddingBottom={2} alignItems="center">
           <Pagination
             hideNextButton={!data?.data.hasNextPage}
             hidePrevButton={!data?.data.hasPrevPage}

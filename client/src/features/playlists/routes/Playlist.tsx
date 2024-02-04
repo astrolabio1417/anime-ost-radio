@@ -5,8 +5,8 @@ import { useParams } from 'react-router-dom'
 
 import Loading from '@/components/Loading'
 import PageHelmet from '@/components/PageHelmet'
-import BannerButtonsContainer from '@/features/player/components/BannerButtonsContainer'
-import BannerPlayButton from '@/features/player/components/BannerPlayButton'
+import ControlsContainer from '@/features/player/components/ControlsContainer'
+import PlayButton from '@/features/player/components/PlayButton'
 import AddToPlaylistAction from '@/features/songs/components/AddToPlaylistAction'
 import { ISong } from '@/features/songs/types'
 import { getSongCover, getsongThumbnail } from '@/helpers'
@@ -64,10 +64,10 @@ export default function Playlist() {
           image={getsongThumbnail(playlist) || getsongThumbnail(currentPlayingSong)}
         />
 
-        <BannerButtonsContainer>
-          <BannerPlayButton isPlaying={isPlaylistPlaying && play} onClick={handlePlay} />
+        <ControlsContainer>
+          <PlayButton isPlaying={isPlaylistPlaying && play} onClick={handlePlay} />
           {currentPlayingSong && <AddToPlaylistAction song={currentPlayingSong} />}
-        </BannerButtonsContainer>
+        </ControlsContainer>
 
         {!isLoading && !playlist?._id && (
           <Typography p={2} variant="h6">

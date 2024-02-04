@@ -1,18 +1,16 @@
-import { AppBar, Button, Stack, Toolbar } from '@mui/material'
+import { Box, Button, Stack, SxProps, Theme, Toolbar } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
-import { DRAWER_WIDTH } from '@/constants'
 import Microphone from '@/features/player/components/Microphone'
 import { useUserPlaylists } from '@/zustand/playlist'
 import { useUser } from '@/zustand/user'
 
 import { apiAuth } from '../../auth/api/auth'
 import AppMobileDrawer from './AppMobileDrawer'
-import AppNavTitle from './AppNavTitle'
 import UserAvatar from './UserAvatar'
 
-export default function AppHeader() {
+export default function NavBar(props: { sx?: SxProps<Theme> | undefined }) {
   const { username, isLoggedIn, roles } = useUser()
   const { clearPlaylists } = useUserPlaylists()
   const isAuthorized = !!roles.find(role => role.name === 'admin')
@@ -25,19 +23,16 @@ export default function AppHeader() {
   }
 
   return (
-    <AppBar
-      position="fixed"
+    <Box
+      width="100%"
       sx={{
-        width: {
-          xs: '100%',
-          md: `calc(100% - ${DRAWER_WIDTH}px)`,
-        },
-        ml: `${DRAWER_WIDTH}px`,
+        gridArea: 'nav',
         bgcolor: 'background.default',
         boxShadow: 'none',
         borderBottom: {
           md: '1px solid #E5EAF2',
         },
+        ...props.sx,
       }}
     >
       <Toolbar sx={{ display: 'flex', justifyContent: 'end' }}>
@@ -55,21 +50,14 @@ export default function AppHeader() {
             }}
           >
             <AppMobileDrawer />
-            <AppNavTitle />
           </Stack>
-          <Microphone />
           {isLoggedIn ? (
             <>
-              {/* {isAuthorized && <Microphone />} */}
+              {isAuthorized && <Microphone />}
               <UserAvatar username={username} onLogout={handleLogout} />
             </>
           ) : (
             <Stack gap={1} direction="row">
-              <Link to="/register">
-                <Button title="Sign Up" variant="contained">
-                  Sign Up
-                </Button>
-              </Link>
               <Link to="/login">
                 <Button title="Login" variant="contained">
                   Login
@@ -79,6 +67,6 @@ export default function AppHeader() {
           )}
         </Stack>
       </Toolbar>
-    </AppBar>
+    </Box>
   )
 }

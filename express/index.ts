@@ -50,7 +50,7 @@ database.once('connected', () => {
 
 mongoose.connect(mongoString).then(() => {
     // run radio
-    queue.play()
+    // queue.play()
     // playRandomSong()
 
     const listenerPeers: Set<string> = new Set()

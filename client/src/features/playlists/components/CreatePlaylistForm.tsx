@@ -22,8 +22,11 @@ export default function CreatePlaylistForm() {
       newPlaylist.data.playlist && useUserPlaylists.getState().addPlaylist(newPlaylist.data.playlist)
     } catch (e) {
       const error = e as AxiosError<{ message: string }>
+      let errorMessage = error.response?.data.message ?? error.message
+      if (error.status === 403) errorMessage = 'Images is too big!'
+
       toast.update(toastId, {
-        render: error.response?.data.message ?? error.message,
+        render: errorMessage,
         type: 'error',
         isLoading: false,
         autoClose: 3000,

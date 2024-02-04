@@ -22,20 +22,19 @@ export default function PlayerCard(props: PlayerCardProps) {
       width="100%"
       direction={{
         xs: 'column',
-        md: 'row',
+        sm: 'row',
       }}
       gap={2}
       position="relative"
       zIndex={1}
-      paddingTop={1}
       color="white"
       alignItems={{
         xs: 'center',
-        md: alignItems ?? 'flex-end',
+        sm: alignItems ?? 'flex-end',
       }}
       textAlign={{
         xs: 'center',
-        md: 'start',
+        sm: 'start',
       }}
       style={{ textShadow: '0px 4px 4px #282828' }}
     >

@@ -12,7 +12,7 @@ export default function VolumeIconButton(props: VolumeIconButtonProps) {
   const { volume } = props
 
   return (
-    <IconButton title="Volume" color="inherit" onClick={props.onClick}>
+    <IconButton sx={{ padding: 0 }} title="Volume" color="inherit" onClick={props.onClick}>
       {volume === 0 ? <VolumeOffIcon /> : volume <= 0.49 ? <VolumeDownIcon /> : <VolumeUpIcon />}
     </IconButton>
   )

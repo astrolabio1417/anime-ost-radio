@@ -12,6 +12,7 @@ interface AudioProps {
   volume?: number
   playing?: boolean
   hidden?: boolean
+  hls?: boolean
 }
 
 export interface AudioHandle {
@@ -51,7 +52,7 @@ const Audio = forwardRef<AudioHandle, AudioProps>(function Audio(props, ref) {
   useEffect(() => {
     if (!audioRef.current) return
 
-    if (Hls.isSupported()) {
+    if (Hls.isSupported() && props.hls) {
       const hls = new Hls()
       hls.loadSource(props.src)
       hls.attachMedia(audioRef.current)
@@ -59,7 +60,7 @@ const Audio = forwardRef<AudioHandle, AudioProps>(function Audio(props, ref) {
     }
 
     audioRef.current.src = props.src
-  }, [props.src])
+  }, [props.src, props.hls])
 
   useEffect(() => {
     if (props.volume === undefined) return
@@ -74,7 +75,7 @@ const Audio = forwardRef<AudioHandle, AudioProps>(function Audio(props, ref) {
   function seekToBufferedEnd() {
     const audio = audioRef.current
     if (!audio) return
-    audio.currentTime = audio.buffered.end(0)
+    audio.currentTime = audio.duration - 1
   }
 
   function isAudioLive() {

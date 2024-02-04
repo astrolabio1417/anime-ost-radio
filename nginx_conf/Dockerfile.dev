@@ -3,7 +3,6 @@ FROM alpine:latest
 WORKDIR /etc/nginx
 
 RUN apk add nginx nginx-mod-rtmp \
-    && mkdir -p /tmp/hls \
-    && chown -R nginx:nginx /tmp/hls
+    && mkdir -p /tmp/hls
 
 COPY . .

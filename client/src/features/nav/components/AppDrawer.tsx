@@ -1,41 +1,28 @@
-import { Box, Drawer, Toolbar } from '@mui/material'
+import { Box, SxProps, Theme } from '@mui/material'
 
 import { DRAWER_WIDTH } from '@/constants'
 import PlaylistList from '@/features/playlists/components/PlaylistList'
 
-import AppNavTitle from './AppNavTitle'
 import NavList from './NavList'
 
-export default function AppDrawer() {
+export default function AppDrawer(props: { sx?: SxProps<Theme> | undefined }) {
   return (
-    <Drawer
+    <Box
       sx={{
         width: DRAWER_WIDTH,
         flexShrink: 0,
-        ['& .MuiDrawer-paper']: {
-          width: DRAWER_WIDTH,
-          boxSizing: 'border-box',
-          borderRight: 0,
-        },
-        display: {
-          xs: 'none',
-          md: 'block',
-        },
+        // display: { xs: 'none', md: 'block' },
+        gridArea: 'sidebar',
+        height: '100%',
+        overflowY: 'auto',
+        borderRight: '1px solid #E5EAF2',
+        // resize: 'horizontal',
+        overflow: 'auto',
+        ...props.sx,
       }}
-      variant="permanent"
-      anchor="left"
     >
-      <Toolbar
-        sx={{
-          borderRight: 'none',
-        }}
-      >
-        <AppNavTitle />
-      </Toolbar>
-      <Box sx={{ overflow: 'auto', height: '100%', borderRight: '1px solid #E5EAF2', borderTop: '1px solid #E5EAF2' }}>
-        <NavList />
-        <PlaylistList />
-      </Box>
-    </Drawer>
+      <NavList />
+      <PlaylistList />
+    </Box>
   )
 }

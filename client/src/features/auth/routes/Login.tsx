@@ -20,7 +20,7 @@ export default function Login() {
         </Typography>
         <LoginForm onLoggedOn={() => navigate('/')} />
         <Typography display="inline-block" variant="subtitle2">
-          Don't have an account?
+          Don&apos;t have an account?
           <Link to="/register" style={{ textDecoration: 'none', color: blue[600], marginLeft: 5 }}>
             Register
           </Link>

@@ -5,8 +5,8 @@ import { useParams } from 'react-router-dom'
 
 import Loading from '@/components/Loading'
 import PageHelmet from '@/components/PageHelmet'
-import BannerButtonsContainer from '@/features/player/components/BannerButtonsContainer'
-import BannerPlayButton from '@/features/player/components/BannerPlayButton'
+import ControlsContainer from '@/features/player/components/ControlsContainer'
+import PlayButton from '@/features/player/components/PlayButton'
 import { apiShow } from '@/features/show/api/show'
 import AddToPlaylistAction from '@/features/songs/components/AddToPlaylistAction'
 import VoteAction from '@/features/songs/components/VoteAction'
@@ -62,10 +62,10 @@ export default function Show() {
 
         {isLoading && <Loading />}
 
-        <BannerButtonsContainer>
-          <BannerPlayButton isPlaying={isPlaylistPlaying && play} onClick={handlePlay} />
+        <ControlsContainer>
+          <PlayButton isPlaying={isPlaylistPlaying && play} onClick={handlePlay} />
           {currentPlayingSong && <AddToPlaylistAction song={currentPlayingSong} />}
-        </BannerButtonsContainer>
+        </ControlsContainer>
 
         <Stack divider={<Divider variant="fullWidth" />}>
           {songs?.map(song => (

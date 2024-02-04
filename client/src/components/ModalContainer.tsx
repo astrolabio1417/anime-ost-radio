@@ -31,4 +31,6 @@ const ModalContainer = React.forwardRef<ModalContainerProps, BoxProps>((props, r
   )
 })
 
+ModalContainer.displayName = 'ModalContainer'
+
 export default ModalContainer

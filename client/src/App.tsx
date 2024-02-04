@@ -13,10 +13,9 @@ import { BrowserRouter } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 
 import AppRoutes from './AppRoutes'
-import MainContainer from './components/MainContainer'
 import AppDrawer from './features/nav/components/AppDrawer'
-import AppHeader from './features/nav/components/AppHeader'
-import PlayerContainer from './features/player/routes/PlayerContainer'
+import NavBar from './features/nav/components/NavBar'
+import PlayerContainer from './features/player/components/PlayerContainer'
 import useUserData from './hooks/initUserData'
 
 const queryClient = new QueryClient()
@@ -30,13 +29,34 @@ function App() {
         <StyledEngineProvider injectFirst>
           <QueryClientProvider client={queryClient}>
             <BrowserRouter future={{ v7_startTransition: true }}>
-              <Box sx={{ display: 'flex', overflowX: 'hidden' }} position="relative">
-                <AppHeader />
-                <AppDrawer />
-                <MainContainer>
+              <Box
+                sx={{
+                  display: 'grid',
+                  overflow: 'hidden',
+                  gridTemplateAreas: {
+                    xs: `"nav nav" "main main" "playbar playbar"`,
+                    sm: `"nav nav nav" "sidebar main main" "playbar playbar playbar"`,
+                  },
+                  gridTemplateColumns: 'auto 1fr',
+                  gridTemplateRows: { xs: 'auto 1fr auto', sm: 'auto 1fr auto' },
+                  maxHeight: '100vh',
+                  minHeight: '100vh',
+                  height: '100vh',
+                }}
+                position="relative"
+              >
+                <NavBar />
+
+                {/* <sidebar /> */}
+                <AppDrawer sx={{ display: { xs: 'none', sm: 'block' } }} />
+
+                {/* <main> */}
+                <Box sx={{ overflowY: 'scroll', gridArea: 'main', height: '100%', width: '100%' }}>
                   <AppRoutes />
-                  <PlayerContainer />
-                </MainContainer>
+                </Box>
+
+                {/* playbar */}
+                <PlayerContainer />
               </Box>
               <ToastContainer
                 position="bottom-right"

@@ -5,7 +5,6 @@ import React, { useState } from 'react'
 
 import PlaylistList from '@/features/playlists/components/PlaylistList'
 
-import AppNavTitle from './AppNavTitle'
 import NavList from './NavList'
 
 export default function AppMobileDrawer() {
@@ -28,13 +27,12 @@ export default function AppMobileDrawer() {
           transition: 'transform 0.2s ease-in-out',
           position: 'fixed',
           inset: 0,
-          zIndex: 10,
+          zIndex: 11,
           overflowY: 'auto',
           bgcolor: 'background.default',
         }}
       >
         <Toolbar>
-          <AppNavTitle onClick={handleClose} />
           <IconButton title="Close" sx={{ marginLeft: 'auto' }} onClick={handleClose} color="inherit">
             <CloseIcon />
           </IconButton>

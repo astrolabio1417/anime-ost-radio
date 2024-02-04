@@ -1,6 +1,6 @@
 import { Box, Button, Checkbox, FormControlLabel, FormGroup, Modal, Typography } from '@mui/material'
-import { useState } from 'react'
 import { AxiosError } from 'axios'
+import { useState } from 'react'
 import { toast } from 'react-toastify'
 
 import ModalContainer from '@/components/ModalContainer'

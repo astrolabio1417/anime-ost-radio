@@ -2,7 +2,7 @@ import { List, Stack, Typography } from '@mui/material'
 
 import PageHelmet from '@/components/PageHelmet'
 import Banner from '@/features/player/components/Banner'
-import BannerButtonsContainer from '@/features/player/components/BannerButtonsContainer'
+import ControlsContainer from '@/features/player/components/ControlsContainer'
 import { formatDuration, getSongCover, getsongThumbnail } from '@/helpers'
 import { usePlayer } from '@/zustand/player'
 import { useRadio } from '@/zustand/radio'
@@ -41,10 +41,10 @@ export default function QueueSongs() {
           {vote && <Typography variant="caption">Vote: {vote.total}</Typography>}
         </Banner>
 
-        <BannerButtonsContainer>
+        <ControlsContainer>
           <RadioPlayButton />
           <AddToPlaylistAction song={current} />
-        </BannerButtonsContainer>
+        </ControlsContainer>
 
         <List>
           <Typography paddingX={2} variant="h6">

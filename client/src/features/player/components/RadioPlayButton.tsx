@@ -2,7 +2,7 @@ import { RADIO_PLAYLIST_ID } from '@/constants'
 import { usePlayer } from '@/zustand/player'
 import { useRadio } from '@/zustand/radio'
 
-import BannerPlayButton from './BannerPlayButton'
+import PlayButton from './PlayButton'
 
 export default function RadioPlayButton() {
   const { isLive } = useRadio()
@@ -18,5 +18,5 @@ export default function RadioPlayButton() {
     usePlayer.setState({ activeSongId: '', id: RADIO_PLAYLIST_ID, play: true })
   }
 
-  return <BannerPlayButton isPlaying={isLive && play} onClick={handlePlayAiring} />
+  return <PlayButton isPlaying={isLive && play} onClick={handlePlayAiring} />
 }

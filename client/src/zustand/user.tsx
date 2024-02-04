@@ -23,6 +23,5 @@ const defaultState = {
 
 export const useUser = create<UserState & UserFunction>()(set => ({
   ...defaultState,
-  logout: () =>
-    set(() => ({...defaultState})),
+  logout: () => set(() => ({ ...defaultState })),
 }))

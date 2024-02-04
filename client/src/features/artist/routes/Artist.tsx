@@ -6,8 +6,8 @@ import { useParams } from 'react-router-dom'
 import Loading from '@/components/Loading'
 import PageHelmet from '@/components/PageHelmet'
 import Banner from '@/features/player/components/Banner'
-import BannerButtonsContainer from '@/features/player/components/BannerButtonsContainer'
-import BannerPlayButton from '@/features/player/components/BannerPlayButton'
+import ControlsContainer from '@/features/player/components/ControlsContainer'
+import PlayButton from '@/features/player/components/PlayButton'
 import AddToPlaylistAction from '@/features/songs/components/AddToPlaylistAction'
 import SongItem from '@/features/songs/components/SongItem'
 import VoteAction from '@/features/songs/components/VoteAction'
@@ -58,10 +58,10 @@ export default function Artist() {
           bgImage={bgImage}
         />
 
-        <BannerButtonsContainer>
-          <BannerPlayButton isPlaying={isPlaylistPlaying && play} onClick={handlePlay} />
+        <ControlsContainer>
+          <PlayButton isPlaying={isPlaylistPlaying && play} onClick={handlePlay} />
           {currentPlayingSong && <AddToPlaylistAction song={currentPlayingSong} />}
-        </BannerButtonsContainer>
+        </ControlsContainer>
 
         {isLoading && <Loading />}
         {!isLoading && !artist?.artist && (
