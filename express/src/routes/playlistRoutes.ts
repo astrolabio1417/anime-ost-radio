@@ -1,4 +1,4 @@
-import { Application, NextFunction, Request, Response } from 'express'
+import { Application } from 'express'
 import {
     PlaylistGet,
     playlistAddSong,
@@ -6,25 +6,19 @@ import {
     playlistDelete,
     playlistRemoveSong,
     playlistUpdate,
-    playlistValidate,
     playlistsGet,
 } from '../controllers/playlistController'
 import { authUserToken, isAuthenticated } from '../middlewares/authJwt'
 import { isUserPlaylist } from '../middlewares/authUserPlaylist'
-import upload, { IExpressMulerFile } from '../middlewares/upload'
-import checkValidationError from '../middlewares/checkValidationError'
+import upload from '../middlewares/upload'
+import { createPlaylistParser } from '../middlewares/createPlaylistParser'
+import { validateSchema } from '../middlewares/validateSchema'
+import createPlaylistSchema from '../schemas/createPlaylistSchema'
 
 const playlistFields = [
     { name: 'cover', maxCount: 1 },
     { name: 'thumbnail', maxCount: 1 },
 ]
-
-const playlistUploadToBody = (req: Request, res: Response, next: NextFunction) => {
-    const files = req.files as { [fieldname: string]: IExpressMulerFile[] | null | undefined }
-    req.body.cover = req.body.cover ?? files?.cover?.[0]?.location
-    req.body.thumbnail = req.body.thumbnail ?? files?.thumbnail?.[0]?.location
-    next()
-}
 
 const userPlaylistRoutes = (app: Application) => {
     app.get('/api/playlists/', playlistsGet)
@@ -34,14 +28,13 @@ const userPlaylistRoutes = (app: Application) => {
             authUserToken,
             isAuthenticated,
             upload.fields(playlistFields),
-            playlistUploadToBody,
-            ...playlistValidate('create'),
-            checkValidationError,
+            createPlaylistParser,
+            validateSchema(createPlaylistSchema),
         ],
         playlistCreate,
     )
-    app.delete('/api/playlists/:id', [authUserToken, isAuthenticated, isUserPlaylist], playlistDelete)
     app.get('/api/playlists/:id', PlaylistGet)
+    app.delete('/api/playlists/:id', [authUserToken, isAuthenticated, isUserPlaylist], playlistDelete)
     app.put(
         '/api/playlists/:id/',
         [
@@ -49,9 +42,8 @@ const userPlaylistRoutes = (app: Application) => {
             isAuthenticated,
             isUserPlaylist,
             upload.fields(playlistFields),
-            playlistUploadToBody,
-            ...playlistValidate('create'),
-            checkValidationError,
+            createPlaylistParser,
+            validateSchema(createPlaylistSchema),
         ],
         playlistUpdate,
     )

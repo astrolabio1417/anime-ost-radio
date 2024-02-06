@@ -2,7 +2,7 @@ import multer from 'multer'
 import { Request } from 'express'
 
 import multers3 from 'multer-s3'
-import { bucketName, s3 } from '../services/backblaze'
+import { bucketName, s3 } from '../services/s3-storage'
 
 const upload = multer({
     storage: multers3({

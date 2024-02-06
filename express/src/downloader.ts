@@ -4,13 +4,13 @@ import { USER_AGENT } from './data/constant'
 import { escapeFilename } from './helpers/escapeFilename'
 import fetch from 'node-fetch'
 import { promisify } from 'util'
+import path from 'path'
 
 type IRange = [number, number | undefined]
 export const tmpPath = `${process.cwd()}/tmp`
 
-if (!fs.existsSync(tmpPath)) {
-    fs.mkdirSync(tmpPath)
-}
+const auto_empty_tmp = process.env.AUTO_EMPTY_TMP === "true"
+
 
 async function downloadRange(output: string, url: string, range: IRange): Promise<null | string> {
     const tmpOutput = `${output}.tmp`
@@ -40,6 +40,11 @@ async function getContentLength(url: string) {
     return contentLength ? parseInt(contentLength) : null
 }
 
+function deleteTemporaryFiles() {
+    const temporaryFiles = fs.readdirSync(tmpPath)
+    temporaryFiles.forEach(f => fs.unlinkSync(path.join(tmpPath, f)))
+}
+
 export async function download(
     url: string,
     filename: string,
@@ -47,12 +52,11 @@ export async function download(
     totalChunks = 10,
     maxError = 3,
 ): Promise<undefined | string> {
+    if (!fs.existsSync(tmpPath)) fs.mkdirSync(tmpPath)
     filename = escapeFilename(filename)
     const outputFile = `${tmpPath}/${filename}`
-
     if (fs.existsSync(outputFile)) return outputFile
-
-
+    if (auto_empty_tmp) deleteTemporaryFiles()
     console.log(`${url} downloading...`)
     const contentLength = await getContentLength(url).catch(e => console.error('Cannot get the content length!', e))
 
@@ -79,12 +83,10 @@ export async function download(
             return downloadRange(chunkFilename, url, chunks)
         }),
     )
-    console.log('download chunks finished...')
+    console.log('download finished...')
     const isAllChunkDownloaded = !chunks.includes(null)
-    console.log({ isAllChunkDownloaded, chunks })
-
     if (!isAllChunkDownloaded) return await download(url, filename, errors)
-
+    console.log('merging chunks...')
     await mergeChunks(outputFile, chunks as string[])
     chunks.forEach(fname => fname && fs.existsSync(fname) && fs.unlinkSync(fname))
     console.log(`${outputFile} download finished...`)
@@ -98,7 +100,6 @@ async function mergeChunks(outputFile: string, chunkFiles: string[]) {
 }
 
 async function merger(streams: fs.ReadStream[], writeStream: fs.WriteStream) {
-    console.log('merging...')
     for (const s of streams) {
         await new Promise<boolean>((resolve, reject) => {
             s.on('data', chunk => writeStream.write(chunk))

@@ -33,9 +33,9 @@ export async function getAllanimeSong(page = 1): Promise<IAllanimeSongsResponse 
 
     data?.data?.musics.edges.map(music => {
         if (!music.musicUrls || !Array.isArray(music.musicUrls)) return
-
         const firstMusic = music.musicUrls?.[0]
         if (!firstMusic?.url) return
+
         if (!firstMusic.url?.startsWith('https://')) {
             music.musicUrls['0'].url = `https://aimgf.youtube-anime.com/${firstMusic.url}`
         }

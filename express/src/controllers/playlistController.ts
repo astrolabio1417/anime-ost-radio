@@ -1,18 +1,6 @@
 import { Request, Response } from 'express'
 import { PlaylistModel } from '../models/playlistModel'
-import { body } from 'express-validator'
 
-export const playlistValidate = (method: 'create') => {
-    const validators = {
-        create: [
-            body('title', 'Title is required!').trim().escape().isLength({ min: 1, max: 100 }).trim(),
-            body('cover', 'Cover is not a valid URL').trim().optional({ checkFalsy: true }).isURL(),
-            body('thumbnail', 'Thumbnail is not a valid URL').trim().optional({ checkFalsy: true }).isURL(),
-        ],
-    }
-
-    return validators[method] ?? []
-}
 
 export const PlaylistGet = async (req: Request, res: Response) => {
     try {

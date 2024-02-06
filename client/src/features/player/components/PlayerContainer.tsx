@@ -2,6 +2,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { Box, IconButton, Toolbar, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 
+import BannerBackground from '@/assets/banner-background.png'
 import { RADIO_STREAM } from '@/constants'
 import { PlayerSongI, usePlayer } from '@/zustand/player'
 import { useRadio } from '@/zustand/radio'
@@ -58,7 +59,7 @@ export default function PlayerContainer() {
         onClick={() => setShowMobilePlayer(true)}
       >
         <Box display="inline-block" width="60px" height="100%">
-          <img src={song?.image ?? ''} height="100%" width="100%" />
+          <img src={song?.image ?? BannerBackground} height="100%" width="100%" />
         </Box>
         <Typography variant="body2" color="white" paddingX={1}>
           {song?.title}

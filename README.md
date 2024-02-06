@@ -1,8 +1,15 @@
 # ANIME OST RADIO
 
+#### URL
+
+-   Local-Express : http://localhost:8081/
+-   React : http://localhost/
+-   Express API : http://localhost/api/
+
 #### API
 
 -   /api/stream : Stream
+-   /api/scrape : Start Scraper
 
 -   /api/queue : [GET] Queue List
 
@@ -26,20 +33,31 @@
 
 #### ENVIRONMENT VARIABLES
 
--   PORT: expres js port
--   DATABASE_URL: mongodb url
--   ORIGIN: url separated by comma
--   JWT_SECRET: jwt secret
+-   PORT: [number] expres js port
+-   DATABASE_URL: [url] mongodb url
+-   ORIGIN: [string] url separated by comma
+-   JWT_SECRET: [string] jwt secret
 
--   BUCKET_NAME: aws bucket name
--   BUCKET_ENDPOINT: aws endpoint
--   BUCKET_REGION: aws bucket region
--   BUCKET_ACCESS_KEY_ID: aws KEY ID
--   BUCKET_SECRET_ACCESS_KEY: aws secret ACCESS KEY
+-   BUCKET_NAME: [string] aws bucket name
+-   BUCKET_ENDPOINT: [string] aws endpoint
+-   BUCKET_REGION: [string] aws bucket region
+-   BUCKET_ACCESS_KEY_ID: [string] aws KEY ID
+-   BUCKET_SECRET_ACCESS_KEY: [string] aws secret ACCESS KEY
+
+optional
+
+-   auto_empty_tmp: [boolean] delete previous temporary played song files on download
 
 #### RUN DEV
 
+Setup s3 environment variable on docker-compose.yml or ./express/.env file
+
 ```
- npm install
- npm run dev
+docker compose up --build
+```
+
+### RUN PROD (DOCKER)
+
+```
+#! todo
 ```

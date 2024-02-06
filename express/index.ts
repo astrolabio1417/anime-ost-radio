@@ -32,7 +32,6 @@ app.use(express.json())
 app.use(cors({ credentials: true, origin: origin }))
 app.use(cookieSession({ name: 'session', keys: sessionKeys, httpOnly: true }))
 app.use(cookieParser())
-// app.use(express.static(path.resolve(__dirname, 'react')))
 
 const corsOption = { cors: { origin } }
 const server = http.createServer(app)
@@ -49,12 +48,10 @@ database.once('connected', () => {
 })
 
 mongoose.connect(mongoString).then(() => {
-    // run radio
-    // queue.play()
-    // playRandomSong()
+    // play radio
+    queue.play()
 
     const listenerPeers: Set<string> = new Set()
-
     queue.on(QUEUE_EVENTS.ON_TIME_CHANGE, timemark => io.emit(QUEUE_EVENTS.ON_TIME_CHANGE, timemark))
     queue.on(QUEUE_EVENTS.ON_TRACK_CHANGE, track => io.emit(QUEUE_EVENTS.ON_TRACK_CHANGE, track))
     queue.on(QUEUE_EVENTS.ON_QUEUE_CHANGE, track => io.emit(QUEUE_EVENTS.ON_QUEUE_CHANGE, track))
@@ -96,10 +93,6 @@ mongoose.connect(mongoString).then(() => {
     userPlaylistRoutes(app)
     artistRoutes(app)
     showRoutes(app)
-
-    // app.get('*', (req, res) => {
-    //     res.sendFile(path.resolve(__dirname, 'react', 'index.html'))
-    // })
 
     server.listen(port, () => {
         console.log(`[server]: Server is running at http://localhost:${port}`)
