@@ -1,5 +1,10 @@
 # ANIME OST RADIO
 
+Radio/Music App using Node Express, REACT, and MONGO
+
+#### UPGRADED VERSION using NGINX RTMP
+Branch [rtmp-streaming](https://github.com/astrolabio1417/anime-ost-radio/tree/rtmp-streaming)
+
 #### API
 
 -   /api/stream : Stream
