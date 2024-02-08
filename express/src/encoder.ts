@@ -1,5 +1,6 @@
 import ffmpegFluent from 'fluent-ffmpeg'
 import fs from 'fs'
+import process from 'process'
 import { Readable } from 'stream'
 
 ffmpegFluent.setFfmpegPath('/usr/bin/ffmpeg')
@@ -11,6 +12,9 @@ type ProgressDataI = {
     targetSize: number
     timemark: string
 }
+
+const rtmp_url = process.env.RTMP_URL || 'rtmp://localhost:1935'
+const rtmp_stream_url = `${rtmp_url}/stream/radio`
 
 export default function encodeReadStream(stream: fs.ReadStream | Readable, bitrate: number = 320) {
     const ffmpegStream = ffmpegFluent(stream)
@@ -36,7 +40,7 @@ export default function encodeReadStream(stream: fs.ReadStream | Readable, bitra
     return ffmpegStream
 }
 
-export async function streamToLive(stream: string | fs.ReadStream | Readable, rtmp: string = 'rtmp://nginx:1935/stream/test') {
+export async function streamToLive(stream: string | fs.ReadStream | Readable, rtmp: string = rtmp_stream_url) {
     const ffmpegStream = ffmpegFluent(stream)
         .inputOptions(['-re'])
         .noVideo()
@@ -53,7 +57,7 @@ export async function streamToLive(stream: string | fs.ReadStream | Readable, rt
     return ffmpegStream
 }
 
-export async function streamMultiToLive(streams1: (string | fs.ReadStream | Readable)[], rtmp: string = 'rtmp://nginx:1935/stream/test') {
+export async function streamMultiToLive(streams1: (string | fs.ReadStream | Readable)[], rtmp: string = rtmp_stream_url) {
     const ffmpegStream = ffmpegFluent()
     const streams = ["/app/tmp/Akeboshi.mp3", "/app/tmp/Aisuru Koto.mp3"]
 
@@ -85,7 +89,7 @@ export function playRandomSong() {
         .on('progress', (data: ProgressDataI) => console.log('FFMPEG progress: ', data.timemark))
         .on('error', err => console.error(err))
         .on('end', () => console.log('FFMPEG finised encoding'))
-        .saveToFile('rtmp://nginx:1935/stream/test')
+        .saveToFile(rtmp_stream_url)
 
     return ffmpegStream
 }

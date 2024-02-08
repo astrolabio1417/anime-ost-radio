@@ -1,5 +1,5 @@
 node_modules
 .env
-/queue1.ts
+.env.*
 /tmp
 /react

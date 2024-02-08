@@ -24,7 +24,7 @@ dotenv.config()
 const mongoString: string | undefined = process.env.DATABASE_URL ?? ''
 const sessionKeys = process.env.SECRET_KEY?.split(',') ?? ['generate-key-1']
 const origin = process.env.ORIGINS?.split(',') ?? ['http://localhost:5173', 'http://localhost:8000']
-const port = process.env.PORT
+const port = process.env.PORT ?? 8000
 const app: Express = express()
 
 app.use(express.urlencoded({ extended: true }))
