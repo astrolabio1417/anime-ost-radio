@@ -6,6 +6,10 @@
 app = "anime-ost-radio"
 primary_region = "hkg"
 
+[build.args]
+  SCHEME="http"
+  DOMAIN="music.animeyubi.com"
+
 [http_service]
   internal_port = 80
   force_https = true

@@ -32,7 +32,6 @@ COPY ./supervisord.conf /etc/supervisord.conf
 # DOCKER BUILD ARG
 ARG SCHEME=http
 ARG DOMAIN=localhost
-ARG PROXY_PORT=80
 
 # NGINX PATH AND FILES
 ARG CONF_PATH=/etc/nginx/conf.d
@@ -59,6 +58,6 @@ RUN mv ${CONF_PATH}/localhost.conf ${CONF_PATH}/.localhost.conf \
     # create HLS directory
     && mkdir -p /tmp/hls
 
-EXPOSE ${PROXY_PORT}
+EXPOSE 80
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

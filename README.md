@@ -78,7 +78,6 @@ BUILD ARGS
 
 -   SCHEME: [https | http] https
 -   DOMAIN: [string] localhost
--   PROXY_PORT: [number] 80, Expose/Nginx proxy port (avoid Express port 8000)
 
 SETUP
 Ex. domain localhost and port 80
@@ -94,7 +93,7 @@ VITE_SERVER_URL=http://localhost
 Build docker
 
 ```
-docker build --build-arg SCHEME=http --build-arg DOMAIN=localhost --build-arg PROXY_PORT=80 -t radio-app .
+docker build --build-arg SCHEME=http --build-arg DOMAIN=localhost --build-arg -t radio-app .
 ```
 
 Run docker
