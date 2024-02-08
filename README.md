@@ -76,11 +76,11 @@ docker compose up --build
 
 BUILD ARGS
 
--   SCHEME: [https | http] https
+-   SCHEME: [https | http] https, port 80 http or 443 https
 -   DOMAIN: [string] localhost
 
 SETUP
-Ex. domain localhost and port 80
+Ex. domain localhost
 
 Change production build environment variable
 
