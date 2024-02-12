@@ -9,8 +9,7 @@ import path from 'path'
 type IRange = [number, number | undefined]
 export const tmpPath = `${process.cwd()}/tmp`
 
-const auto_empty_tmp = process.env.AUTO_EMPTY_TMP === "true"
-
+const auto_empty_tmp = process.env.AUTO_EMPTY_TMP === 'true'
 
 async function downloadRange(output: string, url: string, range: IRange): Promise<null | string> {
     const tmpOutput = `${output}.tmp`

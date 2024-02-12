@@ -1,61 +1,49 @@
 import { Request, Response } from 'express'
 import SongModel from '../models/songModel'
 import { QUEUE_EVENTS, queue } from '../queue'
-import { checkObjectId } from '../helpers/checkObjectId'
 import { io } from '../..'
 import { getAllanimeSongJobFunc } from '../songUpdateScheduler'
+import tryCatch from '../helpers/tryCatch'
+import { songSchema } from '../schemas/songSchema'
+import { zParse } from '../helpers/zParse'
 
-export const songList = (req: Request, res: Response) => {
-    const { limit, page, sort, name, artist, show } = req.query
+export const songList = tryCatch(async (req: Request, res: Response) => {
+    const { query } = await zParse(songSchema.list, req)
+    const { limit, page, sort, name, artist, show } = query
+
     const dbQuery = {
-        ...(name && { name: { $regex: name, $options: 'i' } }),
-        ...(artist && { artist: { $regex: artist, $options: 'i' } }),
-        ...(show && { show: { $regex: show, $options: 'i' } }),
+        ...(name?.length && { name: { $regex: name, $options: 'i' } }),
+        ...(artist?.length && { artist: { $regex: artist, $options: 'i' } }),
+        ...(show?.length && { show: { $regex: show, $options: 'i' } }),
     }
     const options = {
-        page: page ? Number(page) : 1,
-        limit: limit ? Number(limit) : 30,
-        sort: sort ? sort : { timestamp: 1 },
+        page: page,
+        limit: limit,
+        sort: sort,
     }
 
-    SongModel.paginate(dbQuery, options)
-        .then(result => {
-            res.json(result)
-        })
-        .catch(e => {
-            res.status(500).json({ message: e })
-        })
-}
-export const songQueueList = async (_: Request, res: Response) => {
+    const result = await SongModel.paginate(dbQuery, options)
+    res.json({ ...result, options, page, sort, name, artist, show, dbQuery, limit })
+})
+
+export const songQueueList = tryCatch(async (_: Request, res: Response) => {
     const list = (await queue.queue()) ?? []
-    res.json({
-        list,
-        total: list.length,
-    })
-}
+    res.json({ list, total: list.length })
+})
 
-export const songDetail = async (req: Request, res: Response) => {
-    try {
-        const song = await SongModel.findOne({ _id: req.params.id })
-        if (!song) return res.status(400).json({ message: 'Not Found!' })
-        return res.json(song)
-    } catch (e) {
-        console.error(e)
-        return res.status(400).json({ message: e })
-    }
-}
+export const songRetrieve = tryCatch(async (req: Request, res: Response) => {
+    const { params } = await zParse(songSchema.retrieve, req)
+    const song = await SongModel.findOne({ _id: params.id })
+    if (!song) return res.status(400).json({ message: 'Not Found!' })
+    return res.json(song)
+})
 
-export const songUpVote = async (req: Request, res: Response) => {
+export const songUpVote = tryCatch(async (req: Request, res: Response) => {
     const session = req.user.id
-
-    if (!checkObjectId(req.params.id)) {
-        return res.status(400).json({
-            message: 'Invalid ID',
-        })
-    }
-
-    const query = { _id: req.params.id, 'vote.list': { $ne: session } }
+    const { params } = await zParse(songSchema.retrieve, req)
+    const query = { _id: params.id, 'vote.list': { $ne: session } }
     const song = await SongModel.findOne(query)
+
     if (!song) return res.status(400).json({ message: 'Vote already added' })
 
     const firstVote = !song?.vote?.total
@@ -70,18 +58,12 @@ export const songUpVote = async (req: Request, res: Response) => {
     songUpdate.modifiedCount
         ? res.status(200).json({ message: 'Vote added' })
         : res.status(400).json({ message: 'Vote already added' })
-}
+})
 
-export const songDownVote = async (req: Request, res: Response) => {
+export const songDownVote = tryCatch(async (req: Request, res: Response) => {
     const session = req.user.id
-
-    if (!checkObjectId(req.params.id)) {
-        return res.status(400).json({
-            message: 'Invalid ID',
-        })
-    }
-
-    const query = { _id: req.params.id, 'vote.list': { $eq: session } }
+    const { params } = await zParse(songSchema.retrieve, req)
+    const query = { _id: params.id, 'vote.list': { $eq: session } }
     const song = await SongModel.findOne(query)
 
     if (!song) return res.status(400).json({ message: 'Vote already removed' })
@@ -98,14 +80,9 @@ export const songDownVote = async (req: Request, res: Response) => {
     songUpdate.modifiedCount
         ? res.status(200).json({ message: 'Vote removed' })
         : res.status(400).json({ message: 'Vote already removed' })
-}
+})
 
-export const scrapeSongs = async (req: Request, res: Response) => {
+export const scrapeSongs = tryCatch(async (req: Request, res: Response) => {
     await getAllanimeSongJobFunc(1)
     return res.status(200).json({ message: 'OK' })
-}
-
-export const randomSong = async (req: Request, res: Response) => {
-    queue.playRandom()
-    return res.status(200)
-}
+})

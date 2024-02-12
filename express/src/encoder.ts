@@ -57,13 +57,17 @@ export async function streamToLive(stream: string | fs.ReadStream | Readable, rt
     return ffmpegStream
 }
 
-export async function streamMultiToLive(streams1: (string | fs.ReadStream | Readable)[], rtmp: string = rtmp_stream_url) {
+export async function streamMultiToLive(
+    streams1: (string | fs.ReadStream | Readable)[],
+    rtmp: string = rtmp_stream_url,
+) {
     const ffmpegStream = ffmpegFluent()
-    const streams = ["/app/tmp/Akeboshi.mp3", "/app/tmp/Aisuru Koto.mp3"]
+    const streams = ['/app/tmp/Akeboshi.mp3', '/app/tmp/Aisuru Koto.mp3']
 
     streams.forEach(stream => ffmpegStream.input(stream))
 
-    ffmpegStream.inputOptions(['-re'])
+    ffmpegStream
+        .inputOptions(['-re'])
         .noVideo()
         .audioBitrate(320)
         .audioChannels(2)
@@ -82,10 +86,7 @@ export async function streamMultiToLive(streams1: (string | fs.ReadStream | Read
 export function playRandomSong() {
     const ffmpegStream = ffmpegFluent('/app/x1.mp4')
         .inputOptions(['-re'])
-        .outputOptions([
-            '-c copy',
-            '-f flv',
-        ])
+        .outputOptions(['-c copy', '-f flv'])
         .on('progress', (data: ProgressDataI) => console.log('FFMPEG progress: ', data.timemark))
         .on('error', err => console.error(err))
         .on('end', () => console.log('FFMPEG finised encoding'))

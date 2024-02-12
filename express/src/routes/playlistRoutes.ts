@@ -1,54 +1,39 @@
-import { Application } from 'express'
+import { Router } from 'express'
 import {
-    PlaylistGet,
+    playlistRetrieve,
     playlistAddSong,
     playlistCreate,
     playlistDelete,
     playlistRemoveSong,
     playlistUpdate,
-    playlistsGet,
+    playlistList,
 } from '../controllers/playlistController'
-import { authUserToken, isAuthenticated } from '../middlewares/authJwt'
+import { isAuthenticated } from '../middlewares/authJwt'
 import { isUserPlaylist } from '../middlewares/authUserPlaylist'
 import upload from '../middlewares/upload'
 import { createPlaylistParser } from '../middlewares/createPlaylistParser'
-import { validateSchema } from '../middlewares/validateSchema'
-import createPlaylistSchema from '../schemas/createPlaylistSchema'
+
+const playlistRouter = Router()
 
 const playlistFields = [
     { name: 'cover', maxCount: 1 },
     { name: 'thumbnail', maxCount: 1 },
 ]
 
-const userPlaylistRoutes = (app: Application) => {
-    app.get('/api/playlists/', playlistsGet)
-    app.post(
-        '/api/playlists/',
-        [
-            authUserToken,
-            isAuthenticated,
-            upload.fields(playlistFields),
-            createPlaylistParser,
-            validateSchema(createPlaylistSchema),
-        ],
-        playlistCreate,
-    )
-    app.get('/api/playlists/:id', PlaylistGet)
-    app.delete('/api/playlists/:id', [authUserToken, isAuthenticated, isUserPlaylist], playlistDelete)
-    app.put(
-        '/api/playlists/:id/',
-        [
-            authUserToken,
-            isAuthenticated,
-            isUserPlaylist,
-            upload.fields(playlistFields),
-            createPlaylistParser,
-            validateSchema(createPlaylistSchema),
-        ],
-        playlistUpdate,
-    )
-    app.put('/api/playlists/:id/songs/:songId', [authUserToken, isAuthenticated, isUserPlaylist], playlistAddSong)
-    app.delete('/api/playlists/:id/songs/:songId', [authUserToken, isAuthenticated, isUserPlaylist], playlistRemoveSong)
-}
+playlistRouter.get('/api/playlists/', playlistList)
+playlistRouter.post(
+    '/api/playlists/',
+    [isAuthenticated, upload.fields(playlistFields), createPlaylistParser],
+    playlistCreate,
+)
+playlistRouter.get('/api/playlists/:id', playlistRetrieve)
+playlistRouter.delete('/api/playlists/:id', [isAuthenticated, isUserPlaylist], playlistDelete)
+playlistRouter.put(
+    '/api/playlists/:id/',
+    [isAuthenticated, isUserPlaylist, upload.fields(playlistFields), createPlaylistParser],
+    playlistUpdate,
+)
+playlistRouter.put('/api/playlists/:id/songs/:songId', [isAuthenticated, isUserPlaylist], playlistAddSong)
+playlistRouter.delete('/api/playlists/:id/songs/:songId', [isAuthenticated, isUserPlaylist], playlistRemoveSong)
 
-export default userPlaylistRoutes
+export default playlistRouter

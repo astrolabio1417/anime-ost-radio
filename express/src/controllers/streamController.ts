@@ -1,12 +1,13 @@
 import { Request, Response } from 'express'
 import { queue } from '../queue'
+import tryCatch from '../helpers/tryCatch'
 
-export const streamPause = async (_: Request, res: Response) => {
+export const streamPause = tryCatch(async (_: Request, res: Response) => {
     queue.pause()
     res.json({ isPlaying: queue.isPlaying })
-}
+})
 
-export const streamPlay = async (_: Request, res: Response) => {
+export const streamPlay = tryCatch(async (_: Request, res: Response) => {
     if (!queue.isPlaying) await queue.play()
     res.json({ isPlaying: queue.isPlaying })
-}
+})

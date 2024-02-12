@@ -15,6 +15,8 @@ import streamRoutes from './src/routes/streamRoutes'
 import artistRoutes from './src/routes/artistRoutes'
 import cookieParser from 'cookie-parser'
 import showRoutes from './src/routes/showRotues'
+import { authUserToken } from './src/middlewares/authJwt'
+import errorHandlerMiddleware from './src/middlewares/errorHandlerMiddleware'
 
 process.on('SIGINT', function () {
     schedule.gracefulShutdown().then(() => process.exit(0))
@@ -32,6 +34,7 @@ app.use(express.json())
 app.use(cors({ credentials: true, origin: origin }))
 app.use(cookieSession({ name: 'session', keys: sessionKeys, httpOnly: true }))
 app.use(cookieParser())
+app.use(authUserToken)
 
 const corsOption = { cors: { origin } }
 const server = http.createServer(app)
@@ -87,12 +90,15 @@ mongoose.connect(mongoString).then(() => {
         }
     })
 
-    streamRoutes(app)
-    songRoutes(app)
-    authRoutes(app)
-    userPlaylistRoutes(app)
-    artistRoutes(app)
-    showRoutes(app)
+    app.use(streamRoutes)
+    app.use(songRoutes)
+    app.use(authRoutes)
+    app.use(userPlaylistRoutes)
+    app.use(artistRoutes)
+    app.use(showRoutes)
+
+    // error handler
+    app.use(errorHandlerMiddleware)
 
     server.listen(port, () => {
         console.log(`[server]: Server is running at http://localhost:${port}`)

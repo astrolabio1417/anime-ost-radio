@@ -1,9 +1,9 @@
-import { Application } from 'express'
-import { artistSongs, artistsGet } from '../controllers/artistController'
+import { artistRetrieve, artistList } from '../controllers/artistController'
+import { Router } from 'express'
 
-const artistRoutes = (app: Application) => {
-    app.get('/api/artists', artistsGet)
-    app.get('/api/artists/:artist', artistSongs)
-}
+const artistRouter = Router()
 
-export default artistRoutes
+artistRouter.get('/api/artists', artistList)
+artistRouter.get('/api/artists/:artist', artistRetrieve)
+
+export default artistRouter

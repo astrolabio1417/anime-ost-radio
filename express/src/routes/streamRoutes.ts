@@ -1,10 +1,10 @@
-import { Application } from 'express'
+import { Router } from 'express'
 import { streamPause, streamPlay } from '../controllers/streamController'
-import { isAdmin, authUserToken } from '../middlewares/authJwt'
+import { isAdmin } from '../middlewares/authJwt'
 
-const streamRoutes = (app: Application) => {
-    app.get('/api/stream/pause', [authUserToken, isAdmin], streamPause)
-    app.get('/api/stream/play', [authUserToken, isAdmin], streamPlay)
-}
+const streamRouter = Router()
 
-export default streamRoutes
+streamRouter.get('/api/stream/pause', [isAdmin], streamPause)
+streamRouter.get('/api/stream/play', [isAdmin], streamPlay)
+
+export default streamRouter

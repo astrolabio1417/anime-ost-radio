@@ -55,7 +55,6 @@ class Queue extends EventEmitter {
         return SongModel.find()
     }
 
-
     async queue(limit: number = 10) {
         return await SongModel.find(getQueueOption(this.currentTrack)).sort(QueueSort).limit(limit)
     }
@@ -125,7 +124,7 @@ class Queue extends EventEmitter {
     async playRandom() {
         this.stop()
         const stream = await streamMultiToLive([''])
-        stream.on("end", () => this.play()).on("error", () => this.play())
+        stream.on('end', () => this.play()).on('error', () => this.play())
     }
 
     async startBroadcast() {
@@ -151,17 +150,19 @@ class Queue extends EventEmitter {
             return
         }
 
-        this.stream = (await streamToLive(filePath)).on("end", () => {
-            console.log("--- finished playing --- ")
-            console.log(track.name)
-            this.rotateTrack().then(() => this.startBroadcast())
-        }).on("error", (e) => {
-            console.error(e)
-            console.log("--- error while playing ---")
-            console.log(track.name)
-            sleep(5000).then(() => this.startBroadcast())
-            // this.rotateTrack().then(() => this.startBroadcast())
-        }) // TODO  
+        this.stream = (await streamToLive(filePath))
+            .on('end', () => {
+                console.log('--- finished playing --- ')
+                console.log(track.name)
+                this.rotateTrack().then(() => this.startBroadcast())
+            })
+            .on('error', e => {
+                console.error(e)
+                console.log('--- error while playing ---')
+                console.log(track.name)
+                sleep(5000).then(() => this.startBroadcast())
+                // this.rotateTrack().then(() => this.startBroadcast())
+            }) // TODO
     }
 
     setTimemark(timemark: number) {

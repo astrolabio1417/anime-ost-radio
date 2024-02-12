@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from "express"
-import { IExpressMulerFile } from "./upload"
+import { NextFunction, Request, Response } from 'express'
+import { IExpressMulerFile } from './upload'
 
 export const createPlaylistParser = (req: Request, res: Response, next: NextFunction) => {
     const files = req.files as { [fieldname: string]: IExpressMulerFile[] | null | undefined }

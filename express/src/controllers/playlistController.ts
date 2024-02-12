@@ -1,19 +1,19 @@
 import { Request, Response } from 'express'
 import { PlaylistModel } from '../models/playlistModel'
+import tryCatch from '../helpers/tryCatch'
+import { zParse } from '../helpers/zParse'
+import { playlistSchema } from '../schemas/playlistSchema'
 
-
-export const PlaylistGet = async (req: Request, res: Response) => {
-    try {
-        const playlist = await PlaylistModel.findOne({ _id: req.params.id }).populate('songs').populate('user')
-        res.json(playlist)
-    } catch (e) {
-        console.error(e)
-        res.status(400).json({ message: "Couldn't get playlist" })
-    }
+export const playlistRetrieve = async (req: Request, res: Response) => {
+    const { params } = await zParse(playlistSchema.retrieve, req)
+    const playlist = await PlaylistModel.findOne({ _id: params.id }).populate('songs').populate('user')
+    res.json(playlist)
 }
 
-export const playlistsGet = async (req: Request, res: Response) => {
-    const { limit, page, sort, title, user } = req.query
+export const playlistList = tryCatch(async (req: Request, res: Response) => {
+    const { query } = await zParse(playlistSchema.list, req)
+    const { limit, page, sort, title, user } = query
+
     const dbQuery = {
         ...(title && { title: { $regex: title, $options: 'i' } }),
         ...(user && { user: user }),
@@ -25,123 +25,90 @@ export const playlistsGet = async (req: Request, res: Response) => {
         populate: ['user', 'songs'],
     }
 
-    try {
-        const playlists = await PlaylistModel.paginate(dbQuery, options)
-        res.json(playlists)
-    } catch (e) {
-        console.error(e)
-        res.status(400).json({ message: "Couldn't get playlists" })
+    const playlists = await PlaylistModel.paginate(dbQuery, options)
+    res.json(playlists)
+})
+
+export const playlistCreate = tryCatch(async (req: Request, res: Response) => {
+    const { body } = await zParse(playlistSchema.create, req)
+    const { title, cover, thumbnail } = body
+
+    const playlist = await PlaylistModel.create({
+        title: title,
+        user: req.user.id,
+        image: { cover, thumbnail },
+        songs: [],
+    })
+    res.status(201).json({ message: 'Playlist Created', playlist: await playlist.populate('user') })
+})
+
+export const playlistDelete = tryCatch(async (req: Request, res: Response) => {
+    const { params } = await zParse(playlistSchema.retrieve, req)
+    const data = { _id: params.id }
+
+    const playlist = await PlaylistModel.deleteOne({ _id: params.id, user: req.user.id })
+
+    if (playlist.deletedCount === 0) {
+        return res.status(404).json({ message: 'Playlist not found' })
     }
-}
 
-export const playlistCreate = async (req: Request, res: Response) => {
-    const { title, cover, thumbnail } = req.body
+    res.json({
+        message: 'Playlist Deleted',
+        ...data,
+    })
+})
 
-    try {
-        const playlist = await PlaylistModel.create({
-            title: title,
-            user: req.user.id,
-            image: { cover, thumbnail },
-            songs: [],
-        })
-        res.status(201).json({ message: 'Playlist Created', playlist: await playlist.populate('user') })
-    } catch (e) {
-        console.error(e)
-        res.status(400).json({ message: "Couldn't create playlist" })
+export const playlistUpdate = tryCatch(async (req: Request, res: Response) => {
+    const { body, params } = await zParse(playlistSchema.create, req)
+    const { title, cover, thumbnail } = body
+    const playlist = await PlaylistModel.updateOne({ _id: params.id }, { $set: { title, image: { cover, thumbnail } } })
+
+    if (playlist.matchedCount === 0) {
+        return res.status(404).json({ message: 'Playlist not found', playlistId: params.id })
     }
-}
 
-export const playlistDelete = async (req: Request, res: Response) => {
-    const data = { playlistId: req.params.id }
+    res.json({
+        message: 'Playlist Updated',
+        playlist: await PlaylistModel.findById(params.id).populate('user'),
+    })
+})
 
-    try {
-        const playlist = await PlaylistModel.deleteOne({ _id: req.params.id, user: req.user.id })
+export const playlistAddSong = tryCatch(async (req: Request, res: Response) => {
+    const { params } = await zParse(playlistSchema.addSong, req)
+    const { id: playlistId, songId } = params
+    const data = { playlistId, songId }
 
-        if (playlist.deletedCount === 0) {
-            return res.status(404).json({ message: 'Cannot delete playlist', ...data })
-        }
+    const playlist = await PlaylistModel.updateOne(
+        { _id: params.id, songs: { $ne: params.songId } },
+        { $push: { songs: params.songId } },
+    )
 
-        res.json({
-            message: 'Playlist Deleted',
-            ...data,
-        })
-    } catch (e) {
-        console.error(e)
-        res.status(400).json({ message: 'Cannot delete playlist', ...data })
+    if (playlist.matchedCount === 0) {
+        return res.status(404).json({ message: 'Song not found', ...data })
     }
-}
 
-export const playlistUpdate = async (req: Request, res: Response) => {
-    const { title, cover, thumbnail } = req.body
+    res.json({
+        message: 'The song has been added to the playlist',
+        ...data,
+    })
+})
 
-    try {
-        const playlist = await PlaylistModel.updateOne(
-            { _id: req.params.id },
-            { $set: { title, image: { cover, thumbnail } } },
-        )
+export const playlistRemoveSong = tryCatch(async (req: Request, res: Response) => {
+    const { params } = await zParse(playlistSchema.addSong, req)
+    const { id: playlistId, songId } = params
+    const data = { playlistId, songId }
 
-        if (playlist.matchedCount === 0) {
-            return res.status(404).json({ message: 'Playlist not found!', playlistId: req.params.id })
-        }
+    const playlist = await PlaylistModel.updateOne(
+        { _id: params.id, songs: { $eq: params.songId } },
+        { $pull: { songs: params.songId } },
+    )
 
-        res.json({
-            message: 'Playlist Updated',
-            playlist: await PlaylistModel.findById(req.params.id).populate('user'),
-        })
-    } catch (e) {
-        console.error(e)
-        res.status(400).json({ message: "Couldn't update playlist", playlistId: req.params.id })
+    if (playlist.matchedCount === 0) {
+        return res.status(404).json({ message: 'Song not found', ...data })
     }
-}
 
-export const playlistAddSong = async (req: Request, res: Response) => {
-    const data = { playlistId: req.params.id, songId: req.params.songId }
-
-    try {
-        const playlist = await PlaylistModel.updateOne(
-            { _id: req.params.id, songs: { $ne: req.params.songId } },
-            { $push: { songs: req.params.songId } },
-        )
-
-        if (playlist.matchedCount === 0) {
-            return res.status(404).json({ message: 'Cannot add song to playlist, Song not found!', ...data })
-        }
-
-        res.json({
-            message:
-                playlist.modifiedCount === 0
-                    ? 'The song is now in the playlist'
-                    : 'The song has been added to the playlist',
-            ...data,
-        })
-    } catch (e) {
-        console.error(e)
-        res.status(400).json({ message: 'Cannot add song to playlist, Song not found!', ...data })
-    }
-}
-
-export const playlistRemoveSong = async (req: Request, res: Response) => {
-    const data = { playlistId: req.params.id, songId: req.params.songId }
-
-    try {
-        const playlist = await PlaylistModel.updateOne(
-            { _id: req.params.id, songs: { $eq: req.params.songId } },
-            { $pull: { songs: req.params.songId } },
-        )
-
-        if (playlist.matchedCount === 0) {
-            return res.status(404).json({ message: 'Cannot remove song from playlist, Song not found', ...data })
-        }
-
-        res.json({
-            message:
-                playlist.modifiedCount === 0
-                    ? 'The song is not in the playlist'
-                    : 'The song was removed from the playlist',
-            ...data,
-        })
-    } catch (e) {
-        console.error(e)
-        res.status(400).json({ message: 'Cannot remove song from playlist, Song not found', ...data })
-    }
-}
+    res.json({
+        message: 'The song was removed from the playlist',
+        ...data,
+    })
+})

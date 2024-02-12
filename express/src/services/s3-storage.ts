@@ -14,6 +14,6 @@ export const s3 = new S3Client({
     region: region,
     credentials: {
         accessKeyId: accessKeyId,
-        secretAccessKey: secretAccessKey
+        secretAccessKey: secretAccessKey,
     },
 })

@@ -1,9 +1,9 @@
-import { Application } from 'express'
-import { showSongs, showsGet } from '../controllers/showController'
+import { Router } from 'express'
+import { showRetrieve, showList } from '../controllers/showController'
 
-const showRoutes = (app: Application) => {
-    app.get('/api/shows', showsGet)
-    app.get('/api/shows/:show', showSongs)
-}
+const showRoutes = Router()
+
+showRoutes.get('/api/shows', showList)
+showRoutes.get('/api/shows/:show', showRetrieve)
 
 export default showRoutes
