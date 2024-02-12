@@ -16,7 +16,7 @@ const songListSchema = z.object({
 })
 
 const songRetrieveSchema = z.object({
-    params: z.object({ id: z.string().refine(v => mongoose.Types.ObjectId.isValid(v)) }),
+    params: z.object({ id: z.string().refine(mongoose.Types.ObjectId.isValid) }),
 })
 
 const songSchema = {

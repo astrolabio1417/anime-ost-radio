@@ -4,11 +4,11 @@ import tryCatch from '../helpers/tryCatch'
 import { zParse } from '../helpers/zParse'
 import { playlistSchema } from '../schemas/playlistSchema'
 
-export const playlistRetrieve = async (req: Request, res: Response) => {
+export const playlistRetrieve = tryCatch(async (req: Request, res: Response) => {
     const { params } = await zParse(playlistSchema.retrieve, req)
     const playlist = await PlaylistModel.findOne({ _id: params.id }).populate('songs').populate('user')
     res.json(playlist)
-}
+})
 
 export const playlistList = tryCatch(async (req: Request, res: Response) => {
     const { query } = await zParse(playlistSchema.list, req)
@@ -59,7 +59,7 @@ export const playlistDelete = tryCatch(async (req: Request, res: Response) => {
 })
 
 export const playlistUpdate = tryCatch(async (req: Request, res: Response) => {
-    const { body, params } = await zParse(playlistSchema.create, req)
+    const { body, params } = await zParse(playlistSchema.update, req)
     const { title, cover, thumbnail } = body
     const playlist = await PlaylistModel.updateOne({ _id: params.id }, { $set: { title, image: { cover, thumbnail } } })
 
