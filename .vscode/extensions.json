@@ -1,0 +1,14 @@
+{
+    "recommendations": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "rvest.vs-code-prettier-eslint",
+        "formulahendry.auto-rename-tag",
+        "steoates.autoimport",
+        "streetsidesoftware.code-spell-checker",
+        "oderwat.indent-rainbow",
+        "VisualStudioExptTeam.vscodeintellicode",
+        "VisualStudioExptTeam.intellicode-api-usage-examples",
+        "ms-vscode.vscode-typescript-next"
+    ]
+}
