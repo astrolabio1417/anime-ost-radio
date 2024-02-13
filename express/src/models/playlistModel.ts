@@ -1,17 +1,8 @@
+import { PlaylistDocument } from '../interfaces/PlaylistInterface'
 import mongoosePaginate from 'mongoose-paginate-v2'
 import mongoose, { Schema } from 'mongoose'
 import UserModel from './userModel'
-
-export type IPlaylist = {
-    title: string
-    image: {
-        cover?: string
-        thumbnail?: string
-    }
-    user: Schema.Types.ObjectId
-    songs: Schema.Types.ObjectId[]
-    timestamp: Date
-}
+import { PaginateModel } from 'mongoose'
 
 const PlaylistSchema = new Schema({
     title: {
@@ -38,13 +29,10 @@ const PlaylistSchema = new Schema({
             ref: 'Song',
         },
     ],
-    timestamp: { required: true, type: Date, default: new Date() },
+    timestamp: { type: Date, default: new Date() },
 })
 
 PlaylistSchema.plugin(mongoosePaginate)
-
-export type PlaylistDocument = mongoose.Document & IPlaylist
-
-const PlaylistModel = mongoose.model<IPlaylist, mongoose.PaginateModel<PlaylistDocument>>('Playlist', PlaylistSchema)
+const PlaylistModel = mongoose.model<PlaylistDocument, PaginateModel<PlaylistDocument>>('Playlist', PlaylistSchema)
 
 export { PlaylistModel }

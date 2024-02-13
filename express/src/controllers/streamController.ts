@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { queue } from '../queue'
-import tryCatch from '../helpers/tryCatch'
+import tryCatch from '../utils/tryCatch'
 
 export const streamPause = tryCatch(async (_: Request, res: Response) => {
     queue.pause()

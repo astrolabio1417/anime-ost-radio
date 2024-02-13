@@ -58,11 +58,10 @@ export async function streamToLive(stream: string | fs.ReadStream | Readable, rt
 }
 
 export async function streamMultiToLive(
-    streams1: (string | fs.ReadStream | Readable)[],
+    streams: (string | fs.ReadStream | Readable)[],
     rtmp: string = rtmp_stream_url,
 ) {
     const ffmpegStream = ffmpegFluent()
-    const streams = ['/app/tmp/Akeboshi.mp3', '/app/tmp/Aisuru Koto.mp3']
 
     streams.forEach(stream => ffmpegStream.input(stream))
 

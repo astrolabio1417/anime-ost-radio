@@ -1,10 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import UserModel from '../models/userModel'
-import RoleModel from '../models/roleModel'
-import generateAnonymous from '../helpers/generateAnonymous'
+import generateAnonymous from '../utils/generateAnonymous'
+import { authService } from '../services/authService'
 
-export const authUserToken = (req: Request, res: Response, next: NextFunction) => {
+export const authUserOrAnonymous = async (req: Request, res: Response, next: NextFunction) => {
     const tokenFromAuth = req.headers?.authorization
     const token = req.session?.token ?? tokenFromAuth
 
@@ -16,8 +15,8 @@ export const authUserToken = (req: Request, res: Response, next: NextFunction) =
     if (!process.env.JWT_SECRET) return res.json(500).json({ message: 'JWT_SECRET is not defined' })
 
     try {
-        const user = jwt.verify(token, process.env.JWT_SECRET) as UserJwtPayloadI
-        req.user = { ...user, isAuthenticated: true }
+        const userFromToken = jwt.verify(token, process.env.JWT_SECRET) as UserJwtPayloadI
+        req.user = { ...userFromToken, isAuthenticated: true, isAdmin: await authService.isUserAdmin(userFromToken.id) }
     } catch (e) {
         req.user = generateAnonymous()
     }
@@ -33,9 +32,7 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
 export const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.user.isAuthenticated) return res.status(403).json({ message: 'Unauthorized' })
-        const user = await UserModel.findById(req.user.id)
-        const roles = await RoleModel.find({ _id: { $in: user?.roles } })
-        if (!roles.find(role => role.name === 'admin')) return res.status(403).json({ message: 'Unauthorized User' })
+        if (!req.user.isAdmin) return res.status(403).json({ message: 'Unauthorized User' })
         next()
     } catch (e) {
         res.status(500).json({ message: e })

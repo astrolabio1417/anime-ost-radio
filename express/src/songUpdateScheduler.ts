@@ -1,7 +1,8 @@
 import schedule from 'node-schedule'
 import { getAllanimeSong } from './services/allanimeSongs'
-import SongModel, { ISong } from './models/songModel'
-import { sleep } from './helpers/sleep'
+import SongModel from './models/songModel'
+import { sleep } from './utils/sleep'
+import { SongI } from './interfaces/SongInterface'
 
 let isJobRunning = false
 const SLEEP_TIME = 5000
@@ -33,7 +34,7 @@ export async function getAllanimeSongJobFunc(page = 1) {
                     name: song?.musicTitle?.full,
                     show: song?.show?.name,
                     image: { cover: song?.cover, thumbnail: song?.show?.thumbnail },
-                } as ISong).catch(() => null),
+                } as SongI).catch(() => null),
             )
 
         const newSongs = await Promise.all(newSongPromises)

@@ -9,4 +9,5 @@ interface UserJwtPayloadI {
     id: string
     username: string
     isAuthenticated: boolean
+    isAdmin: boolean
 }

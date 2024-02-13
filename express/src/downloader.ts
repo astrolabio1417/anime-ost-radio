@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { Stream } from 'stream'
 import { USER_AGENT } from './data/constant'
-import { escapeFilename } from './helpers/escapeFilename'
+import { escapeFilename } from './utils/escapeFilename'
 import fetch from 'node-fetch'
 import { promisify } from 'util'
 import path from 'path'

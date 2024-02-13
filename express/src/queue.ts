@@ -1,13 +1,14 @@
 import { PassThrough } from 'stream'
-import { sleep } from './helpers/sleep'
-import SongModel, { ISong, SongDocument } from './models/songModel'
-import { checkObjectId } from './helpers/checkObjectId'
+import { sleep } from './utils/sleep'
+import SongModel from './models/songModel'
+import { checkObjectId } from './utils/checkObjectId'
 import { FilterQuery, SortOrder } from 'mongoose'
 import { download } from './downloader'
 import EventEmitter from 'events'
-import { escapeFilename } from './helpers/escapeFilename'
+import { escapeFilename } from './utils/escapeFilename'
 import { streamMultiToLive, streamToLive } from './encoder'
 import Ffmpeg from 'fluent-ffmpeg'
+import { SongDocument } from './interfaces/SongInterface'
 
 const QueueSort: {
     [key: string]: SortOrder | { $meta: any }
@@ -21,7 +22,7 @@ const getQueueOption = (id: string) =>
     ({
         ...(checkObjectId(id) ? { _id: { $ne: id } } : {}),
         $or: [{ played: false }, { 'vote.total': { $gte: 1 } }],
-    }) as FilterQuery<ISong>
+    }) as FilterQuery<SongDocument>
 
 export enum QUEUE_EVENTS {
     ON_TRACK_CHANGE = 'ON_TRACK_CHANGE',

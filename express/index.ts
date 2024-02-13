@@ -15,7 +15,7 @@ import streamRoutes from './src/routes/streamRoutes'
 import artistRoutes from './src/routes/artistRoutes'
 import cookieParser from 'cookie-parser'
 import showRoutes from './src/routes/showRotues'
-import { authUserToken } from './src/middlewares/authJwt'
+import { authUserOrAnonymous } from './src/middlewares/authJwt'
 import errorHandlerMiddleware from './src/middlewares/errorHandlerMiddleware'
 
 process.on('SIGINT', function () {
@@ -26,15 +26,16 @@ dotenv.config()
 const mongoString: string | undefined = process.env.DATABASE_URL ?? ''
 const sessionKeys = process.env.SECRET_KEY?.split(',') ?? ['generate-key-1']
 const origin = process.env.ORIGINS?.split(',') ?? ['http://localhost:5173', 'http://localhost:8000']
+const autoPlay = process.env.AUTO_PLAY === 'false' ? false : true
 const port = process.env.PORT ?? 8000
-const app: Express = express()
+export const app: Express = express()
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cors({ credentials: true, origin: origin }))
 app.use(cookieSession({ name: 'session', keys: sessionKeys, httpOnly: true }))
 app.use(cookieParser())
-app.use(authUserToken)
+app.use(authUserOrAnonymous)
 
 const corsOption = { cors: { origin } }
 const server = http.createServer(app)
@@ -51,56 +52,57 @@ database.once('connected', () => {
 })
 
 mongoose.connect(mongoString).then(() => {
-    // play radio
-    queue.play()
-
-    const listenerPeers: Set<string> = new Set()
-    queue.on(QUEUE_EVENTS.ON_TIME_CHANGE, timemark => io.emit(QUEUE_EVENTS.ON_TIME_CHANGE, timemark))
-    queue.on(QUEUE_EVENTS.ON_TRACK_CHANGE, track => io.emit(QUEUE_EVENTS.ON_TRACK_CHANGE, track))
-    queue.on(QUEUE_EVENTS.ON_QUEUE_CHANGE, track => io.emit(QUEUE_EVENTS.ON_QUEUE_CHANGE, track))
-
-    io.on('connection', async socket => {
-        io.to(socket.id).emit(QUEUE_EVENTS.ON_QUEUE_CHANGE, await queue.queue(20))
-        io.to(socket.id).emit(QUEUE_EVENTS.ON_TRACK_CHANGE, await queue.getCurrentTrack())
-        io.to(socket.id).emit(QUEUE_EVENTS.ON_TIME_CHANGE, queue.timemark)
-
-        socket.on('listeners', () => {
-            io.to(socket.id).emit('update-user-list', { users: [...listenerPeers].filter(s => s !== socket.id) })
-        })
-
-        socket.on('listen', () => {
-            listenerPeers.add(socket.id)
-            socket.broadcast.emit('add-user', { user: socket.id })
-        })
-
-        socket.on('unlisten', onDisconnect)
-        socket.on('disconnect', onDisconnect)
-
-        socket.on('call-user', (data: { offer: RTCSessionDescriptionInit; to: string }) => {
-            socket.to(data.to).emit('call-made', { offer: data.offer, socket: socket.id })
-        })
-
-        socket.on('make-answer', (data: { answer: RTCSessionDescriptionInit; to: string }) => {
-            socket.to(data.to).emit('answer-made', { answer: data.answer, socket: socket.id })
-        })
-
-        function onDisconnect() {
-            listenerPeers.delete(socket.id)
-            socket.broadcast.emit('remove-user', { user: socket.id })
-        }
-    })
-
-    app.use(streamRoutes)
-    app.use(songRoutes)
-    app.use(authRoutes)
-    app.use(userPlaylistRoutes)
-    app.use(artistRoutes)
-    app.use(showRoutes)
-
-    // error handler
-    app.use(errorHandlerMiddleware)
+    if (process.env.NODE_ENV === 'test') return
+    // auto play radio
+    if (autoPlay) queue.play()
 
     server.listen(port, () => {
         console.log(`[server]: Server is running at http://localhost:${port}`)
     })
 })
+
+const listenerPeers: Set<string> = new Set()
+queue.on(QUEUE_EVENTS.ON_TIME_CHANGE, timemark => io.emit(QUEUE_EVENTS.ON_TIME_CHANGE, timemark))
+queue.on(QUEUE_EVENTS.ON_TRACK_CHANGE, track => io.emit(QUEUE_EVENTS.ON_TRACK_CHANGE, track))
+queue.on(QUEUE_EVENTS.ON_QUEUE_CHANGE, track => io.emit(QUEUE_EVENTS.ON_QUEUE_CHANGE, track))
+
+io.on('connection', async socket => {
+    io.to(socket.id).emit(QUEUE_EVENTS.ON_QUEUE_CHANGE, await queue.queue(20))
+    io.to(socket.id).emit(QUEUE_EVENTS.ON_TRACK_CHANGE, await queue.getCurrentTrack())
+    io.to(socket.id).emit(QUEUE_EVENTS.ON_TIME_CHANGE, queue.timemark)
+
+    socket.on('listeners', () => {
+        io.to(socket.id).emit('update-user-list', { users: [...listenerPeers].filter(s => s !== socket.id) })
+    })
+
+    socket.on('listen', () => {
+        listenerPeers.add(socket.id)
+        socket.broadcast.emit('add-user', { user: socket.id })
+    })
+
+    socket.on('unlisten', onDisconnect)
+    socket.on('disconnect', onDisconnect)
+
+    socket.on('call-user', (data: { offer: RTCSessionDescriptionInit; to: string }) => {
+        socket.to(data.to).emit('call-made', { offer: data.offer, socket: socket.id })
+    })
+
+    socket.on('make-answer', (data: { answer: RTCSessionDescriptionInit; to: string }) => {
+        socket.to(data.to).emit('answer-made', { answer: data.answer, socket: socket.id })
+    })
+
+    function onDisconnect() {
+        listenerPeers.delete(socket.id)
+        socket.broadcast.emit('remove-user', { user: socket.id })
+    }
+})
+
+app.use(streamRoutes)
+app.use(songRoutes)
+app.use(authRoutes)
+app.use(userPlaylistRoutes)
+app.use(artistRoutes)
+app.use(showRoutes)
+
+// error handler
+app.use(errorHandlerMiddleware)

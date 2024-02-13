@@ -110,5 +110,6 @@
         "files": true,
         "swc": true
     },
-    "files": ["index.ts", "src/types.d.ts"]
+    "files": ["index.ts", "src/types.d.ts"],
+    "exclude": ["./coverage", "./dist", "__tests__", "jest.config.js"]
 }

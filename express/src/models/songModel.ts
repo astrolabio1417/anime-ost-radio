@@ -1,25 +1,7 @@
+import { SongDocument } from './../interfaces/SongInterface'
 import mongoose, { Schema } from 'mongoose'
 import UserModel from './userModel'
 import mongoosePaginate from 'mongoose-paginate-v2'
-
-export type ISong = {
-    name: string
-    musicUrl?: string
-    duration?: number
-    artist?: string
-    show: string
-    image: {
-        cover?: string
-        thumbnail?: string
-    }
-    played: boolean
-    vote: {
-        list: mongoose.Types.ObjectId[]
-        total: number
-        timestamp?: Date
-    }
-    timestamp: Date
-}
 
 export const SongSchema = new mongoose.Schema({
     name: { required: true, type: String },
@@ -45,70 +27,7 @@ export const SongSchema = new mongoose.Schema({
 })
 
 SongSchema.index({ name: 1, artist: 1, show: 1 }, { unique: true })
-
 SongSchema.plugin(mongoosePaginate)
-
-export type SongDocument = mongoose.Document & ISong
-
-const SongModel = mongoose.model<ISong, mongoose.PaginateModel<SongDocument>>('Song', SongSchema)
-
-export async function cleanSongModel() {
-    const updateTimestamp = await SongModel.updateMany({ timestamp: { $exists: false } }, [
-        {
-            $set: { timestamp: Date.now() },
-        },
-    ])
-    console.log({ updateTimestamp })
-    const updateShows = await SongModel.updateMany({ 'show.id': { $exists: true } }, [
-        {
-            $set: {
-                show: '$show.name',
-            },
-        },
-    ])
-    console.log({ updateShows })
-
-    // https://aimgf.youtube-anime.com/
-    const updateMusic = await SongModel.updateMany({ musicUrl: { $regex: '^(?!https://).' } }, [
-        {
-            $set: {
-                musicUrl: {
-                    $concat: ['https://aimgf.youtube-anime.com/', '$musicUrl'],
-                },
-            },
-        },
-    ])
-    console.log({ updateMusic })
-    const updateImage = await SongModel.updateMany(
-        {
-            'image.cover': { $regex: '^__Music__' },
-        },
-        [
-            {
-                $set: {
-                    'image.cover': {
-                        $concat: ['https://wp.youtube-anime.com/aln.youtube-anime.com/images/', '$image.cover'],
-                    },
-                },
-            },
-        ],
-    )
-    console.log({ updateImage })
-    const updateImage1 = await SongModel.updateMany(
-        {
-            'image.cover': { $regex: '^images' },
-        },
-        [
-            {
-                $set: {
-                    'image.cover': {
-                        $concat: ['https://wp.youtube-anime.com/aln.youtube-anime.com/', '$image.cover'],
-                    },
-                },
-            },
-        ],
-    )
-    console.log({ updateImage1 })
-}
+const SongModel = mongoose.model<SongDocument, mongoose.PaginateModel<SongDocument>>('Song', SongSchema)
 
 export default SongModel
