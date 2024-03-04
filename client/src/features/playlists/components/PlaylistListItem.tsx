@@ -83,7 +83,10 @@ export default function PlaylistListItem(props: PlaylistListItemProps) {
           </Avatar>
         </ListItemAvatar>
 
-        <ListItemText primary={playlist.title} />
+        <ListItemText
+          primaryTypographyProps={{ style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }}
+          primary={playlist.title}
+        />
       </ListItemButton>
       {deleteModal && (
         <Modal open={deleteModal} onClose={() => setDeleteModal(false)}>

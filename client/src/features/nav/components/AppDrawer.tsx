@@ -11,12 +11,9 @@ export default function AppDrawer(props: { sx?: SxProps<Theme> | undefined }) {
       sx={{
         width: DRAWER_WIDTH,
         flexShrink: 0,
-        // display: { xs: 'none', md: 'block' },
         gridArea: 'sidebar',
         height: '100%',
-        overflowY: 'auto',
         borderRight: '1px solid #E5EAF2',
-        // resize: 'horizontal',
         overflow: 'auto',
         ...props.sx,
       }}

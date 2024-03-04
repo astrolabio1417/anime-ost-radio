@@ -14,11 +14,9 @@ export default function AppNavTitle(props: AppNavTitleProps) {
       fontWeight={600}
       component={Link}
       to="/"
-      sx={{
-        textDecoration: 'none',
-      }}
+      sx={{ textDecoration: 'none' }}
     >
-      AnimeBeats
+      AnimeOst
     </Typography>
   )
 }

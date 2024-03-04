@@ -35,7 +35,7 @@ function App() {
                   overflow: 'hidden',
                   gridTemplateAreas: {
                     xs: `"nav nav" "main main" "playbar playbar"`,
-                    sm: `"nav nav nav" "sidebar main main" "playbar playbar playbar"`,
+                    md: `"nav nav nav" "sidebar main main" "playbar playbar playbar"`,
                   },
                   gridTemplateColumns: 'auto 1fr',
                   gridTemplateRows: { xs: 'auto 1fr auto', sm: 'auto 1fr auto' },
@@ -48,7 +48,7 @@ function App() {
                 <NavBar />
 
                 {/* <sidebar /> */}
-                <AppDrawer sx={{ display: { xs: 'none', sm: 'block' } }} />
+                <AppDrawer sx={{ display: { xs: 'none', md: 'block' } }} />
 
                 {/* <main> */}
                 <Box sx={{ overflowY: 'scroll', gridArea: 'main', height: '100%', width: '100%' }}>

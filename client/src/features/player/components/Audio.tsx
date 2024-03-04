@@ -51,15 +51,31 @@ const Audio = forwardRef<AudioHandle, AudioProps>(function Audio(props, ref) {
 
   useEffect(() => {
     if (!audioRef.current) return
+    let timeoutId: number
 
     if (Hls.isSupported() && props.hls) {
       const hls = new Hls()
+
+      const maxRetries = 200
+      let retryCount = 0
+
+      hls.on(Hls.Events.ERROR, (_, data) => {
+        if (!data.fatal) return
+        if (data.type !== Hls.ErrorTypes.NETWORK_ERROR || data.details !== Hls.ErrorDetails.MANIFEST_LOAD_ERROR) return
+        if (retryCount > maxRetries) return
+        timeoutId = setTimeout(() => hls.loadSource(props.src), 1000)
+        retryCount++
+      })
       hls.loadSource(props.src)
       hls.attachMedia(audioRef.current)
       return
     }
 
     audioRef.current.src = props.src
+
+    return () => {
+      timeoutId && clearTimeout(timeoutId)
+    }
   }, [props.src, props.hls])
 
   useEffect(() => {

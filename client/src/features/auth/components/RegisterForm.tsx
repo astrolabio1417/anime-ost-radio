@@ -1,125 +1,74 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, CircularProgress, Select, Stack, TextField } from '@mui/material'
 import { blue } from '@mui/material/colors'
 import { AxiosError } from 'axios'
-import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
-import { validateEmail } from '@/helpers'
+import ErrorLabel from '@/components/ErrorLabel'
 import { useUser } from '@/zustand/user'
 
 import { apiAuth } from '../api/auth'
+import RegisterSchema, { RegisterData } from '../schemas/registerSchema'
 
 type RegistrationFormContainerProps = {
   onRegistered?: () => void
 }
 
-type RegistrationDataI = {
-  username: string
-  email: string
-  password: string
-  password2: string
-  roles: string[]
-}
-
-const defaultData = {
-  username: '',
-  email: '',
-  password: '',
-  password2: '',
-  roles: ['user'],
-}
-
-function useRegisterForm(onRegistered?: () => void) {
-  const [data, setData] = useState<RegistrationDataI>({ ...defaultData })
-  const [loading, setLoading] = useState(false)
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    setLoading(true)
-    return await (async () => {
-      e.preventDefault()
-      const { username, email, password, password2 } = data ?? {}
-      if (!username || !email || !password || !password2) return toast('Please fill all the fields!', { type: 'error' })
-      if (!validateEmail(email)) return toast('Invalid email!', { type: 'error' })
-      if (password !== password2) return toast('Passwords do not match!', { type: 'error' })
-
-      try {
-        const res = await apiAuth.register(username, email, password, data.roles).catch(e => e.response)
-        toast(res.data.message, { type: 'success' })
-        setData({ ...defaultData })
-        onRegistered?.()
-      } catch (e) {
-        const error = e as AxiosError<{ message: string }>
-        toast(error.response?.data.message ?? error.message, { type: 'error' })
-      }
-    })().finally(() => setLoading(false))
-  }
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setData(data => ({
-      ...data,
-      [e.target.name]: e.target.value,
-    }))
-  }
-
-  function handleSelect(e: React.ChangeEvent<HTMLSelectElement>) {
-    const { options } = e.target
-    setData(data => ({
-      ...data,
-      [e.target.name]: [...options].filter(a => a.selected).map(a => a.value),
-    }))
-  }
-
-  return {
-    handleChange,
-    handleSubmit,
-    handleSelect,
-    data,
-    loading,
-  }
-}
-
 export default function RegisterForm(props: RegistrationFormContainerProps) {
-  const { data, handleChange, handleSubmit, loading, handleSelect } = useRegisterForm(props.onRegistered)
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterData>({ resolver: zodResolver(RegisterSchema) })
   const { roles } = useUser()
   const isAdmin = !!roles.find(role => role.name === 'admin')
   const ROLES = ['user', 'admin']
 
+  async function onSubmit(data: RegisterData) {
+    try {
+      const { username, email, password, roles } = data
+      const res = await apiAuth.register(username, email, password, roles)
+      toast(res.data.message, { type: 'success' })
+      reset()
+      props.onRegistered?.()
+    } catch (e) {
+      const error = e as AxiosError<{ message: string }>
+      toast(error.response?.data.message ?? error.message, { type: 'error' })
+    }
+  }
+
   return (
-    <form onSubmit={handleSubmit} autoComplete="on">
+    <form onSubmit={handleSubmit(onSubmit)} autoComplete="false">
       <Stack gap={2} paddingY={2}>
-        <TextField autoFocus onChange={handleChange} value={data.username} name="username" label="Username" fullWidth />
-        <TextField onChange={handleChange} value={data.email} name="email" label="Email" type="email" fullWidth />
-        <TextField
-          autoComplete="off"
-          onChange={handleChange}
-          value={data.password}
-          name="password"
-          label="Password"
-          type="password"
-          fullWidth
-        />
-        <TextField
-          autoComplete="off"
-          onChange={handleChange}
-          value={data.password2}
-          name="password2"
-          label="Confirm Password"
-          type="password"
-          fullWidth
-        />
+        <Stack gap={1}>
+          <TextField {...register('username')} label="username" fullWidth />
+          <ErrorLabel message={errors.username?.message} />
+        </Stack>
+        <Stack gap={1}>
+          <TextField {...register('email')} label="email" type="email" fullWidth />
+          <ErrorLabel message={errors.email?.message} />
+        </Stack>
+        <Stack gap={1}>
+          <TextField autoComplete="off" {...register('password')} label="password" type="password" fullWidth />
+          <ErrorLabel message={errors.password?.message ?? errors.root?.message} />
+        </Stack>
+        <Stack gap={1}>
+          <TextField autoComplete="off" {...register('password2')} label="Confirm Password" type="password" fullWidth />
+          <ErrorLabel message={errors.password2?.message} />
+        </Stack>
+
         {isAdmin ? (
           <Select
             multiple
             native
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore Typings are not considering `native`
-            onChange={handleSelect}
-            value={data.roles}
-            name="roles"
-            label="Roles"
+            title="Roles"
+            {...register('roles')}
             inputProps={{
               id: 'select-multiple-native',
             }}
+            label="Roles"
             fullWidth
           >
             {ROLES.map(role => (
@@ -128,17 +77,16 @@ export default function RegisterForm(props: RegistrationFormContainerProps) {
               </option>
             ))}
           </Select>
-        ) : (
-          <></>
-        )}
+        ) : null}
+
         <Stack direction="row" gap={2}>
           <Button
             title="Register"
-            disabled={loading}
+            disabled={isSubmitting}
             variant="contained"
             type="submit"
             sx={{ ':disabled': { opacity: 80, bgcolor: blue[700], color: 'white' } }}
-            startIcon={loading && <CircularProgress color="secondary" size={20} />}
+            startIcon={isSubmitting && <CircularProgress color="secondary" size={20} />}
           >
             Register
           </Button>

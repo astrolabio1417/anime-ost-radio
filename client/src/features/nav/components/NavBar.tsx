@@ -9,6 +9,7 @@ import { useUser } from '@/zustand/user'
 import { apiAuth } from '../../auth/api/auth'
 import AppMobileDrawer from './AppMobileDrawer'
 import UserAvatar from './UserAvatar'
+import AppNavTitle from './AppNavTitle'
 
 export default function NavBar(props: { sx?: SxProps<Theme> | undefined }) {
   const { username, isLoggedIn, roles } = useUser()
@@ -29,27 +30,15 @@ export default function NavBar(props: { sx?: SxProps<Theme> | undefined }) {
         gridArea: 'nav',
         bgcolor: 'background.default',
         boxShadow: 'none',
-        borderBottom: {
-          md: '1px solid #E5EAF2',
-        },
+        borderBottom: { md: '1px solid #E5EAF2' },
         ...props.sx,
       }}
     >
       <Toolbar sx={{ display: 'flex', justifyContent: 'end' }}>
         <Stack direction="row" justifyContent="end" alignItems="center" color="black" width="100%">
-          <Stack
-            direction="row"
-            gap={1}
-            marginRight="auto"
-            alignItems="center"
-            sx={{
-              display: {
-                xs: 'flex',
-                md: 'none !important',
-              },
-            }}
-          >
+          <Stack direction="row" gap={1} marginRight="auto" alignItems="center">
             <AppMobileDrawer />
+            <AppNavTitle />
           </Stack>
           {isLoggedIn ? (
             <>

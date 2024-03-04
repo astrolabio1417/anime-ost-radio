@@ -16,7 +16,8 @@ export interface IPlaylist {
   }
 }
 
-export interface IPlaylistDataForm extends Omit<IPlaylist, '_id' | 'songs' | 'user' | 'image'> {
+export interface IPlaylistDataForm {
+  title: string
   image: {
     cover: FileList | string | null
     thumbnail: FileList | string | null

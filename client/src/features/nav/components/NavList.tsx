@@ -12,11 +12,10 @@ interface NavListProps {
 
 export default function NavList(props: NavListProps) {
   const links = [
-    { label: 'Home', href: '/', icon: <HomeIcon /> },
     { label: 'Search', href: '/search', icon: <SearchIcon /> },
     { label: 'Shows', href: '/shows', icon: <LiveTvIcon /> },
-    { label: 'Playlists', href: '/playlists', icon: <QueueMusicIcon /> },
     { label: 'Artists', href: '/artists', icon: <AlbumIcon /> },
+    { label: 'Playlists', href: '/playlists', icon: <QueueMusicIcon /> },
   ]
 
   return (

@@ -24,3 +24,11 @@ export function getSongCover(song?: { image: { thumbnail?: string; cover?: strin
   if (!song) return song
   return song.image?.cover ?? song.image?.thumbnail ?? ''
 }
+
+export function getArtistUrlByName(name: string) {
+  return `/artists/${btoa(name)}`
+}
+
+export function getSongUrlById(id: string) {
+  return `/songs/${id}`
+}

@@ -4,18 +4,21 @@ import { Box, IconButton, Toolbar } from '@mui/material'
 import React, { useState } from 'react'
 
 import PlaylistList from '@/features/playlists/components/PlaylistList'
+import useOutsideClick from '@/hooks/outsideClick'
 
 import NavList from './NavList'
+import AppNavTitle from './AppNavTitle'
 
 export default function AppMobileDrawer() {
   const [open, setOpen] = useState(false)
+  const containerRef = useOutsideClick(handleClose)
 
   function handleClose() {
     setOpen(false)
   }
 
   return (
-    <React.Fragment>
+    <Box sx={{ display: { xs: 'flex', md: 'none !important' } }}>
       <IconButton title="Menu" onClick={() => setOpen(true)}>
         <MenuIcon />
       </IconButton>
@@ -28,18 +31,26 @@ export default function AppMobileDrawer() {
           position: 'fixed',
           inset: 0,
           zIndex: 11,
-          overflowY: 'auto',
-          bgcolor: 'background.default',
         }}
       >
-        <Toolbar>
-          <IconButton title="Close" sx={{ marginLeft: 'auto' }} onClick={handleClose} color="inherit">
-            <CloseIcon />
-          </IconButton>
-        </Toolbar>
-        <NavList onLinkClick={handleClose} />
-        <PlaylistList onLinkClick={handleClose} />
+        {!open ? null : (
+          <Box
+            ref={containerRef}
+            sx={{
+              width: '80%',
+              height: '100%',
+              bgcolor: 'background.default',
+              overflowY: 'auto',
+            }}
+          >
+            <Toolbar>
+              <AppNavTitle onClick={handleClose} />
+            </Toolbar>
+            <NavList onLinkClick={handleClose} />
+            <PlaylistList onLinkClick={handleClose} />
+          </Box>
+        )}
       </Box>
-    </React.Fragment>
+    </Box>
   )
 }

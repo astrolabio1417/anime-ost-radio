@@ -27,10 +27,7 @@ export default function PlaylistListHeader() {
           </IconButton>
         }
       >
-        <ListItemIcon>
-          <LibraryMusicIcon />
-        </ListItemIcon>
-        <ListItemText>Library</ListItemText>
+        <ListItemText>My Playlists</ListItemText>
       </ListItem>
       <Modal open={showForm} onClose={() => setShowForm(false)}>
         <ModalContainer>

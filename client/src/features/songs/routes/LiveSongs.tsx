@@ -1,22 +1,23 @@
 import { List, Stack, Typography } from '@mui/material'
+import { Link } from 'react-router-dom'
 
 import PageHelmet from '@/components/PageHelmet'
-import Banner from '@/features/player/components/Banner'
 import ControlsContainer from '@/features/player/components/ControlsContainer'
-import { formatDuration, getSongCover, getsongThumbnail } from '@/helpers'
+import { getArtistUrlByName, getSongCover, getsongThumbnail, getSongUrlById } from '@/helpers'
 import { usePlayer } from '@/zustand/player'
 import { useRadio } from '@/zustand/radio'
 import { useUser } from '@/zustand/user'
 
 import RadioPlayButton from '../../player/components/RadioPlayButton'
 import AddToPlaylistAction from '../components/AddToPlaylistAction'
+import SongBanner from '../components/SongBanner'
 import SongItem from '../components/SongItem'
 import VoteAction from '../components/VoteAction'
 
-export default function QueueSongs() {
+export default function LiveSongs() {
   const { current, queue } = useRadio()
   const { id: userId } = useUser()
-  const { name, artist, duration, show, vote } = current ?? {}
+  const { name, artist, _id } = current ?? {}
   const { playSong } = usePlayer()
   const coverImage = getSongCover(current)
   const thumbnailImage = getsongThumbnail(current)
@@ -26,20 +27,13 @@ export default function QueueSongs() {
       <PageHelmet title="AnimeBeats" />
 
       <Stack width="100%" gap={2}>
-        <Banner
-          title={name ?? ''}
-          image={thumbnailImage ?? coverImage}
+        <SongBanner
+          category="Song"
+          title={<Link to={getSongUrlById(_id)}>{name}</Link>}
+          subtitle={!artist ? null : <Link to={getArtistUrlByName(artist)}>{artist}</Link>}
           bgImage={coverImage ?? thumbnailImage}
-          subtitle={artist}
-        >
-          {duration && (
-            <Typography variant="caption" marginTop={2}>
-              Duration: {formatDuration(duration)}
-            </Typography>
-          )}
-          {show && <Typography variant="caption">Anime: {show}</Typography>}
-          {vote && <Typography variant="caption">Vote: {vote.total}</Typography>}
-        </Banner>
+          image={thumbnailImage ?? coverImage}
+        />
 
         <ControlsContainer>
           <RadioPlayButton />

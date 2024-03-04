@@ -70,7 +70,18 @@ export default function SongItem(props: SongItemProps) {
           </Box>
         </ListItemIcon>
 
-        <ListItemText sx={{ paddingLeft: 1 }} primary={song.name} secondary={song.artist ?? ''} />
+        <ListItemText
+          sx={{
+            paddingLeft: 1,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: '3',
+          }}
+          primary={song.name}
+          secondary={song.artist ?? ''}
+        />
       </ListItemButton>
     </ListItem>
   )

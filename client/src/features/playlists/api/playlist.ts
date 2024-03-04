@@ -28,10 +28,10 @@ export const apiPlaylist = {
     user && params.set('user', `${user}`)
     limit && params.set('limit', `${limit}`)
     query && Object.keys(query).map(key => params.set(key, query[key]))
-    return await http.get<IPlaylistsResponse>(`${API}/playlists`, { params })
+    return await http.get<IPlaylistsResponse>(`${API}/playlists/`, { params })
   },
   create: async (playlist: IPlaylistDataForm) => {
-    return await httpForm.post<IPlaylistCreateResponse>(`${API}/playlists`, createPlaylistFormData(playlist))
+    return await httpForm.post<IPlaylistCreateResponse>(`${API}/playlists/`, createPlaylistFormData(playlist))
   },
   update: async (playlistId: string, playlist: IPlaylistDataForm) => {
     return await httpForm.put<IPlaylistUpdateResponse>(
@@ -50,7 +50,6 @@ export const apiPlaylist = {
 
 function createPlaylistFormData(playlist: IPlaylistDataForm) {
   const formData = new FormData()
-
   formData.append('title', playlist.title)
   const { cover, thumbnail } = playlist.image
   cover && formData.append('cover', typeof cover === 'string' ? cover : cover[0])
