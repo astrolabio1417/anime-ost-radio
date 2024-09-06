@@ -23,8 +23,21 @@ export const songQueueList = tryCatch(async (_: Request, res: Response) => {
 export const songRetrieve = tryCatch(async (req: Request, res: Response) => {
     const { params } = await zParse(songSchema.retrieve, req)
     const song = await SongModel.findOne({ _id: params.id })
-    if (!song) return res.status(400).json({ message: 'Not Found!' })
+    if (!song) return res.status(404).json({ message: 'Not Found!' })
     return res.json(song)
+})
+
+export const songDelete = tryCatch(async (req: Request, res: Response) => {
+    const { params } = await zParse(songSchema.retrieve, req)
+    const song = await SongModel.deleteOne({ _id: params.id })
+    if (!song) return res.status(404).json({ message: 'Not Found!' })
+    return res.json(song)
+})
+
+export const songCreate = tryCatch(async (req, res) => {
+    const { body } = await zParse(songSchema.create, req)
+    const newSong = await SongModel.create(body)
+    return res.status(201).json(newSong)
 })
 
 export const songUpVote = tryCatch(async (req: Request, res: Response) => {

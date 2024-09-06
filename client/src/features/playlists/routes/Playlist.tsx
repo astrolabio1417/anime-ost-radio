@@ -1,4 +1,4 @@
-import { Divider, Stack, Typography } from '@mui/material'
+import { List, Stack, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { Fragment, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -11,13 +11,13 @@ import AddToPlaylistAction from '@/features/songs/components/AddToPlaylistAction
 import SongBanner from '@/features/songs/components/SongBanner'
 import { ISong } from '@/features/songs/types'
 import { getSongCover, getsongThumbnail, getSongUrlById } from '@/helpers'
-import { usePlayer } from '@/zustand/player'
+import usePlayerHandler from '@/hooks/usePlayerHandler'
+import NotFound from '@/NotFound'
 import { useUser } from '@/zustand/user'
 
 import SongItem from '../../songs/components/SongItem'
 import { apiPlaylist } from '../api/playlist'
 import RemoveSongAction from '../components/RemoveSongAction'
-import NotFound from '@/NotFound'
 
 export default function Playlist() {
   const { id } = useParams()
@@ -28,12 +28,14 @@ export default function Playlist() {
   })
   const [deletedSong, setDeletedSong] = useState<string[]>([])
   const { id: userId } = useUser()
-  const { activeSongId, id: playerId, playPlaylist, play, playPlayer, pausePlayer } = usePlayer()
-
   const playlistData = data?.data
-  const playlistSongs = playlistData?.songs?.filter(s => !deletedSong.includes(s._id))
-  const isPlaylistPlaying = playerId === playlistId
-  const currentPlayingSong = isPlaylistPlaying ? playlistSongs?.find(a => a._id === activeSongId) : undefined
+  const playlistSongs = playlistData?.songs?.filter(s => !deletedSong.includes(s._id)) || []
+  const { togglePlay, isPlaylistPlaying, currentSong } = usePlayerHandler({
+    title: playlistData?.title || 'Playlist Songs',
+    pageUrl: window.location.href,
+    songs: playlistSongs,
+    playlistId,
+  })
 
   useEffect(() => {
     setDeletedSong([])
@@ -41,16 +43,6 @@ export default function Playlist() {
 
   function handleDelete(song: ISong) {
     setDeletedSong(prev => [...prev, song._id])
-  }
-
-  function handlePlay() {
-    if (isPlaylistPlaying) {
-      play ? pausePlayer() : playPlayer()
-      return
-    }
-
-    if (!playlistSongs) return
-    playPlaylist(playlistId, [...playlistSongs], playlistSongs[0]._id)
   }
 
   if (isLoading) return <Loading />
@@ -65,37 +57,38 @@ export default function Playlist() {
         <SongBanner
           category="Playlist"
           title={playlistData?.title}
-          subtitle={
-            currentPlayingSong ? (
-              <Link to={getSongUrlById(currentPlayingSong._id)}>{currentPlayingSong.name}</Link>
-            ) : null
-          }
-          bgImage={getSongCover(currentPlayingSong) || getSongCover(playlistData)}
-          image={getsongThumbnail(playlistData) || getsongThumbnail(currentPlayingSong)}
+          subtitle={currentSong ? <Link to={getSongUrlById(currentSong._id)}>{currentSong.name}</Link> : null}
+          bgImage={getSongCover(currentSong) || getSongCover(playlistData)}
+          image={getsongThumbnail(playlistData) || getsongThumbnail(currentSong)}
         />
 
         <ControlsContainer>
-          <PlayButton isPlaying={isPlaylistPlaying && play} onClick={handlePlay} />
-          {currentPlayingSong && <AddToPlaylistAction song={currentPlayingSong} />}
+          <PlayButton isPlaying={isPlaylistPlaying} onClick={togglePlay} />
+          {currentSong && <AddToPlaylistAction song={currentSong} />}
         </ControlsContainer>
 
-        <Stack divider={<Divider variant="fullWidth" />}>
-          {playlistSongs?.map(song => (
-            <SongItem
-              key={song._id}
-              song={song}
-              onClick={() => playPlaylist(playlistId, [...playlistSongs], song._id)}
-              secondaryAction={
-                <Stack direction="row" gap={1}>
-                  <AddToPlaylistAction song={song} />
-                  {playlistData?.user._id === userId && (
-                    <RemoveSongAction playlistId={playlistId} song={song} onDelete={handleDelete} />
-                  )}
-                </Stack>
-              }
-            />
-          ))}
-        </Stack>
+        {playlistSongs?.length ? (
+          <List>
+            {playlistSongs.map(song => (
+              <SongItem
+                key={song._id}
+                song={song}
+                onClick={togglePlay}
+                isPlaying={isPlaylistPlaying && song._id === currentSong?._id}
+                secondaryAction={
+                  <Stack direction="row">
+                    <AddToPlaylistAction song={song} />
+                    {playlistData?.user._id === userId && (
+                      <RemoveSongAction playlistId={playlistId} song={song} onDelete={handleDelete} />
+                    )}
+                  </Stack>
+                }
+              />
+            ))}
+          </List>
+        ) : (
+          <Typography px={2}>No songs available</Typography>
+        )}
       </Stack>
     </Fragment>
   )

@@ -6,7 +6,7 @@ import { FilterQuery, SortOrder } from 'mongoose'
 import { download } from './downloader'
 import EventEmitter from 'events'
 import { escapeFilename } from './utils/escapeFilename'
-import { streamMultiToLive, streamToLive } from './encoder'
+import { streamToLive } from './streamAudio'
 import Ffmpeg from 'fluent-ffmpeg'
 import { SongDocument } from './interfaces/SongInterface'
 
@@ -85,7 +85,7 @@ class Queue extends EventEmitter {
 
         if (!nextTrack) {
             console.log('--- no more tracks, resetting played flags ---')
-            await SongModel.updateMany({ played: false }, { $set: { played: true } })
+            await SongModel.updateMany({ played: true }, { $set: { played: false } })
             await sleep(3000)
             return this.rotateTrack()
         }
@@ -122,12 +122,6 @@ class Queue extends EventEmitter {
         this.stream.kill('SIGSTOP')
     }
 
-    async playRandom() {
-        this.stop()
-        const stream = await streamMultiToLive([''])
-        stream.on('end', () => this.play()).on('error', () => this.play())
-    }
-
     async startBroadcast() {
         if (!this.isPlaying) return console.log('--- not playing, stopping the radio broadcast ---')
 
@@ -161,9 +155,8 @@ class Queue extends EventEmitter {
                 console.error(e)
                 console.log('--- error while playing ---')
                 console.log(track.name)
-                sleep(5000).then(() => this.startBroadcast())
-                // this.rotateTrack().then(() => this.startBroadcast())
-            }) // TODO
+                this.rotateTrack().then(() => this.startBroadcast())
+            })
     }
 
     setTimemark(timemark: number) {

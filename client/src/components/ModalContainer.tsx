@@ -1,7 +1,8 @@
-import { Box, BoxProps } from '@mui/material'
+import { Close } from '@mui/icons-material'
+import { Box, BoxProps, IconButton } from '@mui/material'
 import React from 'react'
 
-const MODAL_STYLE = {
+const MODAL_STYLE: React.CSSProperties = {
   position: 'fixed' as const,
   top: '50%',
   left: '50%',
@@ -9,23 +10,26 @@ const MODAL_STYLE = {
   width: '100%',
   maxWidth: 400,
   maxHeight: '100%',
-  bgcolor: 'background.paper',
-  border: '1px solid #000',
   overflowY: 'auto',
-  boxShadow: 24,
-  p: {
-    xs: 2,
-    md: 4,
-  },
 }
 
-interface ModalContainerProps {
-  children: React.ReactNode
+interface ModalContainerProps extends React.PropsWithChildren, BoxProps {
+  onClose?: () => void
 }
 
-const ModalContainer = React.forwardRef<ModalContainerProps, BoxProps>((props, ref) => {
+const ModalContainer = React.forwardRef<HTMLDivElement, ModalContainerProps>(({ sx, ...props }, ref) => {
   return (
-    <Box sx={MODAL_STYLE} {...props} ref={ref}>
+    <Box
+      position="relative"
+      sx={{ ...MODAL_STYLE, boxShadow: 24, padding: { xs: 2, md: 4 }, bgcolor: 'background.paper', ...sx }}
+      ref={ref}
+      {...props}
+    >
+      {props.onClose !== undefined && (
+        <IconButton color="inherit" onClick={props.onClose} sx={{ position: 'absolute', right: 2, top: 2 }}>
+          <Close />
+        </IconButton>
+      )}
       {props.children}
     </Box>
   )

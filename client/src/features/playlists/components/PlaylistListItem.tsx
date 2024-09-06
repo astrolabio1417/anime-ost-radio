@@ -1,18 +1,6 @@
 import DeleteIcon from '@mui/icons-material/Delete'
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline'
-import {
-  Avatar,
-  Box,
-  ButtonGroup,
-  IconButton,
-  ListItem,
-  ListItemAvatar,
-  ListItemButton,
-  ListItemText,
-  Modal,
-  Typography,
-} from '@mui/material'
-import { blue } from '@mui/material/colors'
+import { Box, ButtonGroup, IconButton, ListItem, ListItemButton, ListItemText, Modal, Typography } from '@mui/material'
 import { AxiosError } from 'axios'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -61,11 +49,15 @@ export default function PlaylistListItem(props: PlaylistListItemProps) {
     }
   }
 
+  function handleEditClose() {
+    setEdit(false)
+  }
+
   return (
     <ListItem
-      sx={{ [`:hover #${btnGroupId}`]: { visibility: 'visible' } }}
+      sx={{ [`:hover #${btnGroupId}`]: { display: 'block' } }}
       secondaryAction={
-        <ButtonGroup id={btnGroupId} sx={{ visibility: { xs: 'visible', md: 'hidden' } }}>
+        <ButtonGroup id={btnGroupId} sx={{ display: { xs: 'none', md: 'none' } }}>
           <IconButton onClick={() => setEdit(p => !p)}>
             <DriveFileRenameOutlineIcon fontSize="small" />
           </IconButton>
@@ -77,11 +69,11 @@ export default function PlaylistListItem(props: PlaylistListItemProps) {
       disablePadding
     >
       <ListItemButton component={!edit ? Link : Box} onClick={props.onLinkClick} to={`/playlists/${playlist._id}`}>
-        <ListItemAvatar>
+        {/* <ListItemAvatar>
           <Avatar variant="square" src={playlist.image?.thumbnail} sx={{ bgcolor: blue[700] }}>
             {playlist?.title?.substring(0, 2)}
           </Avatar>
-        </ListItemAvatar>
+        </ListItemAvatar> */}
 
         <ListItemText
           primaryTypographyProps={{ style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }}
@@ -96,8 +88,8 @@ export default function PlaylistListItem(props: PlaylistListItemProps) {
         </Modal>
       )}
       {edit && (
-        <Modal open={edit} onClose={() => setEdit(false)}>
-          <ModalContainer>
+        <Modal open={edit} onClose={handleEditClose}>
+          <ModalContainer onClose={handleEditClose}>
             <Typography variant="subtitle2">Edit Playlist</Typography>
             <PlaylistForm
               initialData={{

@@ -1,9 +1,9 @@
 import AddIcon from '@mui/icons-material/Add'
-import LibraryMusicIcon from '@mui/icons-material/LibraryMusic'
-import { IconButton, ListItem, ListItemIcon, ListItemText, Modal, Typography } from '@mui/material'
+import { ListItem, ListItemText, Modal, Typography } from '@mui/material'
 import { Fragment, useState } from 'react'
 import { toast } from 'react-toastify'
 
+import AppButton from '@/components/AppButton'
 import ModalContainer from '@/components/ModalContainer'
 import { useUser } from '@/zustand/user'
 
@@ -13,24 +13,31 @@ export default function PlaylistListHeader() {
   const [showForm, setShowForm] = useState(false)
   const { isLoggedIn } = useUser()
 
-  function handleClick() {
+  function handleClick(e: React.MouseEvent<HTMLButtonElement>) {
     if (!isLoggedIn) return toast('You must be logged in to create a playlist')
-    setShowForm(true)
+
+    e.preventDefault()
+    e.stopPropagation()
+    setShowForm(prev => !prev)
+  }
+
+  function handleClose() {
+    setShowForm(false)
   }
 
   return (
     <Fragment>
-      <ListItem
-        secondaryAction={
-          <IconButton onClick={handleClick}>
+      <ListItem>
+        <ListItemText>
+          <AppButton style={{ width: '100%' }} onClick={handleClick}>
             <AddIcon />
-          </IconButton>
-        }
-      >
-        <ListItemText>My Playlists</ListItemText>
+            <span>New Playlist</span>
+          </AppButton>
+        </ListItemText>
       </ListItem>
-      <Modal open={showForm} onClose={() => setShowForm(false)}>
-        <ModalContainer>
+
+      <Modal open={showForm} onClose={handleClose}>
+        <ModalContainer onClose={handleClose}>
           <Typography variant="subtitle2">Create New Playlist</Typography>
           <CreatePlaylistForm />
         </ModalContainer>

@@ -1,5 +1,5 @@
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
-import { Box, Button, Typography } from '@mui/material'
+import { Button, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 
@@ -10,15 +10,11 @@ import { apiVote } from '../api/vote'
 
 function useVote(song: ISong) {
   const { id: userId } = useUser()
-  const isUserInitVoted = song.vote.list.includes(userId ?? '')
-  const [isVoted, setIsVoted] = useState(isUserInitVoted ?? false)
-  const totalVote = (song.vote?.total ?? 0) + (!isUserInitVoted && isVoted ? 1 : 0)
+  const isUserInitVoted = song.vote.list.includes(userId || '')
+  const [isVoted, setIsVoted] = useState(isUserInitVoted || false)
+  const totalVote = (song.vote?.total || 0) + (isVoted ? 1 : 0) + (isUserInitVoted ? -1 : 0)
 
-  return {
-    isVoted,
-    setIsVoted,
-    totalVote,
-  }
+  return { isVoted, setIsVoted, totalVote }
 }
 
 interface VoteActionsProps {
@@ -42,11 +38,9 @@ export default function VoteAction({ song }: VoteActionsProps) {
           data.status === 200 && setIsVoted(!isVoted)
         }}
       >
-        <Box>
-          <Typography title="vote" variant="subtitle2">
-            {totalVote}
-          </Typography>
-        </Box>
+        <Typography title="vote" variant="subtitle2">
+          {totalVote}
+        </Typography>
       </Button>
     </React.Fragment>
   )

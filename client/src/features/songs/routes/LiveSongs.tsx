@@ -1,4 +1,5 @@
-import { List, Stack, Typography } from '@mui/material'
+import { Box, List, Stack, Typography } from '@mui/material'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 
 import PageHelmet from '@/components/PageHelmet'
@@ -13,18 +14,37 @@ import AddToPlaylistAction from '../components/AddToPlaylistAction'
 import SongBanner from '../components/SongBanner'
 import SongItem from '../components/SongItem'
 import VoteAction from '../components/VoteAction'
+import { ISong } from '../types'
 
 export default function LiveSongs() {
   const { current, queue } = useRadio()
-  const { id: userId } = useUser()
+  const userId = useUser(state => state.id)
   const { name, artist, _id } = current ?? {}
-  const { playSong } = usePlayer()
   const coverImage = getSongCover(current)
   const thumbnailImage = getsongThumbnail(current)
+  const { currentSongId, pause, isPlaying } = usePlayer()
+
+  function handlePlay(song: ISong) {
+    if (currentSongId === song._id && isPlaying) return pause()
+
+    usePlayer.getState().playSongs({
+      songs: [
+        {
+          id: song._id,
+          image: getSongCover(song) || getsongThumbnail(song) || '',
+          src: song.musicUrl,
+          title: song.name,
+          subtitle: song.artist,
+        },
+      ],
+      currentSongId: song._id,
+      playerId: song._id,
+    })
+  }
 
   return (
     <>
-      <PageHelmet title="AnimeBeats" />
+      <PageHelmet title="AnimeMusic" />
 
       <Stack width="100%" gap={2}>
         <SongBanner
@@ -45,20 +65,34 @@ export default function LiveSongs() {
             Next On Air
           </Typography>
 
-          {queue.map(song => (
-            <SongItem
-              key={song._id}
-              song={song}
-              user={userId}
-              onClick={() => playSong(song)}
-              secondaryAction={
-                <Stack direction="row" gap={1}>
-                  <AddToPlaylistAction song={song} />
-                  <VoteAction song={song} />
-                </Stack>
-              }
-            />
-          ))}
+          <AnimatePresence mode="popLayout">
+            {queue.map(song => (
+              <motion.div
+                layout
+                initial={{ x: '25%', opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: '25%', opacity: 0 }}
+                transition={{ type: 'tween' }}
+                style={{ overflowAnchor: 'none' }}
+                key={song._id}
+              >
+                <SongItem
+                  song={song}
+                  userId={userId}
+                  isPlaying={currentSongId === song._id}
+                  onClick={handlePlay}
+                  secondaryAction={
+                    <Stack direction="row">
+                      <Box>
+                        <AddToPlaylistAction song={song} />
+                      </Box>
+                      <VoteAction song={song} />
+                    </Stack>
+                  }
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </List>
       </Stack>
     </>

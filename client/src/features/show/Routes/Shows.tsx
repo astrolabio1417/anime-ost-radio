@@ -3,6 +3,7 @@ import { Fragment, useState } from 'react'
 
 import ListContainer from '@/components/ListContainer'
 import PageHelmet from '@/components/PageHelmet'
+import { getShowUrlByName } from '@/helpers'
 
 import { apiShow } from '../api/show'
 
@@ -19,7 +20,7 @@ export default function Shows() {
       <PageHelmet title="Anime Shows" />
       <ListContainer
         title="Shows"
-        lists={shows?.map(s => ({ name: s, url: `/shows/${btoa(encodeURIComponent(s))}` }))}
+        lists={shows?.map(show => ({ name: show, url: getShowUrlByName(show) }))}
         onSearchChange={(value: string) => setQuery(value)}
         isLoading={isLoading}
       />

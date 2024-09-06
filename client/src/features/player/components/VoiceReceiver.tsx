@@ -36,7 +36,7 @@ export default function VoiceReceiver(props: { volume?: number; disable?: boolea
 
       if (connected.current.has(peerId)) {
         toast(`${connected.current.size} total peers connected!`)
-        return console.log('ALREADY CONNECTED 2x offer completed! lol')
+        return console.log('ALREADY CONNECTED 2x offer completed!')
       }
 
       connected.current.add(peerId)

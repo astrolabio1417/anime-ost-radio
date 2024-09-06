@@ -1,9 +1,9 @@
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-import { Box, IconButton, Toolbar, Typography } from '@mui/material'
+import { Box, IconButton, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 
 import BannerBackground from '@/assets/banner-background.png'
-import { RADIO_STREAM } from '@/constants'
+import { RADIO_PLAYLIST_ID } from '@/constants'
 import { PlayerSongI, usePlayer } from '@/zustand/player'
 import { useRadio } from '@/zustand/radio'
 
@@ -12,60 +12,62 @@ import VoiceReceiver from './VoiceReceiver'
 
 export default function PlayerContainer() {
   const [showMobilePlayer, setShowMobilePlayer] = useState(false)
-  const { songs, activeSongId, play } = usePlayer()
-  const isLive = useRadio(state => state.isLive)
+  const { songs, isPlaying, getCurrentSong, getCurrentSongIndex, title, pageUrl } = usePlayer()
+  const { isLive } = useRadio(state => state)
   const currentRadioTrack = useRadio(state => state.current)
   const [volume, setVolume] = useState(1)
 
-  const playlistSongs: PlayerSongI[] = !isLive
-    ? songs
-    : currentRadioTrack
-      ? [
-          {
-            id: currentRadioTrack._id,
-            image: currentRadioTrack.image.cover ?? currentRadioTrack.image.thumbnail ?? '',
-            src: RADIO_STREAM,
-            title: currentRadioTrack.name,
-            subtitle: currentRadioTrack.artist,
-            downloadUrl: currentRadioTrack.musicUrl,
-          },
-        ]
-      : []
-  const song = isLive ? playlistSongs[0] : playlistSongs.find(a => a.id === activeSongId)
-  const initialIndex = isLive ? 0 : songs.findIndex(a => a.id === activeSongId) ?? 0
+  const currentSong = getCurrentSong()
+  const currentSongIndex = getCurrentSongIndex()
 
   useEffect(() => {
     if (!isLive || !currentRadioTrack?._id) return
-    usePlayer.setState({ activeSongId: currentRadioTrack._id })
+    const radioState = useRadio.getState()
+
+    usePlayer.setState({
+      currentSongId: currentRadioTrack._id,
+      title: 'Live Radio',
+      pageUrl: '/',
+      id: RADIO_PLAYLIST_ID,
+      songs: [radioState.parsedSong(), ...radioState.parsedSongs()],
+    })
   }, [isLive, currentRadioTrack?._id])
 
   function onSongChange(song: PlayerSongI) {
-    usePlayer.setState({ activeSongId: song.id })
+    usePlayer.setState({ currentSongId: song.id })
   }
 
   function handleOnPlay(isPlaying: boolean) {
-    usePlayer.setState({ play: isPlaying })
+    usePlayer.setState({ isPlaying })
   }
 
   return (
-    <Box sx={{ width: '100%', height: '100%', gridArea: 'playbar', overflow: 'hidden' }}>
+    <Box overflow="hidden" width="100%" height="100%" gridArea="playbar">
+      {/* small screen sticky playing card */}
       <Box
         height="60px"
         display={{ xs: 'flex', sm: 'none' }}
         bgcolor="#252525"
+        paddingX={1}
         width="100%"
         zIndex={10}
         sx={{ alignItems: 'center', cursor: 'pointer' }}
         onClick={() => setShowMobilePlayer(true)}
+        color="white"
       >
-        <Box display="inline-block" width="60px" height="100%">
-          <img src={song?.image ?? BannerBackground} height="100%" width="100%" />
+        <Box display="inline-block" width="50px" height="50px" minWidth="50px" borderRadius={2} overflow="hidden">
+          <img src={currentSong?.image ?? BannerBackground} height="100%" width="100%" />
         </Box>
-        <Typography variant="body2" color="white" paddingX={1}>
-          {song?.title}
-        </Typography>
+        <Box paddingLeft={2}>
+          <Typography lineHeight="1.2" variant="body1">
+            {currentSong?.title}
+          </Typography>
+          <Typography variant="caption" className="line-clamp-1">
+            {currentSong?.subtitle}
+          </Typography>
+        </Box>
       </Box>
-
+      {/* big screen */}
       <Box
         width="100%"
         height="100%"
@@ -75,38 +77,46 @@ export default function PlayerContainer() {
         position={{ xs: 'absolute', sm: 'unset' }}
         visibility={{ xs: showMobilePlayer ? 'visible' : 'hidden', sm: 'visible' }}
         sx={{
-          transform: {
-            xs: `translateY(${showMobilePlayer ? '0%' : '100%'})`,
-            sm: 'none',
-          },
+          transform: { xs: `translateY(${showMobilePlayer ? '0%' : '100%'})`, sm: 'none' },
           overflowX: 'hidden',
           overflowY: 'auto',
           transition: 'all 0.4s ease-in-out',
         }}
       >
-        <Toolbar
+        <Box
           sx={{
-            position: 'absolute',
-            zIndex: 2,
             display: { sm: 'none' },
+            position: 'absolute',
+            top: 0,
+            transform: 'translateX(-50%)',
+            left: '50%',
+            zIndex: 1102,
+            width: '100%',
           }}
         >
-          <IconButton title="Close" sx={{ color: 'white' }} size="large" onClick={() => setShowMobilePlayer(false)}>
+          <IconButton
+            title="Close"
+            sx={{ color: 'white', width: '100%' }}
+            size="large"
+            onClick={() => setShowMobilePlayer(false)}
+          >
             <KeyboardArrowDownIcon />
           </IconButton>
-        </Toolbar>
+        </Box>
 
         <Player
+          title={title || undefined}
+          pageUrl={pageUrl || undefined}
           onVolumeChange={setVolume}
-          initialPlay={play}
+          initialPlay={isPlaying}
           onSongChange={onSongChange}
           onPlayChange={handleOnPlay}
-          songs={playlistSongs}
-          initialIndex={initialIndex}
+          songs={songs}
+          initialIndex={currentSongIndex}
           isLive={isLive}
         />
 
-        <VoiceReceiver volume={volume} disable={!(isLive && play)} />
+        <VoiceReceiver volume={volume} disable={!(isLive && isPlaying)} />
       </Box>
     </Box>
   )

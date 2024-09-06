@@ -1,4 +1,4 @@
-import { List, Stack, Typography } from '@mui/material'
+import { List, Stack } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { Fragment } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -12,16 +12,17 @@ import SongBanner from '@/features/songs/components/SongBanner'
 import SongItem from '@/features/songs/components/SongItem'
 import VoteAction from '@/features/songs/components/VoteAction'
 import { getSongCover, getsongThumbnail, getSongUrlById } from '@/helpers'
+import usePlayerHandler from '@/hooks/usePlayerHandler'
+import NotFound from '@/NotFound'
 import { usePlayer } from '@/zustand/player'
 import { useUser } from '@/zustand/user'
 
 import { apiArtist } from '../api/artist'
-import NotFound from '@/NotFound'
 
 export default function Artist() {
   const { id } = useParams()
   const artistId = id ?? ''
-  const { playPlaylist, activeSongId, id: playerId, play, playPlayer, pausePlayer } = usePlayer()
+  const { currentSongId, isPlaying } = usePlayer()
   const { id: userId } = useUser()
   const { isLoading, data: requestData } = useQuery({
     queryKey: ['artist', artistId],
@@ -30,22 +31,12 @@ export default function Artist() {
   })
   const data = requestData?.data
   const firstSong = data?.songs?.[0]
-  const isPlaylistPlaying = playerId === id
-  const currentPlayingSong = isPlaylistPlaying ? data?.songs?.find(a => a._id === activeSongId) : undefined
-  const image = getSongCover(currentPlayingSong) ?? getSongCover(firstSong)
-  const bgImage = getsongThumbnail(currentPlayingSong) ?? getsongThumbnail(firstSong)
-
-  function handlePlay() {
-    if (isPlaylistPlaying) {
-      play ? pausePlayer() : playPlayer()
-      return
-    }
-
-    if (!data?.songs) return
-
-    playPlaylist(artistId, [...data.songs], data.songs[0]._id)
-    playPlayer()
-  }
+  const { togglePlay, isPlaylistPlaying, currentSong } = usePlayerHandler({
+    title: data?.artist || 'Artist Songs',
+    pageUrl: window.location.href,
+    songs: data?.songs || [],
+    playlistId: artistId,
+  })
 
   if (isLoading) return <Loading />
 
@@ -53,35 +44,32 @@ export default function Artist() {
 
   return (
     <Fragment>
-      <PageHelmet title={data?.artist ?? 'Artist'} />
+      <PageHelmet title={data?.artist || 'Artist Song'} />
 
       <Stack gap={2}>
         <SongBanner
           category="Artist"
           title={data?.artist ?? ''}
-          subtitle={
-            !currentPlayingSong ? null : (
-              <Link to={getSongUrlById(currentPlayingSong._id)}>{currentPlayingSong.name}</Link>
-            )
-          }
-          image={image}
-          bgImage={bgImage}
+          subtitle={!currentSong ? null : <Link to={getSongUrlById(currentSong._id)}>{currentSong.name}</Link>}
+          image={getsongThumbnail(currentSong) || getsongThumbnail(firstSong)}
+          bgImage={getSongCover(currentSong) || getSongCover(firstSong)}
         />
 
         <ControlsContainer>
-          <PlayButton isPlaying={isPlaylistPlaying && play} onClick={handlePlay} />
-          {currentPlayingSong && <AddToPlaylistAction song={currentPlayingSong} />}
+          <PlayButton isPlaying={isPlaylistPlaying && isPlaying} onClick={togglePlay} />
+          {currentSong && <AddToPlaylistAction song={currentSong} />}
         </ControlsContainer>
 
         <List>
           {data?.songs?.map(song => (
             <SongItem
               key={song._id}
-              onClick={() => playPlaylist(artistId ?? 'artist-id', data?.songs ?? [], song._id)}
+              onClick={togglePlay}
+              isPlaying={currentSongId === song._id && isPlaying}
               song={song}
-              user={userId}
+              userId={userId}
               secondaryAction={
-                <Stack direction="row" gap={1}>
+                <Stack direction="row">
                   <AddToPlaylistAction song={song} />
                   <VoteAction song={song} />
                 </Stack>

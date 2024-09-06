@@ -6,6 +6,7 @@ import { useSearchParams } from 'react-router-dom'
 import Loading from '@/components/Loading'
 import PageHelmet from '@/components/PageHelmet'
 import TextFieldDebounce from '@/components/TextFieldDebounce'
+import { getSongCover, getsongThumbnail } from '@/helpers'
 import { usePlayer } from '@/zustand/player'
 import { useUser } from '@/zustand/user'
 
@@ -13,6 +14,7 @@ import { apiSong } from '../api/songs'
 import AddToPlaylistAction from '../components/AddToPlaylistAction'
 import SongItem from '../components/SongItem'
 import VoteAction from '../components/VoteAction'
+import { ISong } from '../types'
 
 export default function Songs() {
   const { id: userId } = useUser()
@@ -20,7 +22,7 @@ export default function Songs() {
   const [searchParams, setSearchParams] = useSearchParams()
   const page = parseInt(searchParams.get('page') ?? '1') ?? 1
   const searchType = searchParams.get('type') ?? 'name'
-  const { playSong } = usePlayer()
+  const currentSongId = usePlayer(state => state.currentSongId)
 
   const { data, isLoading } = useQuery({
     queryKey: ['search', searchType, queryValue, page],
@@ -33,6 +35,23 @@ export default function Songs() {
     setSearchParams(params => {
       params.set('page', '1')
       return params
+    })
+  }
+
+  function togglePlay(song: ISong) {
+    usePlayer.getState().playSongs({
+      songs: [
+        {
+          id: song._id,
+          image: getsongThumbnail(song) || getSongCover(song) || '',
+          src: song.musicUrl,
+          title: song.name,
+          downloadUrl: song.musicUrl,
+          subtitle: song.artist,
+        },
+      ],
+      currentSongId: song._id,
+      playerId: song._id,
     })
   }
 
@@ -71,11 +90,12 @@ export default function Songs() {
           {searchList?.map(song => (
             <SongItem
               key={song._id}
-              onClick={() => playSong(song)}
+              onClick={togglePlay}
               song={song}
-              user={userId}
+              userId={userId}
+              isPlaying={song._id === currentSongId}
               secondaryAction={
-                <Stack direction="row" gap={1}>
+                <Stack direction="row">
                   <AddToPlaylistAction song={song} />
                   <VoteAction song={song} />
                 </Stack>

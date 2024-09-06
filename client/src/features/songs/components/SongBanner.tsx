@@ -51,10 +51,10 @@ export default function SongBanner(props: SongBannerProps) {
         color="white"
         width="100%"
         display="flex"
-        flexWrap={{ xs: 'wrap', md: 'nowrap' }}
+        alignItems={{ xs: 'center', md: 'end' }}
+        flexDirection={{ xs: 'column', md: 'row' }}
         justifyContent={{ xs: 'center', md: 'flex-start' }}
         textAlign={{ xs: 'center', md: 'start' }}
-        alignItems="end"
         gap={2}
       >
         <Box width="200px" height="200px" minWidth="200px" minHeight="200px">

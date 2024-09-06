@@ -8,9 +8,9 @@ import ApiError from '../utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 
 async function isUserAdmin(userId: mongoose.Types.ObjectId | string) {
-    const user = await UserModel.findById(userId)
-    const roles = await RoleModel.find({ _id: { $in: user?.roles } })
-    return !roles.find(role => role.name === 'admin')
+    const adminRole = await RoleModel.findOne({ name: ROLES_DICT.ADMIN })
+    const user = await UserModel.findOne({ _id: userId, roles: { $in: [adminRole] } })
+    return !!user
 }
 
 async function isUserPlaylist(userId: mongoose.Types.ObjectId | string, playlistId: mongoose.Types.ObjectId | string) {

@@ -1,6 +1,6 @@
 import MicIcon from '@mui/icons-material/Mic'
 import MicOffIcon from '@mui/icons-material/MicOff'
-import { IconButton, Typography } from '@mui/material'
+import { IconButton, Stack, Typography } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 
@@ -150,8 +150,10 @@ export default function Microphone() {
   }
 
   return (
-    <>
-      <Typography variant="body2">{users.length ?? 0} listeners</Typography>
+    <Stack flexDirection="row" alignItems="center">
+      <Typography display={{ xs: 'none', sm: 'block' }} sx={{ opacity: 0.7 }} variant="body2">
+        {users.length ?? 0} Connections
+      </Typography>
       {isLive ? (
         <IconButton color="primary" onClick={goOffline} title="Stop Microphone Streaming">
           <MicIcon />
@@ -161,6 +163,6 @@ export default function Microphone() {
           <MicOffIcon />
         </IconButton>
       )}
-    </>
+    </Stack>
   )
 }

@@ -8,13 +8,12 @@ import { useUser } from '@/zustand/user'
 
 import { apiAuth } from '../../auth/api/auth'
 import AppMobileDrawer from './AppMobileDrawer'
-import UserAvatar from './UserAvatar'
 import AppNavTitle from './AppNavTitle'
+import UserAvatar from './UserAvatar'
 
 export default function NavBar(props: { sx?: SxProps<Theme> | undefined }) {
-  const { username, isLoggedIn, roles } = useUser()
+  const { username, isLoggedIn, isAdmin } = useUser()
   const { clearPlaylists } = useUserPlaylists()
-  const isAuthorized = !!roles.find(role => role.name === 'admin')
 
   async function handleLogout() {
     await apiAuth.logout()
@@ -35,14 +34,15 @@ export default function NavBar(props: { sx?: SxProps<Theme> | undefined }) {
       }}
     >
       <Toolbar sx={{ display: 'flex', justifyContent: 'end' }}>
-        <Stack direction="row" justifyContent="end" alignItems="center" color="black" width="100%">
+        <Stack direction="row" justifyContent="end" alignItems="center" color="black" width="100%" gap={2}>
           <Stack direction="row" gap={1} marginRight="auto" alignItems="center">
             <AppMobileDrawer />
             <AppNavTitle />
           </Stack>
+
           {isLoggedIn ? (
             <>
-              {isAuthorized && <Microphone />}
+              {isAdmin && <Microphone />}
               <UserAvatar username={username} onLogout={handleLogout} />
             </>
           ) : (

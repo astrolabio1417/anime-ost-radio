@@ -11,7 +11,7 @@ import {
 import { isAuthenticated } from '../middlewares/authJwt'
 import { isUserPlaylist } from '../middlewares/authUserPlaylist'
 import upload from '../middlewares/upload'
-import { createPlaylistParser } from '../middlewares/createPlaylistParser'
+import { createPlaylistParser } from '../middlewares/mulerUploadParsers'
 
 const playlistRouter = Router()
 

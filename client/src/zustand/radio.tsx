@@ -1,14 +1,20 @@
 import { create } from 'zustand'
 
 import { socket } from '@/appSocket'
+import { NGINX_HLS_FRAGMENT, RADIO_EVENTS, RADIO_STREAM } from '@/constants'
 import { ISong } from '@/features/songs/types'
+
+import { PlayerSongI } from './player'
 
 interface RadioState {
   current: ISong
   queue: ISong[]
-  timestamp: number
-  isConnected: boolean
   isLive: boolean
+}
+
+interface RadioFn {
+  parsedSong: () => PlayerSongI
+  parsedSongs: () => PlayerSongI[]
 }
 
 const defaultState: RadioState = {
@@ -27,29 +33,44 @@ const defaultState: RadioState = {
     },
   },
   queue: [],
-  timestamp: 0,
-  isConnected: false,
   isLive: true,
 }
 
-export const useRadio = create<RadioState>()(() => ({ ...defaultState }))
+export const useRadio = create<RadioState & RadioFn>()((set, get) => ({
+  ...defaultState,
+  parsedSong: () => {
+    const { current } = get()
+    return {
+      id: current._id,
+      image: current.image.cover ?? current.image.thumbnail ?? '',
+      src: RADIO_STREAM,
+      title: current.name,
+      subtitle: current.artist,
+      downloadUrl: current.musicUrl,
+    }
+  },
+  parsedSongs: () => {
+    const { queue } = get()
 
-socket.on('connect', () => {
-  console.log('connected to socket!')
-  useRadio.setState({ isConnected: true })
-})
+    return queue.map(song => ({
+      id: song._id,
+      image: song.image.cover ?? song.image.thumbnail ?? '',
+      src: RADIO_STREAM,
+      title: song.name,
+      subtitle: song.artist,
+      downloadUrl: song.musicUrl,
+    }))
+  },
+}))
 
-socket.on('ON_QUEUE_CHANGE', (queue: ISong[]) => {
+socket.on(RADIO_EVENTS.ON_QUEUE_CHANGE, (queue: ISong[]) => {
   console.log({ queue })
-  useRadio.setState({ queue: queue ?? [] })
+  const hasQueue = useRadio.getState().queue.length
+  setTimeout(() => useRadio.setState({ queue: queue ?? [] }), hasQueue ? NGINX_HLS_FRAGMENT : 0)
 })
 
-socket.on('ON_TRACK_CHANGE', (track: ISong) => {
+socket.on(RADIO_EVENTS.ON_TRACK_CHANGE, (track: ISong) => {
   console.log({ track })
-  useRadio.setState({ current: track })
-})
-
-socket.on('ON_TIME_CHANGE', (timestamp: number) => {
-  console.log({ timestamp })
-  useRadio.setState({ timestamp })
+  const hasTrack = !!useRadio.getState().current._id
+  setTimeout(() => useRadio.setState({ current: track }), hasTrack ? NGINX_HLS_FRAGMENT : 0)
 })

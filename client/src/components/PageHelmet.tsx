@@ -9,11 +9,11 @@ export default function PageHelmet(props: PageHelmetProps) {
   const { description, title } = props
   return (
     <Helmet>
-      <title>{title ?? 'AnimeBeats - Anime Music'}</title>
+      <title>{title || 'Anime Music'}</title>
       <meta
         name="description"
         content={
-          description ?? 'AnimeBeats is a digital music service that gives you access to thousands of anime songs.'
+          description || 'AnimeMusic is a digital music service that gives you access to thousands of anime songs.'
         }
       />
     </Helmet>

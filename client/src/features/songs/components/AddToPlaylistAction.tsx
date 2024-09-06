@@ -22,15 +22,26 @@ export default function AddToPlaylistAction({ song }: AddToPlaylistActionProps) 
     setShowModal(true)
   }
 
+  function handleClose() {
+    setShowModal(false)
+  }
+
   return (
     <React.Fragment>
-      <IconButton title="Add to playlist" onClick={handleClick} edge="end" aria-label="playlist" color="inherit">
+      <IconButton
+        sx={{ marginRight: 0 }}
+        title="Add to playlist"
+        onClick={handleClick}
+        edge="end"
+        aria-label="playlist"
+        color="inherit"
+      >
         <FavoriteIcon />
       </IconButton>
 
       {showModal && (
-        <Modal style={{ width: '100%', maxWidth: '600px' }} open={showModal} onClose={() => setShowModal(false)}>
-          <ModalContainer>
+        <Modal style={{ width: '100%', maxWidth: '600px' }} open={showModal} onClose={handleClose}>
+          <ModalContainer onClose={handleClose}>
             <AddToPlaylistForm song={song} />
           </ModalContainer>
         </Modal>

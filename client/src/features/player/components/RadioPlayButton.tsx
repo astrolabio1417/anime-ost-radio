@@ -6,17 +6,26 @@ import PlayButton from './PlayButton'
 
 export default function RadioPlayButton() {
   const { isLive } = useRadio()
-  const { play } = usePlayer()
+  const { isPlaying } = usePlayer()
 
   function handlePlayAiring() {
-    if (isLive && play) {
-      usePlayer.setState({ play: false })
+    if (isLive && isPlaying) {
+      usePlayer.setState({ isPlaying: false })
       return
     }
 
-    useRadio.setState({ isLive: true })
-    usePlayer.setState({ activeSongId: '', id: RADIO_PLAYLIST_ID, play: true })
+    const radioState = useRadio.getState()
+    const songs = [radioState.parsedSong(), ...radioState.parsedSongs()]
+
+    usePlayer.getState().playSongs({
+      title: 'Live Radio',
+      pageUrl: '/',
+      isLive: true,
+      currentSongId: useRadio.getState().current._id || songs?.[0].id || '',
+      playerId: RADIO_PLAYLIST_ID,
+      songs,
+    })
   }
 
-  return <PlayButton isPlaying={isLive && play} onClick={handlePlayAiring} />
+  return <PlayButton isPlaying={isLive && isPlaying} onClick={handlePlayAiring} />
 }

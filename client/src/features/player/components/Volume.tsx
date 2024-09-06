@@ -1,6 +1,10 @@
+import VolumeDownIcon from '@mui/icons-material/VolumeDown'
+import VolumeOffIcon from '@mui/icons-material/VolumeOff'
+import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 import { Slider, Stack } from '@mui/material'
+import { IconButton } from '@mui/material'
 
-import VolumeIconButton from './VolumeIconButton'
+import { SliderMainStyle } from '../style'
 
 interface VolumeProps {
   volume?: number
@@ -12,27 +16,10 @@ export default function Volume(props: VolumeProps) {
   const { onChange, onClick, volume } = props
   return (
     <Stack gap={1} alignItems="center" direction="row" width="100%">
-      <VolumeIconButton onClick={onClick} volume={volume ?? 1} />
-      <Slider
-        sx={{
-          '& .MuiSlider-thumb': {
-            width: 12,
-            height: 12,
-            backgroundColor: '#fff',
-            '&::before': {
-              boxShadow: '0 4px 8px rgba(0,0,0,0.4)',
-            },
-            '&:hover, &.Mui-focusVisible, &.Mui-active': {
-              boxShadow: 'none',
-            },
-          },
-        }}
-        min={0}
-        max={1.0}
-        value={volume}
-        step={0.1}
-        onChange={onChange}
-      />
+      <IconButton sx={{ padding: 0 }} title="Volume" color="inherit" onClick={onClick}>
+        {volume === 0 ? <VolumeOffIcon /> : (volume || 0) <= 0.49 ? <VolumeDownIcon /> : <VolumeUpIcon />}
+      </IconButton>
+      <Slider sx={SliderMainStyle} min={0} max={1.0} value={volume} step={0.1} onChange={onChange} />
     </Stack>
   )
 }

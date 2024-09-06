@@ -38,7 +38,7 @@ export default function RemoveSongAction({ song, onDelete, playlistId }: RemoveS
       })
 
       onDelete?.(song)
-      playlistId === id && removeSong(song)
+      playlistId === id && removeSong(song._id)
       removeSongToPlaylist(playlistId, song)
     } catch (err) {
       const error = err as AxiosError<IPlaylistSongUpdateResponse>

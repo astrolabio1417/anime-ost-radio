@@ -57,9 +57,10 @@ export default function ListContainer(props: ListContainerProps) {
 }
 
 function FixedListItem({ data, index, style }: ListChildComponentProps) {
+  const item = data[index]
   return (
-    <ListItem key={data[index]} style={style} component="div" disablePadding>
-      <ListItemButton component={Link} to={data[index].url}>
+    <ListItem key={item} style={style} component="div" disablePadding>
+      <ListItemButton component={Link} to={item.url}>
         <ListItemText
           sx={{
             overflow: 'hidden',
@@ -68,7 +69,7 @@ function FixedListItem({ data, index, style }: ListChildComponentProps) {
             WebkitLineClamp: 1,
             WebkitBoxOrient: 'vertical',
           }}
-          primary={data[index].name}
+          primary={item.name}
         />
       </ListItemButton>
     </ListItem>

@@ -21,7 +21,8 @@ export default function Playlists() {
   })
 
   const playlists = data?.data?.docs
-  const matches = useMediaQuery('(max-width: 600px)')
+  const matchDownSm = useMediaQuery('(max-width: 640px)')
+  const matchDownXl = useMediaQuery('(max-width: 1280px)')
 
   function handleSearchFieldChange(value: string) {
     setSearchParams(params => {
@@ -42,7 +43,7 @@ export default function Playlists() {
       </Stack>
 
       {isLoading && <Loading />}
-      <ImageList sx={{ paddingX: 2 }} cols={matches ? 1 : 2}>
+      <ImageList sx={{ paddingX: 2 }} cols={matchDownSm ? 1 : matchDownXl ? 2 : 3}>
         <>
           {playlists?.map(playlist => (
             <ImageListItem

@@ -58,6 +58,7 @@ Artists
 -   PORT: [number] 8000, express js port
 -   AUTO_EMPTY_TMP: [boolean] false, delete previous temporary played song files on download
 -   RTMP_URL: [url] rtmp://localhost:1935, Nginx RTMP Url
+-   AUTO_PLAY: [boolean] true, automatically stream to RTMP url
 
 ## DEV | DOCKER COMPOSE
 

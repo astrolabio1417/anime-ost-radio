@@ -1,4 +1,4 @@
-import { Divider, Stack, Typography } from '@mui/material'
+import { Divider, Stack } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { Fragment } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -12,10 +12,10 @@ import AddToPlaylistAction from '@/features/songs/components/AddToPlaylistAction
 import SongBanner from '@/features/songs/components/SongBanner'
 import VoteAction from '@/features/songs/components/VoteAction'
 import { getSongCover, getsongThumbnail, getSongUrlById } from '@/helpers'
-import { usePlayer } from '@/zustand/player'
+import usePlayerHandler from '@/hooks/usePlayerHandler'
+import NotFound from '@/NotFound'
 
 import SongItem from '../../songs/components/SongItem'
-import NotFound from '@/NotFound'
 
 export default function Show() {
   const { id } = useParams()
@@ -24,24 +24,13 @@ export default function Show() {
     queryKey: ['show', showId],
     queryFn: () => apiShow.get(showId),
   })
-  const { activeSongId, id: playerId, playPlaylist, playPlayer, pausePlayer, play } = usePlayer()
   const songs = data?.data.songs ?? []
-  const isPlaylistPlaying = playerId === showId
-  const currentPlayingSong = isPlaylistPlaying ? songs?.find(a => a._id === activeSongId) : undefined
-  const showCover = getSongCover(currentPlayingSong)
-  const showThumbnail = getsongThumbnail(currentPlayingSong)
-
-  function handlePlay() {
-    if (isPlaylistPlaying) {
-      play ? pausePlayer() : playPlayer()
-      return
-    }
-
-    if (!songs) return
-
-    playPlaylist(showId, [...songs], songs[0]._id)
-    playPlayer()
-  }
+  const { togglePlay, isPlaylistPlaying, currentSong } = usePlayerHandler({
+    pageUrl: window.location.href,
+    songs,
+    title: data?.data.show || 'Show Songs',
+    playlistId: showId,
+  })
 
   if (isLoading) return <Loading />
 
@@ -54,19 +43,15 @@ export default function Show() {
       <Stack gap={2}>
         <SongBanner
           title={data?.data?.show ?? ''}
-          subtitle={
-            currentPlayingSong ? (
-              <Link to={getSongUrlById(currentPlayingSong._id)}>{currentPlayingSong.name}</Link>
-            ) : null
-          }
+          subtitle={currentSong ? <Link to={getSongUrlById(currentSong._id)}>{currentSong.name}</Link> : null}
           category="Show"
-          bgImage={showCover}
-          image={showThumbnail}
+          bgImage={getSongCover(currentSong)}
+          image={getsongThumbnail(currentSong)}
         />
 
         <ControlsContainer>
-          <PlayButton isPlaying={isPlaylistPlaying && play} onClick={handlePlay} />
-          {currentPlayingSong && <AddToPlaylistAction song={currentPlayingSong} />}
+          <PlayButton isPlaying={isPlaylistPlaying} onClick={togglePlay} />
+          {currentSong && <AddToPlaylistAction song={currentSong} />}
         </ControlsContainer>
 
         <Stack divider={<Divider variant="fullWidth" />}>
@@ -74,9 +59,10 @@ export default function Show() {
             <SongItem
               key={song._id}
               song={song}
-              onClick={() => playPlaylist(showId, [...songs], song._id)}
+              onClick={togglePlay}
+              isPlaying={currentSong?._id === song._id}
               secondaryAction={
-                <Stack direction="row" gap={1}>
+                <Stack direction="row">
                   <AddToPlaylistAction song={song} />
                   <VoteAction song={song} />
                 </Stack>

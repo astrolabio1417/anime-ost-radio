@@ -14,6 +14,6 @@ export const showRetrieve = tryCatch(async (req: Request, res: Response) => {
     const { params } = await zParse(showSchema.retrieve, req)
     const { show } = params
     const showName = decodeURIComponent(Base64.atob(show))
-    const list = songService.getSongsByShow(showName) // case sensitive
+    const list = await songService.getSongsByShow(showName) // case sensitive
     res.json({ show: showName, songs: list })
 })

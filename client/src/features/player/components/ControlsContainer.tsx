@@ -6,7 +6,7 @@ interface BannerButtonsContainerProps {
 
 export default function ControlsContainer(props: BannerButtonsContainerProps) {
   return (
-    <Stack direction="row" gap={1} paddingX={2}>
+    <Stack flexWrap="wrap" direction="row" gap={1} paddingX={2}>
       {props.children}
     </Stack>
   )

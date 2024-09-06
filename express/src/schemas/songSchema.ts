@@ -19,9 +19,24 @@ const songRetrieveSchema = z.object({
     params: z.object({ id: z.string().refine(mongoose.Types.ObjectId.isValid) }),
 })
 
+const createSongSchema = z.object({
+    body: z.object({
+        name: z.string().min(1),
+        show: z.string().min(1),
+        artist: z.string().optional(),
+        musicUrl: z.string().url(),
+        timestamp: z.string().optional(),
+        image: z.object({
+            cover: z.string().url().nullable(),
+            thumbnail: z.string().url().nullable(),
+        }),
+    }),
+})
+
 const songSchema = {
     list: songListSchema,
     retrieve: songRetrieveSchema,
+    create: createSongSchema,
 }
 
 export { songSchema }

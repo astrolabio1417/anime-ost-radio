@@ -13,7 +13,7 @@ export default function PlaylistList(props: PlaylistListProps) {
   const { playlists } = useUserPlaylists()
 
   return (
-    <List sx={{ paddingTop: 0 }}>
+    <List>
       <PlaylistListHeader />
       {playlists?.map(playlist => (
         <PlaylistListItem key={playlist._id} playlist={playlist} onLinkClick={props.onLinkClick} />

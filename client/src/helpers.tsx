@@ -1,5 +1,7 @@
 import moment from 'moment'
 
+import { IUserRole } from './zustand/user'
+
 export function formatDuration(duration: number) {
   if (!duration) return
   return moment.utc(duration * 1000).format('mm:ss') // HH:mm:ss
@@ -25,10 +27,18 @@ export function getSongCover(song?: { image: { thumbnail?: string; cover?: strin
   return song.image?.cover ?? song.image?.thumbnail ?? ''
 }
 
+export function getShowUrlByName(name: string) {
+  return `/shows/${btoa(encodeURIComponent(name))}`
+}
+
 export function getArtistUrlByName(name: string) {
-  return `/artists/${btoa(name)}`
+  return `/artists/${btoa(encodeURIComponent(name))}`
 }
 
 export function getSongUrlById(id: string) {
   return `/songs/${id}`
+}
+
+export function isUserRoleAdmin(roles: IUserRole[]) {
+  return !!roles.find(role => role.name === 'admin')
 }

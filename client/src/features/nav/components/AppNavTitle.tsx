@@ -10,13 +10,13 @@ export default function AppNavTitle(props: AppNavTitleProps) {
     <Typography
       onClick={props.onClick}
       color="inherit"
-      fontSize="1.3rem"
+      fontSize={{ xs: '0.9rem', sm: '1.1rem' }}
       fontWeight={600}
       component={Link}
       to="/"
       sx={{ textDecoration: 'none' }}
     >
-      AnimeOst
+      AnimeMusic
     </Typography>
   )
 }

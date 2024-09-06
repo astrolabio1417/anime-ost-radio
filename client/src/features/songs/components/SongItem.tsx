@@ -6,38 +6,39 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import { ISong } from '@/features/songs/types'
-import { usePlayer } from '@/zustand/player'
 
 interface SongItemProps {
   song: ISong
-  user?: string
+  userId?: string
   onClick?: (song: ISong) => void
   secondaryAction?: React.ReactNode
+  isPlaying?: boolean
 }
 
 export default function SongItem(props: SongItemProps) {
-  const { song } = props
-  const { play, activeSongId } = usePlayer()
+  const { song, onClick, isPlaying } = props
+
+  function onClickAvatar(e: React.MouseEvent<HTMLDivElement>) {
+    e.preventDefault()
+    e.stopPropagation()
+    onClick?.(song)
+  }
 
   return (
-    <ListItem disablePadding alignItems="flex-start" secondaryAction={props.secondaryAction}>
+    <ListItem
+      sx={{ ':hover': { '& #avatar-icon': { opacity: 1 } } }}
+      disablePadding
+      alignItems="flex-start"
+      secondaryAction={props.secondaryAction}
+    >
       <ListItemButton component={Link} to={`/songs/${song._id}`}>
         <ListItemIcon
           sx={{
             position: 'relative',
-            ':hover': {
-              transform: 'scale(1.1)',
-              '& #avatar-icon': {
-                opacity: 0,
-              },
-            },
+            ':hover': { transform: 'scale(1.1)' },
             transition: 'transform 0.2s ease-in-out',
           }}
-          onClick={e => {
-            e.preventDefault()
-            e.stopPropagation()
-            song._id === activeSongId && play ? usePlayer.setState({ play: false }) : props.onClick?.(song)
-          }}
+          onClick={onClickAvatar}
         >
           <Avatar
             sx={{
@@ -48,7 +49,7 @@ export default function SongItem(props: SongItemProps) {
               minHeight: 75,
             }}
             variant="square"
-            src={song.image.cover ?? song.image.thumbnail}
+            src={song.image.thumbnail || song.image.cover}
             alt="name"
           />
           <Box
@@ -60,9 +61,9 @@ export default function SongItem(props: SongItemProps) {
             alignItems="center"
             zIndex={0}
             id="avatar-icon"
-            sx={{ inset: 0, pointerEvents: 'none', opacity: 1, transition: 'opacity 0.2s ease-in-out' }}
+            sx={{ inset: 0, pointerEvents: 'none', opacity: 0, transition: 'opacity 0.2s ease-in-out' }}
           >
-            {song._id === activeSongId && play ? (
+            {isPlaying ? (
               <PauseIcon sx={{ width: 50, height: 50, color: '#fff' }} />
             ) : (
               <PlayArrowIcon sx={{ width: 50, height: 50, color: '#fff' }} />
@@ -73,6 +74,7 @@ export default function SongItem(props: SongItemProps) {
         <ListItemText
           sx={{
             paddingLeft: 1,
+            paddingRight: 6,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',

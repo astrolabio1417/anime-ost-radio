@@ -1,7 +1,5 @@
 import { create } from 'zustand'
 
-import { ISong } from '@/features/songs/types'
-
 import { useRadio } from './radio'
 
 export interface PlayerSongI {
@@ -15,69 +13,81 @@ export interface PlayerSongI {
 
 interface PlayerState {
   id: string
-  title: string
-  subtitle?: string
-  img?: string
   songs: PlayerSongI[]
-  activeSongId?: string
-  play: boolean
+  currentSongId?: string
+  isPlaying: boolean
+  pageUrl?: string | null
+  title?: string | null
+}
+
+interface PlaySongI extends Omit<PlayerState, 'id' | 'isPlaying'> {
+  currentSongId: string
+  isLive?: boolean
+  playerId: string
 }
 
 interface PlayerFn {
-  playSong: (song: ISong) => void
-  playPlaylist: (playlistId: string, songs: ISong[], activeSongId: string) => void
-  removeSong: (song: ISong) => void
-  playPlayer: () => void
-  pausePlayer: () => void
+  getCurrentSongIndex: () => number
+  getCurrentSong: () => PlayerSongI | undefined
+  addSong: (song: PlayerSongI) => void
+  playSongs: (props: PlaySongI) => void
+  removeSong: (songId: string) => void
+  play: (songId?: string) => void
+  pause: () => void
+  nextSong: () => void
+  prevSong: () => void
 }
 
 const defaultState: PlayerState = {
-  title: '',
-  subtitle: '',
-  img: '',
-  songs: [],
-  activeSongId: '',
   id: '',
-  play: false,
+  songs: [],
+  currentSongId: '',
+  isPlaying: false,
 }
 
-export const usePlayer = create<PlayerState & PlayerFn>()(set => ({
+export const usePlayer = create<PlayerState & PlayerFn>()((set, get) => ({
   ...defaultState,
-  playSong: (song: ISong) => {
-    useRadio.setState({ isLive: false })
-    return set(prev => ({
-      ...prev,
-      songs: [
-        {
-          id: song._id,
-          image: song.image.cover ?? song.image.thumbnail ?? '',
-          src: song.musicUrl ?? '',
-          title: song.name,
-          subtitle: song.artist,
-        },
-      ],
-      activeSongId: song._id,
-      play: true,
-    }))
+  getCurrentSongIndex: () => {
+    const { songs, currentSongId } = get()
+    return songs.findIndex(a => a.id === currentSongId)
   },
-  playPlaylist: (playlistId: string, songs: ISong[], activeSongId: string) => {
-    useRadio.setState({ isLive: false })
-    set(prev => ({
-      ...prev,
-      songs:
-        songs?.map(s => ({
-          id: s._id,
-          image: s.image.cover ?? s.image.thumbnail ?? '',
-          src: s.musicUrl,
-          title: s.name,
-          subtitle: s.artist,
-        })) ?? [],
-      activeSongId: activeSongId,
-      id: playlistId,
-      play: true,
-    }))
+  getCurrentSong: () => {
+    const { songs, currentSongId } = get()
+    return songs.find(a => a.id === currentSongId)
   },
-  removeSong: (song: ISong) => set(prev => ({ ...prev, songs: prev.songs.filter(s => s.id !== song._id) })),
-  playPlayer: () => set(prev => ({ ...prev, play: true })),
-  pausePlayer: () => set(prev => ({ ...prev, play: false })),
+  play: songId => set(state => ({ currentSongId: songId ?? state.currentSongId, isPlaying: true })),
+  pause: () => set({ isPlaying: false }),
+  addSong: song => set(state => ({ songs: [...state.songs, song] })),
+  removeSong: songId => set(state => ({ songs: state.songs.filter(a => a.id !== songId) })),
+  prevSong: () => {
+    const { currentSongId, songs } = get()
+    if (!songs) return
+    if (!currentSongId) return set({ currentSongId: songs[0].id })
+    const songIds = Object.keys(songs)
+    const currentIndex = songIds.indexOf(currentSongId)
+    const songsLength = songIds.length
+    const prevIndex = (currentIndex - 1 + songsLength) % songsLength
+    set({ currentSongId: songIds[prevIndex] })
+  },
+  nextSong: () => {
+    const { currentSongId, songs } = get()
+    if (!songs) return
+    if (!currentSongId) return set({ currentSongId: songs[0].id })
+    const songIds = Object.keys(songs)
+    const currentIndex = songIds.indexOf(currentSongId)
+    const songsLength = songIds.length
+    const nextIndex = (currentIndex + 1) % songsLength
+    set({ currentSongId: songIds[nextIndex] })
+  },
+  playSongs: ({ songs, currentSongId, isLive = false, playerId, pageUrl, title }) => {
+    useRadio.setState({ isLive: isLive })
+    set({
+      songs,
+      currentSongId,
+      isPlaying: true,
+      id: playerId,
+      pageUrl: pageUrl || null,
+      title: title || null,
+    })
+  },
 }))

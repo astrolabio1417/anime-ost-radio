@@ -1,4 +1,5 @@
-import { S3Client } from '@aws-sdk/client-s3'
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -17,3 +18,8 @@ export const s3 = new S3Client({
         secretAccessKey: secretAccessKey,
     },
 })
+
+export const createPresignedUrlWithClient = async () => {
+    const command = new PutObjectCommand({ Bucket: bucketName, Key: 'filename' })
+    return getSignedUrl(s3, command, { expiresIn: 3600 })
+}

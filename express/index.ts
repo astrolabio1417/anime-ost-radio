@@ -14,7 +14,7 @@ import songRoutes from './src/routes/songRoutes'
 import streamRoutes from './src/routes/streamRoutes'
 import artistRoutes from './src/routes/artistRoutes'
 import cookieParser from 'cookie-parser'
-import showRoutes from './src/routes/showRotues'
+import showRoutes from './src/routes/showRoutes'
 import { authUserOrAnonymous } from './src/middlewares/authJwt'
 import errorHandlerMiddleware from './src/middlewares/errorHandlerMiddleware'
 
@@ -64,7 +64,7 @@ mongoose.connect(mongoString).then(() => {
 const listenerPeers: Set<string> = new Set()
 queue.on(QUEUE_EVENTS.ON_TIME_CHANGE, timemark => io.emit(QUEUE_EVENTS.ON_TIME_CHANGE, timemark))
 queue.on(QUEUE_EVENTS.ON_TRACK_CHANGE, track => io.emit(QUEUE_EVENTS.ON_TRACK_CHANGE, track))
-queue.on(QUEUE_EVENTS.ON_QUEUE_CHANGE, track => io.emit(QUEUE_EVENTS.ON_QUEUE_CHANGE, track))
+queue.on(QUEUE_EVENTS.ON_QUEUE_CHANGE, tracks => io.emit(QUEUE_EVENTS.ON_QUEUE_CHANGE, tracks))
 
 io.on('connection', async socket => {
     io.to(socket.id).emit(QUEUE_EVENTS.ON_QUEUE_CHANGE, await queue.queue(20))

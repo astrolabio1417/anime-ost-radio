@@ -5,7 +5,7 @@ import { authService } from '../services/authService'
 
 export const authUserOrAnonymous = async (req: Request, res: Response, next: NextFunction) => {
     const tokenFromAuth = req.headers?.authorization
-    const token = req.session?.token ?? tokenFromAuth
+    const token = req.session?.token || tokenFromAuth
 
     if (!token) {
         req.user = generateAnonymous()
@@ -18,6 +18,7 @@ export const authUserOrAnonymous = async (req: Request, res: Response, next: Nex
         const userFromToken = jwt.verify(token, process.env.JWT_SECRET) as UserJwtPayloadI
         req.user = { ...userFromToken, isAuthenticated: true, isAdmin: await authService.isUserAdmin(userFromToken.id) }
     } catch (e) {
+        console.error(e)
         req.user = generateAnonymous()
     }
 
@@ -35,6 +36,7 @@ export const isAdmin = async (req: Request, res: Response, next: NextFunction) =
         if (!req.user.isAdmin) return res.status(403).json({ message: 'Unauthorized User' })
         next()
     } catch (e) {
+        console.error(e)
         res.status(500).json({ message: e })
     }
 }

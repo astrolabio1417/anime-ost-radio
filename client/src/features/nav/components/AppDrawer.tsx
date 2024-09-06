@@ -1,4 +1,4 @@
-import { Box, SxProps, Theme } from '@mui/material'
+import { Box, Divider, SxProps, Theme } from '@mui/material'
 
 import { DRAWER_WIDTH } from '@/constants'
 import PlaylistList from '@/features/playlists/components/PlaylistList'
@@ -19,6 +19,7 @@ export default function AppDrawer(props: { sx?: SxProps<Theme> | undefined }) {
       }}
     >
       <NavList />
+      <Divider variant="middle" />
       <PlaylistList />
     </Box>
   )

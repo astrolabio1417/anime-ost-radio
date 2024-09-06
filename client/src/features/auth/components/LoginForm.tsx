@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
 import ErrorLabel from '@/components/ErrorLabel'
+import { isUserRoleAdmin } from '@/helpers'
 import { useUserPlaylists } from '@/zustand/playlist'
 import { useUser } from '@/zustand/user'
 
@@ -28,7 +29,7 @@ export default function LoginForm(props: LoginFormProps) {
     try {
       const res = await apiAuth.login(data.username, data.password)
       const { _id, roles, username } = res.data
-      useUser.setState({ id: _id, roles, username, isLoggedIn: true })
+      useUser.setState({ id: _id, roles, username, isLoggedIn: true, isAdmin: isUserRoleAdmin(roles) })
       useUserPlaylists.getState().init(_id)
       toast(`Welcome ${username}!`, { type: 'success' })
       reset()

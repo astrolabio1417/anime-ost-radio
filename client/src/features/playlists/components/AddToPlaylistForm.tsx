@@ -73,6 +73,10 @@ export default function AddToPlaylistForm(props: AddToPlaylistFormProps) {
   const { song } = props
   const { playlists, handleCheckboxChange, setFormOpen, openForm } = useAddToPlaylistForm()
 
+  function handleClose() {
+    setFormOpen(false)
+  }
+
   return (
     <Box width="100%" height="100%">
       <FormGroup>
@@ -102,8 +106,8 @@ export default function AddToPlaylistForm(props: AddToPlaylistFormProps) {
         </Button>
       </FormGroup>
 
-      <Modal open={openForm} onClose={() => setFormOpen(false)}>
-        <ModalContainer>
+      <Modal open={openForm} onClose={handleClose}>
+        <ModalContainer onClose={handleClose}>
           <Typography variant="subtitle2">Create Playlist</Typography>
           <CreatePlaylistForm />
         </ModalContainer>

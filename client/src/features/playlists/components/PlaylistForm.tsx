@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 
 import { IPlaylistDataForm } from '../types'
 
-const VisuallyHiddenInput = styled('input')({
+export const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
   clipPath: 'inset(50%)',
   height: 1,
@@ -61,11 +61,6 @@ function usePlaylistForm(props: PlaylistFormProps) {
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files) {
-      const a = URL.createObjectURL(e.target.files?.[0])
-      console.log(a)
-    }
-
     setData(prev => ({
       ...prev,
       image: {
