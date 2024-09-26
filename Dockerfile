@@ -9,20 +9,20 @@ FROM base as frontend-build
 
 COPY client .
 
-RUN npm ci --include=dev && npm run build
+RUN npm config set registry http://registry.npmjs.org/ \
+    && npm ci --include=dev && npm run build
 
-# backend build
 FROM base as express-build
 
 COPY express .
 
 RUN npm ci --include=dev && npm run build && npm prune --production
 
-# final
 FROM base as final
 
 RUN apk add --no-cache ffmpeg nginx nginx-mod-rtmp supervisor \
-    && mkdir -p /tmp/hls
+    && mkdir -p /tmp/hls \
+    && npm config set registry http://registry.npmjs.org/
 
 COPY --from=express-build /app /app
 COPY --from=frontend-build /app/dist /app/react
