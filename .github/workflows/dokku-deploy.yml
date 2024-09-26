@@ -1,4 +1,4 @@
-name: "deploy"
+name: "Deploy to Dokku Server"
 
 on:
     push:
@@ -9,7 +9,7 @@ env:
     DOMAIN: music.animeyubi.com
 
 jobs:
-    build-push-artifact:
+    deploy:
         runs-on: ubuntu-latest
         steps:
             - name: Cloning repo
@@ -34,7 +34,7 @@ jobs:
               with:
                   push: true
                   tags: ${{ github.repository }}:${{ github.sha }}
-                  build-args:
+                  build-args: |
                       DOMAIN: ${{ env.DOMAIN }}
                       SCHEME: http
 
