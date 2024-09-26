@@ -35,8 +35,8 @@ jobs:
                   push: true
                   tags: ${{ github.repository }}:${{ github.sha }}
                   build-args: |
-                      DOMAIN: ${{ env.DOMAIN }}
-                      SCHEME: http
+                      DOMAIN=${{ env.DOMAIN }}
+                      SCHEME=http
 
             - name: Push to dokku
               uses: dokku/github-action@master
