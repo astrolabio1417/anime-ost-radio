@@ -58,4 +58,6 @@ RUN mv ${CONF_PATH}/localhost.conf ${CONF_PATH}/.localhost.conf \
     # create HLS directory
     && mkdir -p /tmp/hls
 
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f ${SCHEME}://localhost/api/queue || exit 1
+
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
