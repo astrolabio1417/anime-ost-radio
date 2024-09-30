@@ -27,7 +27,7 @@ const mongoString: string | undefined = process.env.DATABASE_URL ?? ''
 const sessionKeys = process.env.SECRET_KEY?.split(',') ?? ['generate-key-1']
 const origin = process.env.ORIGINS?.split(',') ?? ['http://localhost:5173', 'http://localhost:8000']
 const autoPlay = process.env.AUTO_PLAY === 'false' ? false : true
-const port = process.env.PORT ?? 8000
+const port = 8000
 export const app: Express = express()
 
 app.use(express.urlencoded({ extended: true }))

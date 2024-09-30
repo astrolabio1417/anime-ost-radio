@@ -36,7 +36,6 @@ services:
         env_file:
             - ./express/.env
         environment:
-            - PORT=8000
             - ORIGIN=http://localhost:5173,http://localhost:8000,http://localhost:80,http://localhost
             - DATABASE_URL=mongodb://root:example@mongo:27017/?retryWrites=true&w=majority
             - JWT_SECRET=randomsecrethere

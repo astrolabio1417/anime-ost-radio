@@ -55,7 +55,6 @@ Artists
 -   BUCKET_REGION: [string] aws bucket region
 -   BUCKET_ACCESS_KEY_ID: [string] aws KEY ID
 -   BUCKET_SECRET_ACCESS_KEY: [string] aws secret ACCESS KEY
--   PORT: [number] 8000, express js port
 -   AUTO_EMPTY_TMP: [boolean] false, delete previous temporary played song files on download
 -   RTMP_URL: [url] rtmp://localhost:1935, Nginx RTMP Url
 -   AUTO_PLAY: [boolean] true, automatically stream to RTMP url
