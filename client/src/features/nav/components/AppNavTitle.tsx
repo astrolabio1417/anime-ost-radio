@@ -16,7 +16,7 @@ export default function AppNavTitle(props: AppNavTitleProps) {
       to="/"
       sx={{ textDecoration: 'none' }}
     >
-      AnimeMusic
+      AnimeRadio
     </Typography>
   )
 }
