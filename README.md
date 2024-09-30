@@ -94,11 +94,11 @@ VITE_SERVER_URL=http://localhost
 Build docker
 
 ```
-docker build --build-arg SCHEME=http --build-arg DOMAIN=localhost --build-arg -t radio-app .
+docker build --build-arg SCHEME=http --build-arg DOMAIN=localhost -t radio-app .
 ```
 
 Run docker
 
 ```
-docker run ORIGIN=http://localhost -e DATABASE_URL="mongodb+srv://url" -e JWT_SECRET=mysecret -e AUTO_EMPTY_TMP=true -p 80:80 radio-app
+docker run -e ORIGIN=http://localhost -e DATABASE_URL="mongodb+srv://url" -e JWT_SECRET=mysecret -e AUTO_EMPTY_TMP=true -p 80:80 radio-app
 ```
