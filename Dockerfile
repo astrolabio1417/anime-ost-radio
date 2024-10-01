@@ -38,7 +38,7 @@ ARG CONF_PATH=/etc/nginx/conf.d
 ARG SSL_CONF_FILE=ssl.com.conf
 ARG NO_SSL_CONF_FILE=no-ssl.com.conf
 
-RUN apk add --no-cache nginx nginx-mod-rtmp ffmpeg
+RUN apk add --no-cache nginx nginx-mod-rtmp ffmpeg curl
 
 # disable nginx default config
 RUN mv ${CONF_PATH}/localhost.conf ${CONF_PATH}/.localhost.conf \
