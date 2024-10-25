@@ -84,7 +84,7 @@ class Queue extends EventEmitter {
         this.currentTrack = nextTrack?.id?.toString() ?? ''
 
         if (!nextTrack) {
-            console.log('--- no more tracks, resetting played flags ---')
+            console.log('--- no more tracks, rotating is 3 secs ---')
             await SongModel.updateMany({ played: true }, { $set: { played: false } })
             await sleep(3000)
             return this.rotateTrack()
@@ -92,7 +92,12 @@ class Queue extends EventEmitter {
 
         this.emit(QUEUE_EVENTS.ON_TRACK_CHANGE, nextTrack)
         this.emit(QUEUE_EVENTS.ON_QUEUE_CHANGE, await this.queue(20))
-        if (!nextTrack.musicUrl) throw `No music url for ${nextTrack.name} by ${nextTrack.artist} #${nextTrack._id}`
+
+        if (!nextTrack.musicUrl) {
+            console.error('--- no music url, rotating is 3 secs ---')
+            await sleep(3000)
+            return this.rotateTrack()
+        }
 
         return nextTrack
     }
@@ -128,7 +133,7 @@ class Queue extends EventEmitter {
         const track = await this.getCurrentTrack()
 
         if (!track?.musicUrl) {
-            console.log('--- no track to play, rotating is 5 secs ---')
+            console.log('--- no track to play, rotating in 5 secs ---')
             await sleep(5000)
             await this.rotateTrack()
             await this.startBroadcast()
