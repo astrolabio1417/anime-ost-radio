@@ -34,9 +34,12 @@ jobs:
               with:
                   push: true
                   tags: ${{ github.repository }}:${{ github.sha }}
+                  platforms: linux/arm64/v8 # oracle instance, linux/amd64
                   build-args: |
                       DOMAIN=${{ env.DOMAIN }}
                       SCHEME=http
+                  cache-from: type=registry,ref=user/app:buildcache
+                  cache-to: type=registry,ref=user/app:buildcache,mode=max
 
             - name: Push to dokku
               uses: dokku/github-action@master
