@@ -18,9 +18,13 @@ async function downloadRange(output: string, url: string, range: IRange): Promis
     if (fs.existsSync(output)) return output
 
     const headers = { referer: url, Range: `bytes=${range[0]}-${range[1] ?? ''}`, 'User-Agent': USER_AGENT }
+    const controller = new AbortController()
+    const timeout = 120000
+    const id = setTimeout(() => controller.abort(), timeout)
 
     try {
-        const response = await fetch(url, { headers })
+        const response = await fetch(url, { headers, signal: controller.signal })
+        clearTimeout(id)
         const writer = fs.createWriteStream(tmpOutput, { flags: 'wx' })
         await promisify(Stream.pipeline)(response.body, writer)
         if (!response?.body) return null
@@ -29,6 +33,7 @@ async function downloadRange(output: string, url: string, range: IRange): Promis
     } catch (e) {
         console.error('Range Downloader error: ', e)
         fs.existsSync(tmpOutput) && fs.unlinkSync(tmpOutput)
+        clearTimeout(id)
         return null
     }
 }
